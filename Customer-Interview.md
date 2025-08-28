@@ -4,9 +4,7 @@ This is a space for notes taken at the first interview of Benjamin Hippo, Esq.
 ## Phil's notes
 Copied from notes taken in class on Tuesday, 2025.08.26
 
----
-
-==Customer Statements==
+### Customer Statements
 - Name: Ben
 - Idea: Lending assets
 	- Tools, CDs, equipment
@@ -32,9 +30,7 @@ Copied from notes taken in class on Tuesday, 2025.08.26
 		- My assets
 	- Search for other's assets
 
----
-
-==Customer Interview==
+### Customer Interview
 - Globalized vs User set asset valuation - Globalized
 - Centralized Bank or decentralized
 - Social score based on credit and reliability
@@ -84,19 +80,15 @@ Copied from notes taken in class on Tuesday, 2025.08.26
 - Leader board?
 	- For popular items
 		- By attribute - location
-	- Lenders, Borrowers
+	- Lenders, Borrowers 
 
---- 
-
-==Customer Priorities==
+### Customer Priorities
 1. Ability to prioritize assets
 2. Preventative maintenance
 3. Item tracking
 	1. Who has it
 	2. Where it is
 	3. Condition
-
----
 
 ## Logan's Notes
 
