@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<form class="account_form">
+	<div class="form_section name_entry">
+		<div class="field fname">
+			<input id="fname" required></><br>
+			<label for="fname">First Name</>
+		</div>
+		<div class="field lname">
+			<input id="lname" required></><br>
+			<label for="email">Last Name</>
+		</div>
+	</div>
+	<div class="seperator"></div>
+	<div class="form_section contact_entry">
+		<div class="field email">
+			<input id="email" required></><br>
+			<label for="email">Email Address</>
+		</div>
+		<div class="field phone">
+			<input id="phone"></><br>
+			<label for="phone">Phone Number</>
+		</div>	
+	</div>
+	<div class=seperator></div>
+	<div class="form_section password_entry">
+		<div class="field password">
+			<input id="password" type="password" required></><br>
+			<label for="password">Password</>
+		</div>
+		<div class="field password">
+			<input id="confirm_password" type="password" required></><br>
+			<label for="confirm_password">Confirm Password</>
+		</div>	
+	</div>
+	<div class="form_section finalize">
+		<label><input class="terms" id="terms" type="checkbox" required> I agree to the terms and conditions</input></label>
+		<input class="submit" type="button" value="Create Account"></input>
+	</div>
+</form>
+</body>
+</html>

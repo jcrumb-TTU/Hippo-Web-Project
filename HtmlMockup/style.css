@@ -1,0 +1,58 @@
+.account_form{
+	display: flex;
+	flex-direction: column;
+	border-collapse: collapse;
+	/*border-spacing: 1em;*/
+}
+
+.form_section{
+	display: flex;
+	width: 100%;
+}
+
+.seperator{
+	width: 100%;
+	border-bottom: solid thin black;
+}
+
+.field
+{
+	width: 50%;
+	flex-grow: 1;
+	display: table-cell;
+	padding: 1em;
+}
+
+.field input{
+	width: 100%;
+}
+
+
+.field.email{
+	width: 75%;
+	flex-grow: 1.25;
+}
+
+.field.phone{
+	width: 25%;
+	flex-grow: 0.75;
+}
+
+.form_section.finalize{
+	width: 50%;
+	justify-content: start;
+	gap: 1em;
+}
+
+.finalize input[type=checkbox]{
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.finalize label{
+	vertical-align: middle;
+	flex-grow: 0;
+}
+.finalize .submit{
+	flex-grow: 0;
+}
