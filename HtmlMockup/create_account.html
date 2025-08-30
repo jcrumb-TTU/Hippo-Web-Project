@@ -1,46 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="css/create_account.css">
 </head>
 <body>
-<form class="account_form">
+<form id=register class="account_form" autocomplete=on>
 	<div class="form_section name_entry">
 		<div class="field fname">
-			<input id="fname" required></><br>
+			<input id="fname" autocomplete="given-name" required></><br>
 			<label for="fname">First Name</>
 		</div>
 		<div class="field lname">
-			<input id="lname" required></><br>
-			<label for="email">Last Name</>
+			<input id="lname" autocomplete="family-name" required></><br>
+			<label for="lname">Last Name</>
 		</div>
 	</div>
 	<div class="seperator"></div>
 	<div class="form_section contact_entry">
 		<div class="field email">
-			<input id="email" required></><br>
+			<input type=email id="email" autocomplete="email" required></><br>
 			<label for="email">Email Address</>
 		</div>
 		<div class="field phone">
-			<input id="phone"></><br>
+			<input type=phone id="phone" autocomplete="tel-national" pattern="([0-9]{10})|(\([0-9]{3}\) ?[0-9]{3} ?-? ?[0-9]{4})"></><br>
 			<label for="phone">Phone Number</>
 		</div>	
 	</div>
 	<div class=seperator></div>
 	<div class="form_section password_entry">
 		<div class="field password">
-			<input id="password" type="password" required></><br>
+			<input id="password" type="password" autocomplete="new-password" required></><br>
 			<label for="password">Password</>
 		</div>
 		<div class="field password">
-			<input id="confirm_password" type="password" required></><br>
+			<input id="confirm_password" type="password" autocomplete="new-password" required></><br>
 			<label for="confirm_password">Confirm Password</>
 		</div>	
 	</div>
 	<div class=seperator></div>
 	<div class="form_section finalize">
 		<label><input class="terms" id="terms" type="checkbox" required> I agree to the terms and conditions</input></label>
-		<input class="submit" type="button" value="Create Account"></input>
+		<input class="submit" type="submit" value="Create Account"></input>
 	</div>
 </form>
 </body>
