@@ -2,8 +2,10 @@
 <html>
 <head>
 	<link rel="stylesheet" href="css/create_account.css">
+	<script src="script/util.js" type="text/javascript"></script>
 </head>
-<body>
+<!--The onload attribute calls a function that sets the maximum accepted value of the birthday field to today's date.--!>
+<body onload="document.getElementById('bday').setAttribute('max', today());">
 <div class=wrong_place><label>Existing user? <a href="login.html">login</a></label></div>
 <div class="seperator"></div>
 <!-- TODO: Add action=endpoint url to form element.--!>
@@ -16,6 +18,10 @@
 		<div class="field lname">
 			<input id="lname" autocomplete="family-name" required></><br>
 			<label for="lname">Last Name</>
+		</div>
+		<div class="field birthday">
+			<input id="bday" type=date autocomplete="birthday" value="2000-01-01" required></><br>
+			<label for="bday">Birthday</label>
 		</div>
 	</div>
 	<div class="seperator"></div>
