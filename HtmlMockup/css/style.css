@@ -1,0 +1,57 @@
+/* Styling used for elements present on every webpage (i.e. the header at the top of the page)*/
+header{
+	display: flex;
+	flex-direction: row;
+	border: black thin solid;
+	padding: 0.5em;
+	gap: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+header .query{
+	width: stretch;
+	flex-grow: 0.75;
+	height: 100%;
+
+}
+
+header .query form{
+	display: flex;
+	flex-direction: row;
+	gap: 0.5em;
+	width: 100%;
+	height: 100%;
+	margin-bottom: 0em;
+}
+
+header .query input{
+	height: stretch;
+	flex-grow: 1.8;
+}
+
+header .query select{
+	height: stretch;
+	flex-grow: 0.15;
+}
+
+header .query input[type="submit"]{
+	height: stretch;
+	flex-grow: 0.05;
+}
+
+header a{
+	flex-grow: 0.25;
+}
+
+/* Adds a horizontal line across the width of the page. Used to seperate form sections. */
+.seperator{
+	width: 100%;
+	border-bottom: solid thin black;
+}
+
+.vseperator{
+	height: stretch;
+	border-right: solid thin black;
+}
+
+
