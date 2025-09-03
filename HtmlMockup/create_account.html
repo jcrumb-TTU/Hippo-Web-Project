@@ -4,8 +4,10 @@
 	<link rel="stylesheet" href="css/create_account.css">
 </head>
 <body>
-<form class="account_form" method="post" action="/register">
-<form id=register class="account_form" autocomplete=on>
+<div class=wrong_place><label>Existing user? <a href="login.html">login</a></label></div>
+<div class="seperator"></div>
+<!-- TODO: Add action=endpoint url to form element.--!>
+<form id=register class="account_form" method="post" action="/register" autocomplete=on>
 	<div class="form_section name_entry">
 		<div class="field fname">
 			<input id="fname" autocomplete="given-name" required></><br>
