@@ -1,0 +1,16 @@
+.person{
+	display: flex;
+	flex-direction: column;
+}
+.info_group{
+	border: black thin solid;
+}
+.property{
+	display: flex;
+	flex-direction: column;
+	padding:0.5em;
+	row-gap: 0.5em;
+}
+.property .edit_button{
+	float: right;
+}
