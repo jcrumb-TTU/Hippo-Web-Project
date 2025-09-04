@@ -1,0 +1,5 @@
+1- Download MongoDB Database Tools:
+   https://www.mongodb.com/try/download/database-tools
+
+2- Run this command to restore the database:
+   mongorestore --db=Hippo-Exchange ./dump/Hippo-Exchange
