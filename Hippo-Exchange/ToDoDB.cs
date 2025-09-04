@@ -5,5 +5,5 @@ class TodoDb : DbContext
     public TodoDb(DbContextOptions<TodoDb> options)
         : base(options) { }
 
-    public DbSet<ToDo> Todos => Set<ToDo>();
+    public DbSet<Todo> Todos => Set<Todo>();
 }
