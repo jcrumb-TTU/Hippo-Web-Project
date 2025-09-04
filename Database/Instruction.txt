@@ -1,4 +1,0 @@
-1- Download "MongoDB Command Line Database Tools Download".
- a- https://www.mongodb.com/try/download/database-tools
-
-2- Run this in terminal: mongorestore --db=Hippo-Exchange ./dump/Hippo-Exchange
