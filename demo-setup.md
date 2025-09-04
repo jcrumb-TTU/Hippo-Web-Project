@@ -1,4 +1,4 @@
-Demo Description
+# Demo Description
 This demo will serve the html files in the HtmlMockup folder and print data sent to the /api/register endpoint to the console. This entails configuring software in the guest os as well as changing the configuration for the VM in the host os.
 
 # Setup Steps
