@@ -1,6 +1,0 @@
-@Hippo_Exchange_HostAddress = http://localhost:5257
-
-GET {{Hippo_Exchange_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
