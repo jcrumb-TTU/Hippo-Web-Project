@@ -24,13 +24,28 @@ This demo will serve the html files in the HtmlMockup folder and print data sent
   - To install, follow the guide [here](https://learn.microsoft.com/en-us/dotnet/core/install/linux-scripted-manual) to download and run the dotnet install script.
   - Then execute `echo PATH=$PATH:~/.dotnet/ >> .bashrc` in a terminal to add it to your PATH.
 
-### NGINX Setup
+## Repository Folder Setup
+To allow NGINX to access the html files, we need to move them outside of our home directory due to its permissions. To do this, we are going to setup a public folder that all users on the VM can access.
+1) Open a terminal Create the directory `/home/public/vboxuser` by running `sudo mkdir -p /home/public/vboxuser`
+2) Ensure the permissions on the public folder allow other users to read it by running `chmod a+rX /home/public`
+3) Set the owner of the vboxuser folder to the vboxuser user by running `sudo chown vboxuser:vboxuser /home/public/vboxuser`
+4) If you cloned this repository earlier, move it into the new folder. Otherwise, `cd` into the /home/public/vboxuser folder and clone the repository there.
+
+## NGINX Setup
   - NOTE: I am logged in to the VM from the host via SSH. These steps can also be done using the VM's terminal.
-1) If you haven't already, run `git clone https://github.com/jcrumb-TTU/Hippo-Web-Project.git` to download this repo to your machine.
-2) `cd` into the Repository Folder.
-3) Open ./nginx_config/etc/nginx/sites-available/default in a text editor, and find the root setting in the server configuration. Change the path from /srv/ to the absolute path of the Repository's HtmlMockup folder.
-  - The absolute path starts with /, not ./ or even ~/.
-<img width="2880" height="1920" alt="image" src="https://github.com/user-attachments/assets/7a9990a5-b98c-4a35-8f34-42e1ba3517df" />
-5) Replace the appropriate files in the NGINX Config directory with ./nginx_config/etc/nginx/sites-available/default and ./nginx_config/etc/nginx/nginx.conf respectively.
+1) `cd` into the Repository Folder.
+2) Open ./nginx_config/etc/nginx/sites-available/default in a text editor, and find the root setting in the server configuration. Change the path from /srv/ to /home/public/vboxuser/Hippo-Web-Project/HtmlMockup.
+<img width="1295" height="946" alt="image" src="https://github.com/user-attachments/assets/ab13e379-d85e-4162-ae9e-e1d83b7a23b1" />
+3) Replace the appropriate files in the NGINX Config directory with ./nginx_config/etc/nginx/sites-available/default and ./nginx_config/etc/nginx/nginx.conf respectively.
   - This can be done by running `sudo mv ./nginx_config/etc/nginx/sites-available/default /etc/nginx/sites-available/default` and `sudo mv ./nginx_config/etc/nginx/nginx.conf /etc/nginx/nginx.conf`.
-6) Start nginx by running `sudo systemctl start nginx.service`
+4) Start nginx by running `sudo systemctl start nginx.service`
+
+## Backend Setup
+1) `cd` into the Hippo-Exchange subdirectory of the Repository Folder. This should be `/home/public/vboxuser/Hippo-Web-Project/Hippo-Exchange`
+2) Execute `dotnet run`. Leave the terminal open.
+
+## Testing the Demo
+1) Open a web browser on the host and navigate to 127.0.0.1:VBoxPort/create_account.html
+  - VBoxPort is the port selected for the host when setting up port forwarding
+2) Fill out the account form with valid information. and press submit.
+3) Look at the Terminal Running the backend. You should see the information you inputted displayed on the terminal.
