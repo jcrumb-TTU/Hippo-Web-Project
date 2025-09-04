@@ -15,13 +15,6 @@
 	flex-shrink: 1;
 	justify-content: left;
 }
-
-/* Adds a horizontal line across the width of the page. Used to seperate form sections. */
-.seperator{
-	width: 100%;
-	border-bottom: solid thin black;
-}
-
 /* Default width & growth settings for fields. */
 .field
 {
