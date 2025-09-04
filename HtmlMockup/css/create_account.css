@@ -39,9 +39,14 @@
 
 /* CSS used to adjust the form for vertical displays. 9/16 is a common aspect ratio for phone screens. */
 @media (max-aspect-ratio: 9/16){
+	.wrong_place{
+		width: stretch;
+		text-align: center;
+	}
 	.form_section{
 		display: flex;
 		flex-direction: column;
+		align-items: center;
 	}
 	.field{
 		width: stretch;
