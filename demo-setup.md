@@ -15,4 +15,12 @@ This demo will serve the html files in the HtmlMockup folder and print data sent
 
 4) Select "Ok" in the Port Forwarding and Settings Dialogs to save your changes.
 
+## Additional Software for Guest VM
+### Git
+  - Allows you to download this repo directly into the machine. To install, open a terminal and run `sudo apt install git`.
+### .Net 8
+  - You need to install .Net to the VM so you can run the demo backend. A newer version might work, but I used version 8 so its what I'm putting here.
+  - To install, follow the guide [here](https://learn.microsoft.com/en-us/dotnet/core/install/linux-scripted-manual) to download and run the dotnet install script.
+  - Then execute `echo PATH=$PATH:~/.dotnet/ >> .bashrc` in a terminal to add it to your PATH.
+
    
