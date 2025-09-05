@@ -2,11 +2,14 @@
 {
 REPO_NAME="Hippo-Web-Project"
 REPO_OWNER="jcrumb-TTU"
+#First commit id
+REPO_ID="c5bfa786dc1ba3303d1a0fec4efbd62bb8f61ecd"
 REPO_URL="https://github.com/$REPO_OWNER/$REPO_NAME.git"
-SCRIPT_PATH=$(realpath "$0")
-SCRIPT_DIR=$(realpath $(dirname "$SCRIPT_PATH"))
+SCRIPT_PATH=$(realpath -m "$0")
+SCRIPT_DIR=$(realpath -m $(dirname "$SCRIPT_PATH"))
 USER=$(whoami)
 PUB_PATH="/home/public/$USER"
+DEST_PATH=$(realpath -m "$PUB_PATH/$REPO_NAME");
 RELOAD_PATH=0
 # Forces bash to load the entire file in case it is overwritten by the git clone later.
 installed(){
@@ -30,7 +33,7 @@ is_repo(){
 	if [ $STATUS -ne 0 ]
 	then
 		return 1;
-	elif [[ "$(git config --get remote.origin.url)" == *$REPO_OWNER/$REPO_NAME.git  ]];
+	elif [[ "$(git rev-list --parents HEAD | tail -1)" == $REPO_ID  ]];
 		then STATUS=0;
 		else STATUS=1; 
 	fi
@@ -39,12 +42,11 @@ is_repo(){
 }
 
 install_repo(){
-	dest_path=$(realpath "$PUB_PATH/$REPO_NAME");
-	# Check if dest_path = SCRIPT DIR. If it does, we skip to 'cd "$dest_path"'.
-	if ! [ "$SCRIPT_DIR" = "$dest_path" ]
+	# Check if DEST_PATH = SCRIPT DIR. If it does, we skip to 'cd "$DEST_PATH"'.
+	if ! [ "$SCRIPT_DIR" = "$DEST_PATH" ]
 	then
 		# Get info on the script dir and the target dir.
-		is_repo "$dest_path"
+		is_repo "$DEST_PATH"
 		dd_status=$?
 		is_repo "$SCRIPT_DIR"
 		sd_status=$?
@@ -56,11 +58,11 @@ install_repo(){
 			then
 				conflict_path="$PUB_PATH/conflicts/$(date +%m.%d.%y.%H:%m:%S)"
 				mkdir -p "$conflict_path";
-				mv "$dest_path" "$conflict_path/"
+				mv "$DEST_PATH" "$conflict_path/"
 			fi
 			if [ $sd_status -eq 0 ]
 			then
-				mv "$SCRIPT_DIR" "$dest_path"
+				mv "$SCRIPT_DIR" "$DEST_PATH"
 			else
 				cd "$PUB_PATH"
 				if ! git clone "$REPO_URL"
@@ -72,36 +74,75 @@ install_repo(){
 			fi
 		fi
 	fi
-	cd "$dest_path"
+	cd "$DEST_PATH"
 	git pull
 	return 0
 }
-echo "Ensuring all software is installed..."
 
-# Look for dotnet install. which exits 1 if not present.
-if ! installed dotnet
-then
-	cd ~/
+restore_db(){
+	#Ensure mongod is running
+	sudo systemctl start mongod
+	#Restore the database
+	sudo mongorestore "$DEST_PATH/Database/dump/"
+}
+
+run_dotnet_script(){
 	# Install dotnet if not present.
 	if ! wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
 	then
 		echo "Failed to download dotnet install script."
 	fi
 	chmod u+x "./dotnet-install.sh"
-	if ./dotnet-install.sh; then echo 'export PATH=$PATH:~/.dotnet/' >> .bashrc; RELOAD_PATH=1; fi
-	cd - &>/dev/null
+	if ./dotnet-install.sh; then echo 'export PATH=$PATH:~/.dotnet/' >> .bashrc; fi
+}
+
+check_installs(){
+# Make array for apt packages to get.
+declare -a apt_deps_needed
+# Look for dotnet install. which exits 1 if not present.
+if ! installed dotnet
+then
+	RELOAD_PATH=1
+	echo "Starting dotnet install in background..."
+	run_dotnet_script &
 else
 	echo "dotnet found"
 fi
 
 if ! installed git
 then
-	echo "Installing git with apt. Escalating privilidges..."
-	sudo apt install git
+	apt_deps_needed+=("git")
+	#sudo apt -y install git
 else
 	echo "git is installed."
 fi
+if ! installed mongod || ! installed mongorestore
+then
+	if [ $(dpkg -l | grep -c "mongodb-org ") -ne 0 ]
+	then
+		echo "mongodb-org installed, but not all commands are present."
+		exit 1;
+	fi
+	echo "Queueing install of mongodb-org apt package..."
+	apt_deps_needed+=("mongodb-org")
+else
+	echo "mongodb & its tools are installed."
+fi
+if [ ${#apt_deps_needed[@]} -gt 0 ]
+then
+	echo "Installing dependencies with apt. Escalating privilidges..."
+	sudo apt -y install ${apt_deps_needed[@]}
+fi
+if [ $RELOAD_PATH -eq 1 ]
+then
+	echo "Waiting for dotnet install..."
+	wait
+	echo "Dotnet install finished."
+fi
+}
 
+echo "Ensuring all software is installed..."
+check_installs
 echo "Making public dir in '/home/public'..."
 create_public
 echo "Setting up repository there..."
@@ -110,6 +151,8 @@ then echo "Install failed. Exitting..."; exit; fi;
 echo "Configuring nginx..."
 sudo systemctl stop nginx
 sudo cp -r ./nginx_config/* /etc/nginx/
+echo "Restoring mongodb..."
+restore_db
 if [ $RELOAD_PATH -ne 0 ]
 then
 	echo "REMINDER: You must restart your terminal before running dotnet."
