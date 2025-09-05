@@ -15,6 +15,13 @@ This demo will serve the html files in the HtmlMockup folder and print data sent
 
 4) Select "Ok" in the Port Forwarding and Settings Dialogs to save your changes.
 
+## Automatic Setup
+The remaining setup steps (Additional Software, making the public directory, and configuring nginx) can be completed by
+1) Putting the repository in the VM
+2) Navigating to the repository's directory in the terminal, then running `./setup_env.sh`
+
+## Manual Setup
+Do this if you need more fine-grained control over the setup process.
 ## Additional Software for Guest VM
 ### Git
 - Allows you to download this repo directly into the machine. To install, open a terminal and run `sudo apt install git`.
@@ -34,10 +41,10 @@ To allow NGINX to access the html files, we need to move them outside of our hom
 ## NGINX Setup
 - NOTE: I am logged in to the VM from the host via SSH. These steps can also be done using the VM's terminal.
 1) `cd` into the Repository Folder.
-2) Open ./nginx_config/etc/nginx/sites-available/default in a text editor, and find the root setting in the server configuration. Change the path from /srv/ to /home/public/vboxuser/Hippo-Web-Project/HtmlMockup.
+2) Open ./nginx_config/etc/nginx/sites-available/default in a text editor, and find the root setting in the server configuration. Change the path from /srv/ to /home/public/vboxuser/Hippo-Web-Project/HtmlMockup. Do not forget the ';' after the path.
 <img width="1295" height="946" alt="image" src="https://github.com/user-attachments/assets/ab13e379-d85e-4162-ae9e-e1d83b7a23b1" />
 3) Replace the appropriate files in the NGINX Config directory with ./nginx_config/etc/nginx/sites-available/default and ./nginx_config/etc/nginx/nginx.conf respectively.
-    - This can be done by running `sudo mv ./nginx_config/etc/nginx/sites-available/default /etc/nginx/sites-available/default` and `sudo mv ./nginx_config/etc/nginx/nginx.conf /etc/nginx/nginx.conf`.
+    - This can be done by running `sudo mv ./nginx_config/sites-available/default /etc/nginx/sites-available/default` and `sudo mv ./nginx_config/nginx.conf /etc/nginx/nginx.conf`.
 4) Start nginx by running `sudo systemctl start nginx.service`
 
 ## Backend Setup
