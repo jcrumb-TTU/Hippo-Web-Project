@@ -8,7 +8,7 @@
 	<title>Create Account</title>
 </head>
 <!--The onload attribute calls a function that sets the maximum accepted value of the birthday field to today's date.--!>
-<body onload="document.getElementById('bday').setAttribute('max', today());">
+<body onload="document.getElementById('bday').setAttribute('max', today().slice(0,-1));">
 <div class=wrong_place><label>Existing user? <a href="login.html">login</a></label></div>
 <div class="seperator"></div>
 <!-- TODO: Add action=endpoint url to form element.--!>
@@ -50,9 +50,9 @@
 		</div>	
 	</div>
 	<div class=seperator></div>
-	<div class="form_section finalize">
+	<div class="form_section finalize field">
 		<label><input class="terms" name="terms" id="terms" type="checkbox" required> I agree to the terms and conditions</input></label>
-		<button class="submit" type="submit" value="Create Account"></button>
+		<input class="submit" type="submit" value="Create Account"></input>
 	</div>
 </form>
 </body>

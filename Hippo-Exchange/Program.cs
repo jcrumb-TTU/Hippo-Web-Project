@@ -32,7 +32,7 @@ app.MapPost("/api/register", (HttpRequest data) => {
 	foreach(KeyValuePair<String,StringValues> item in form){
 		Console.WriteLine($"{item.Key}: {item.Value}");
 	}
-    return Results.Ok(new { message = "Hello from Minimal API!" });
+    return Results.Ok(new { message = "Account creation form recieved!" });
 });
 
 todoItems.MapGet("/", async (TodoDb db) =>
