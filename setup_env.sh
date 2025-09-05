@@ -40,32 +40,36 @@ is_repo(){
 
 install_repo(){
 	dest_path=$(realpath "$PUB_PATH/$REPO_NAME");
-	# Get info on the script dir and the 
-	is_repo "$dest_path"
-	dd_status=$?
-	is_repo "$SCRIPT_DIR"
-	sd_status=$?
-	echo "Destination Status: $dd_status"
-	echo "Script Dir Status: $sd_status"
-	if [ $dd_status -gt 0 ]
+	# Check if dest_path = SCRIPT DIR. If it does, we skip to 'cd "$dest_path"'.
+	if ! [ "$SCRIPT_DIR" = "$dest_path" ]
 	then
-		if [ $dd_status -eq 1 ]
+		# Get info on the script dir and the target dir.
+		is_repo "$dest_path"
+		dd_status=$?
+		is_repo "$SCRIPT_DIR"
+		sd_status=$?
+		#echo "Destination Status: $dd_status"
+		#echo "Script Dir Status: $sd_status"
+		if [ $dd_status -gt 0 ]
 		then
-			conflict_path="$PUB_PATH/conflicts/$(date +%m.%d.%y.%H:%m:%S)"
-			mkdir -p "$conflict_path";
-			mv "$dest_path" "$conflict_path/"
-		fi
-		if [ $sd_status -eq 0 ]
-		then
-			mv "$SCRIPT_DIR" "$dest_path"
-		else
-			cd "$PUB_PATH"
-			if ! git clone "$REPO_URL"
+			if [ $dd_status -eq 1 ]
 			then
-				return 1
+				conflict_path="$PUB_PATH/conflicts/$(date +%m.%d.%y.%H:%m:%S)"
+				mkdir -p "$conflict_path";
+				mv "$dest_path" "$conflict_path/"
 			fi
-			cd "$REPO_NAME"
-			return 0
+			if [ $sd_status -eq 0 ]
+			then
+				mv "$SCRIPT_DIR" "$dest_path"
+			else
+				cd "$PUB_PATH"
+				if ! git clone "$REPO_URL"
+				then
+					return 1
+				fi
+				cd "$REPO_NAME"
+				return 0
+			fi
 		fi
 	fi
 	cd "$dest_path"
