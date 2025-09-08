@@ -7,11 +7,11 @@
 	<link rel="stylesheet" href="css/create_account.css">
 	<title>Create Account</title>
 </head>
-<!--The onload attribute calls a function that sets the maximum accepted value of the birthday field to today's date.--!>
+<!--The onload attribute calls a function that sets the maximum accepted value of the birthday field to today's date. --!>
 <body onload="document.getElementById('bday').setAttribute('max', today().slice(0,-1));">
 <div class=wrong_place><label>Existing user? <a href="login.html">login</a></label></div>
 <div class="seperator"></div>
-<!-- TODO: Add action=endpoint url to form element.--!>
+<!-- TODO: Add action=endpoint url to form element. --!>
 <form id=register class="account_form" action="/api/register" method="POST" autocomplete=on>
 	<div class="form_section name_entry">
 		<div class="field fname">

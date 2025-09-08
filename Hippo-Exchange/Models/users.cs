@@ -19,17 +19,16 @@ namespace Hippo_Exchange.Models
         public string? strEmail { get; set; }
 		[BsonElement("phoneNumber")]
         public string? strPhoneNumber { get; set; }
-		[BsonElement("PasswordHash")]
+	        [BsonElement("PasswordHash")]
         public string? strPasswordHash { get; set; }
-
+	        [BsonElement("Birthday")]
+	public string? strBirthday { get; set;}
         public void SetPassword(string strPassword)
         {
             if (string.IsNullOrWhiteSpace(strPassword))
                 throw new ArgumentException("Password must not be empty.", nameof(strPassword));
-
             strPasswordHash = Argon2.Hash(strPassword);
         }
-
     }
 }
 
