@@ -7,7 +7,6 @@ using Hippo_Exchange.Models;
 using SampleDB;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 
 //For CORS
@@ -27,24 +26,25 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 app.UseCors(MyAllowSpecificOrigins);
-app.UseAntiforgery();
 var todoItems = app.MapGroup("/todoitems");
 
-app.MapGet("/api/search", () => {
-    return Results.Ok(new { message = "Hello from Minimal API!" });
+app.MapGet("/api/search/", () => {
+    //return Results.Ok(new { message = "Hello from Minimal API!" });
+    return Results.Json(new { wrench = { desc = "A wrench used to do things!", properties = {size = "50in"}}; book = { desc = "A cool book!", properties = {size = "12in"}}}, );
 });
 
 app.MapPost("/api/register", (HttpRequest formHeader) => {
 	IFormCollection form = formHeader.Form;
-	AccountManager.UserValidator data = new AccountManager.UserValidator();
-        form.TryGetValue("fname", data.fname);
-        form.TryGetValue("lname", data.lname); 
-        form.TryGetValue("bday", data.bday);
-        form.TryGetValue("email", data.email);
-	form.TryGetValue("phone", data.phone);
-	form.TryGetValue("password", data.password);
-	form.TryGetValue("confirm_password", data.confirm_password);
-	form.TryGetValue("terms", data.terms);
+	AccountManager.UserValidator data = AccountManager.UserValidator.FromForm(form);
+        /*
+	if(form.TryGetValue("fname", out field)) data.fname = field.ToString(); else Console.WriteLine("First Name field is missing!");
+        if(form.TryGetValue("lname", out field)) data.lname = field.ToString(); else Console.WriteLine("Last Name field is missing!");
+        if(form.TryGetValue("bday", out field)) data.bday = field.ToString(); else Console.WriteLine("Birthday field is missing!");
+        if(form.TryGetValue("email", out field)) data.email = field.ToString(); else Console.WriteLine("Email field is missing!");
+	if(form.TryGetValue("phone", out field)) data.phone = field.ToString(); else Console.WriteLine("Phone field is missing!"); 
+	if(form.TryGetValue("password", out field)) data.password = field.ToString(); else Console.WriteLine("Password field is missing!");
+	if(form.TryGetValue("confirm_password", out field)) data.confirm_password = field.ToString(); else Console.WriteLine("Confirm Password field is missing!");
+	if(form.TryGetValue("terms", out field)) data.terms = field.ToString(); else Console.WriteLine("Terms field is missing!");
 /*	//Console.WriteLine($"Got Post with {form.Count} fields!");
 	foreach(KeyValuePair<String,StringValues> item in form){
 		Console.WriteLine($"{item.Key}: {item.Value}");
@@ -52,14 +52,16 @@ app.MapPost("/api/register", (HttpRequest formHeader) => {
 */
 	if(data.enroll()){
 		Console.WriteLine("Account Validated!");
-	    return Results.Ok(new { message = "Account creation form recieved!" });
+	    return Results.Ok(new { message = "Account creation form accepted!" });
 	}
 	else{
 		
+	
+		//Console.WriteLine("Account had bad info!");
+		//Console.WriteLine(data.Problems);
+		//Console.WriteLine(JsonSerializer.Serialize(data));
+		return data.Problems;
 	}
-		Console.WriteLine("Account had bad info!");
-		Console.Write(JsonSerializer.Serialize(data));
-	    return Results.Ok(new { message = "Account creation form recieved!" });
 });
 
 /*

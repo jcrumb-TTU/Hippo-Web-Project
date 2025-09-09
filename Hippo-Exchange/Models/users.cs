@@ -27,7 +27,7 @@ namespace Hippo_Exchange.Models
         {
             if (string.IsNullOrWhiteSpace(strPassword))
                 throw new ArgumentException("Password must not be empty.", nameof(strPassword));
-            strPasswordHash = Argon2.Hash(strPassword);
+            this.strPasswordHash = Argon2.Hash(strPassword);
         }
     }
 }
