@@ -2,4 +2,5 @@
 Created Wednesday 2025.08.27
 ## Trello
 https://trello.com/invite/b/68af52a8e88fca725dba10b9/ATTI04d485815f79c171fda9f48eb96f1e9b6191ABEC/webdev-team
-
+## Miro
+https://miro.com/welcomeonboard/U1YrTS9kUTFlc3FnMXp5OGZQRGh1cHgvZTJNQThKTUhaNkU4WjhrdFJmajQ3Nzc4OFZ3NmVLanBMN1Q5ZTV5MU51K013L0s5bXVDMTRRZitVTWhOejZydXdLQ2RSVVZKSUYwbFl0NGQrandhRUk4UU9LZURuVGJOaWI4OVlyN0F0R2lncW1vRmFBVnlLcVJzTmdFdlNRPT0hdjE=?share_link_id=683111729102

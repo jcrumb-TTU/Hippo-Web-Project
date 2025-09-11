@@ -11,17 +11,11 @@
 /* Groups related entry fields together. (i.e. First and Last name.)*/
 .form_section{
 	display: flex;
+	flex-direction: row;
 	width: 100%;
 	flex-shrink: 1;
 	justify-content: left;
 }
-
-/* Adds a horizontal line across the width of the page. Used to seperate form sections. */
-.seperator{
-	width: 100%;
-	border-bottom: solid thin black;
-}
-
 /* Default width & growth settings for fields. */
 .field
 {
@@ -32,7 +26,7 @@
 }
 
 /* Ensures inputs take up the entire width of their field. */
-.field input{
+.field input:not(input[type="checkbox"]){
 	width: 100%;
 }
 
@@ -52,16 +46,16 @@
 		width: stretch;
 	}
 	.finalize label,.submit{
-		width: 100%;
+		width: stretch;
 	}
 }
 
 /* CSS used to adjust the form for horizontal displays. */
 @media (min-aspect-ratio: 9/16){
 	.form_section.finalize{
+		display: flex;
 		width: 50%;
 		justify-content: start;
-		gap: 1em;
 	}
 	.field.email{
 		width: 75%;
@@ -74,15 +68,21 @@
 	}
 	.finalize input[type=checkbox]{
 		display: inline-block;
-		vertical-align: middle;
+		vertical-align: top;
 	}
 
 	.finalize label{
-		vertical-align: middle;
+		vertical-align: top;
 		flex-grow: 0;
+		text-wrap: nowrap;
 	}
 	.finalize .submit{
 		flex-grow: 0;
 	}
+}
+
+.form_section.finalize{
+	padding: 1em;
+	gap: 0.5em;
 }
 

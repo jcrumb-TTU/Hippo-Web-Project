@@ -1,54 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" href="css/create_account.css">
+	<script src="script/startup.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="css/style.css">	
 	<script src="script/util.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="css/create_account.css">
+	<title>Create Account</title>
 </head>
 <!--The onload attribute calls a function that sets the maximum accepted value of the birthday field to today's date.--!>
-<body onload="document.getElementById('bday').setAttribute('max', today());">
+<body onload="document.getElementById('bday').setAttribute('max', today().slice(0,-1));">
 <div class=wrong_place><label>Existing user? <a href="login.html">login</a></label></div>
 <div class="seperator"></div>
 <!-- TODO: Add action=endpoint url to form element.--!>
-<form id=register class="account_form" method="post" action="/register" autocomplete=on>
+<form id=register class="account_form" action="/api/register" method="POST" autocomplete=on>
 	<div class="form_section name_entry">
 		<div class="field fname">
-			<input id="fname" autocomplete="given-name" required></><br>
+			<input name="fname" id="fname" autocomplete="given-name" required></><br>
 			<label for="fname">First Name</>
 		</div>
 		<div class="field lname">
-			<input id="lname" autocomplete="family-name" required></><br>
+			<input name="lname" id="lname" autocomplete="family-name" required></><br>
 			<label for="lname">Last Name</>
 		</div>
 		<div class="field birthday">
-			<input id="bday" type=date autocomplete="birthday" value="2000-01-01" required></><br>
+			<input name="bday" id="bday" type=date autocomplete="birthday" value="2000-01-01" required></><br>
 			<label for="bday">Birthday</label>
 		</div>
 	</div>
 	<div class="seperator"></div>
 	<div class="form_section contact_entry">
 		<div class="field email">
-			<input type=email id="email" autocomplete="email" required></><br>
+			<input name="email" type=email id="email" autocomplete="email" required></><br>
 			<label for="email">Email Address</>
 		</div>
 		<div class="field phone">
-			<input type=phone id="phone" autocomplete="tel-national" pattern="([0-9]{10})|(\([0-9]{3}\) ?[0-9]{3} ?-? ?[0-9]{4})"></><br>
+			<input name="phone" type=phone id="phone" autocomplete="tel-national" pattern="([0-9]{10})|(\([0-9]{3}\) ?[0-9]{3} ?-? ?[0-9]{4})"></><br>
 			<label for="phone">Phone Number</>
 		</div>	
 	</div>
 	<div class=seperator></div>
 	<div class="form_section password_entry">
 		<div class="field password">
-			<input id="password" type="password" autocomplete="new-password" required></><br>
+			<input name="password" id="password" type="password" autocomplete="new-password" required></><br>
 			<label for="password">Password</>
 		</div>
 		<div class="field password">
-			<input id="confirm_password" type="password" autocomplete="new-password" required></><br>
+			<input name="confirm_password" id="confirm_password" type="password" autocomplete="new-password" required></><br>
 			<label for="confirm_password">Confirm Password</>
 		</div>	
 	</div>
 	<div class=seperator></div>
-	<div class="form_section finalize">
-		<label><input class="terms" id="terms" type="checkbox" required> I agree to the terms and conditions</input></label>
+	<div class="form_section finalize field">
+		<label><input class="terms" name="terms" id="terms" type="checkbox" required> I agree to the terms and conditions</input></label>
 		<input class="submit" type="submit" value="Create Account"></input>
 	</div>
 </form>

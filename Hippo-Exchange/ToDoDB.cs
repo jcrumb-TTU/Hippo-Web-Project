@@ -6,4 +6,8 @@ class TodoDb : DbContext
         : base(options) { }
 
     public DbSet<ToDo> Todos => Set<ToDo>();
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> a8620cc548270ff31dab6dffbef47ab8c128bdd1

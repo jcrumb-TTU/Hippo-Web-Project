@@ -1,0 +1,1 @@
+{"options":{"validator":{"$jsonSchema":{"bsonType":"object","required":["Name","Description"],"properties":{"Name":{"bsonType":"string"},"Description":{"bsonType":"string"}}}}},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"48c6e57b82cf4baab1fd1037460ae15c","collectionName":"Category","type":"collection"}
