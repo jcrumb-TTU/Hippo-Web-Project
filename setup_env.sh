@@ -103,6 +103,11 @@ setup_gitmodules(){
 	git submodule update --init --recursive --remote --progress
 }
 
+patch_swagger(){
+	cd "$REPO_DIR/submodules/swagger-ui";
+	git apply "$REPO_DIR/submodules/module-patches/swagger-ui.patch"
+}
+
 check_installs(){
 # Make array for apt packages to get.
 declare -a apt_deps_needed
@@ -149,7 +154,7 @@ then
 	fi
 fi
 setup_gitmodules
-build_validator_badge
+patch_swagger
 if [ $RELOAD_PATH -eq 1 ]
 then
 	echo "Waiting for dotnet install..."
