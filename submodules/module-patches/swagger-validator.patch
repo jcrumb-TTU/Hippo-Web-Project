@@ -1,0 +1,16 @@
+diff --git a/pom.xml b/pom.xml
+index 4d91803..8d05ced 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -75,6 +75,11 @@
+             </plugin>
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
++                <artifactId>maven-war-plugin</artifactId>
++                <version>3.4.0</version>
++            </plugin>
++			<plugin>
++                <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-source-plugin</artifactId>
+                 <version>3.3.0</version>
+                 <executions>

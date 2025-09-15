@@ -7,7 +7,7 @@ REPO_ID="c5bfa786dc1ba3303d1a0fec4efbd62bb8f61ecd"
 REPO_URL="https://github.com/$REPO_OWNER/$REPO_NAME.git"
 SCRIPT_PATH=$(realpath -m "$0")
 SCRIPT_DIR=$(realpath -m $(dirname "$SCRIPT_PATH"))
-REPO_DIR="$(cd \"$SCRIPT_DIR\";git rev-parse --show-toplevel)";
+REPO_DIR="$(cd $SCRIPT_DIR;git rev-parse --show-toplevel)";
 USER=$(whoami)
 PUB_PATH="/home/public/$USER"
 DEST_PATH=$(realpath -m "$PUB_PATH/$REPO_NAME");
@@ -89,12 +89,12 @@ restore_db(){
 
 run_dotnet_script(){
 	# Install dotnet if not present.
-	if ! wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+	if ! wget "https://dot.net/v1/dotnet-install.sh" -O "~/dotnet-install.sh"
 	then
 		echo "Failed to download dotnet install script."
 	fi
-	chmod u+x "./dotnet-install.sh"
-	if ./dotnet-install.sh; then echo 'export PATH=$PATH:~/.dotnet/' >> .bashrc; fi
+	chmod u+x "~/dotnet-install.sh"
+	if ./dotnet-install.sh; then echo 'export PATH=$PATH:~/.dotnet/' >> "~/.bashrc"; fi
 }
 
 setup_gitmodules(){
@@ -179,4 +179,5 @@ if [ $RELOAD_PATH -ne 0 ]
 then
 	echo "REMINDER: You must restart your terminal before running dotnet."
 fi
+cd "$DEST_PATH"
 }
