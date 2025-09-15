@@ -1,0 +1,6 @@
+[submodule "swagger-ui"]
+	path = submodules/swagger-ui
+	url = https://github.com/swagger-api/swagger-ui.git
+[submodule "submodules/swagger-validator"]
+	path = submodules/swagger-validator
+	url = https://github.com/swagger-api/validator-badge.git

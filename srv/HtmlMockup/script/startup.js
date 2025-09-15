@@ -1,8 +1,8 @@
 const searchbar = `
 		<div class="query">
-			<form method=get>
-				<input id=name></>
-				<select id="cat">
+			<form method="get" action="/index.html">
+				<input id="name" name="q"></>
+				<select id="cat" name="cat">
 					<option value="all">All</option>
 					<option value="category1">Category1</option>
 					<option value="category2">Category2</option>
