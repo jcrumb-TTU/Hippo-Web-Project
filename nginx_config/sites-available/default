@@ -23,6 +23,10 @@ upstream backend{
 	server localhost:5257;
 }
 
+upstream swagger_validator{
+	server localhost:8080;
+}
+
 server {
 	listen 80 default_server;
 	listen [::]:80 default_server;
@@ -43,23 +47,38 @@ server {
 	#
 	# include snippets/snakeoil.conf;
 
-	root /home/public/vboxuser/Hippo-Web-Project/HtmlMockup;
+	root /home/public/vboxuser/Hippo-Web-Project/srv;
 
 	# Add index.php to the list if you are using PHP
 	index index.html index.htm index.nginx-debian.html;
 
 	server_name _;
-
-	location / {
-		# First attempt to serve request as file, then
-		# as directory, then fall back to displaying a 404.
+	location /dev/ {
+		root "/home/public/vboxuser/Hippo-Web-Project/srv/";
 		try_files $uri $uri/ =404;
-		add_header Referrer-Policy "strict-origin-when-cross-origin";
+		access_log /var/log/nginx/swagger.log;
 	}
+	location /swagger/{
+		access_log /var/log/nginx/swagger_alias.log;
+		root "/home/public/vboxuser/Hippo-Web-Project/srv/dev/";
+	}
+	location /swagger/validator{
+		add_header Referrer-Policy "strict-origin-when-cross-origin";
+		access_log /var/log/nginx/swagger_alias.log;
+		proxy_pass http://swagger_validator/validator;
+	}
+
 	location /api/ {
 		add_header Referrer-Policy "strict-origin-when-cross-origin";
 		proxy_pass http://backend/api/;
 		access_log /var/log/nginx/register.log;
+	}
+	location / {
+		# First attempt to serve request as file, then
+		# as directory, then fall back to displaying a 404.
+		root "/home/public/vboxuser/Hippo-Web-Project/srv/HtmlMockup";
+		try_files $uri $uri/ =404;
+		add_header Referrer-Policy "strict-origin-when-cross-origin";
 	}
 	# pass PHP scripts to FastCGI server
 	#
