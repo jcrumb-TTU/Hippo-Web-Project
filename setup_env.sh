@@ -89,12 +89,12 @@ restore_db(){
 
 run_dotnet_script(){
 	# Install dotnet if not present.
-	if ! wget "https://dot.net/v1/dotnet-install.sh" -O "~/dotnet-install.sh"
+	if ! wget "https://dot.net/v1/dotnet-install.sh" -O "$HOME/dotnet-install.sh"
 	then
 		echo "Failed to download dotnet install script."
 	fi
-	chmod u+x "~/dotnet-install.sh"
-	if ./dotnet-install.sh; then echo 'export PATH=$PATH:~/.dotnet/' >> "~/.bashrc"; fi
+	chmod u+x "$HOME/dotnet-install.sh"
+	if ./dotnet-install.sh; then echo 'export PATH=$PATH:~/.dotnet/' >> "$HOME/.bashrc"; fi
 }
 
 setup_gitmodules(){
@@ -103,11 +103,14 @@ setup_gitmodules(){
 	git submodule update --init --recursive --remote --progress
 }
 
-patch_swagger(){
+setup_swagger(){
+	echo "Patching swagger modules..."
 	cd "$REPO_DIR/submodules/swagger-ui";
 	git apply "$REPO_DIR/submodules/module-patches/swagger-ui.patch"
 	cd "$REPO_DIR/submodules/swagger-validator";
 	git apply "$REPO_DIR/submodules/module-patches/swagger-validator.patch"
+	echo "Installing swagger to $REPO_DIR/srv/dev/swagger..."
+	cp -r "$REPO_DIR/submodules/swagger-ui/dist" "$REPO_DIR/srv/dev/swagger/"
 }
 
 setup_gitmodules(){
@@ -162,7 +165,7 @@ then
 	fi
 fi
 setup_gitmodules
-patch_swagger
+setup_swagger
 if [ $RELOAD_PATH -eq 1 ]
 then
 	echo "Waiting for dotnet install..."
