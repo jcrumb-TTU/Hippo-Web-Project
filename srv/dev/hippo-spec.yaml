@@ -10,6 +10,44 @@ servers:
     description: Requests will be sent to the url of this swagger instance.
 
 paths:
+  /register:
+    post:
+      summary: Creates a new user account.
+      description: Validates the user's information, then uses it to add a new account to the database if it is valid and the account doesn't already exist.
+      responses:
+        "200":
+          description: A message indicating success is returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          description: There was an issue with the provided user input.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fname:
+                    type: string
+                  lname:
+                    type: string
+                  bday:
+                    type: string
+                  email:  
+                    type: string
+                  phone:
+                    type: string
+                  password:
+                    type: string
+                  confirm_password:
+                    type: string
+                  terms:
+                    type: string
+            
   /users:
     get:
       summary: Returns a list of users.
