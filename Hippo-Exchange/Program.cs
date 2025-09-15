@@ -30,7 +30,8 @@ var todoItems = app.MapGroup("/todoitems");
 
 app.MapGet("/api/search/", () => {
     //return Results.Ok(new { message = "Hello from Minimal API!" });
-    return Results.Json(new { wrench = { desc = "A wrench used to do things!", properties = {size = "50in"}}; book = { desc = "A cool book!", properties = {size = "12in"}}}, );
+    return Results.Json(SampleItems.MakeSamples());
+    //return Results.Json(new { wrench = { desc = "A wrench used to do things!", properties = {size = "50in"}}, book = { desc = "A cool book!", properties = {size = "12in"}}});
 });
 
 app.MapPost("/api/register", (HttpRequest formHeader) => {
