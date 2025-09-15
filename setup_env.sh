@@ -7,6 +7,7 @@ REPO_ID="c5bfa786dc1ba3303d1a0fec4efbd62bb8f61ecd"
 REPO_URL="https://github.com/$REPO_OWNER/$REPO_NAME.git"
 SCRIPT_PATH=$(realpath -m "$0")
 SCRIPT_DIR=$(realpath -m $(dirname "$SCRIPT_PATH"))
+REPO_DIR="$(cd \"$SCRIPT_DIR\";git rev-parse --show-toplevel)";
 USER=$(whoami)
 PUB_PATH="/home/public/$USER"
 DEST_PATH=$(realpath -m "$PUB_PATH/$REPO_NAME");
@@ -96,6 +97,12 @@ run_dotnet_script(){
 	if ./dotnet-install.sh; then echo 'export PATH=$PATH:~/.dotnet/' >> .bashrc; fi
 }
 
+setup_gitmodules(){
+	cd "$SCRIPT_DIR";
+	echo "Getting submodules..."
+	git submodule update --init --recursive --remote --progress
+}
+
 check_installs(){
 # Make array for apt packages to get.
 declare -a apt_deps_needed
@@ -116,6 +123,10 @@ then
 else
 	echo "git is installed."
 fi
+if ! installed mvn
+then
+	apt_deps_needed+=("maven")
+fi
 if ! installed mongod || ! installed mongorestore
 then
 	if [ $(dpkg -l | grep -c "mongodb-org ") -ne 0 ]
@@ -131,8 +142,14 @@ fi
 if [ ${#apt_deps_needed[@]} -gt 0 ]
 then
 	echo "Installing dependencies with apt. Escalating privilidges..."
-	sudo apt -y install ${apt_deps_needed[@]}
+	if ! sudo apt -y install ${apt_deps_needed[@]}
+	then
+		echo "Install apt dependencies failed."
+		return 1
+	fi
 fi
+setup_gitmodules
+build_validator_badge
 if [ $RELOAD_PATH -eq 1 ]
 then
 	echo "Waiting for dotnet install..."
