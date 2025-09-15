@@ -105,7 +105,7 @@ setup_gitmodules(){
 
 patch_swagger(){
 	cd "$REPO_DIR/submodules/swagger-ui";
-	git apply "$REPO_DIR/submodules/module-patches/swagger.patch"
+	git apply "$REPO_DIR/submodules/module-patches/swagger-ui.patch"
 }
 
 check_installs(){
