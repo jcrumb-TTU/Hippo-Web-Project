@@ -108,6 +108,12 @@ patch_swagger(){
 	git apply "$REPO_DIR/submodules/module-patches/swagger-ui.patch"
 }
 
+setup_gitmodules(){
+	cd "$SCRIPT_DIR";
+	echo "Getting submodules..."
+	git submodule update --init --recursive --remote --progress
+}
+
 check_installs(){
 # Make array for apt packages to get.
 declare -a apt_deps_needed
