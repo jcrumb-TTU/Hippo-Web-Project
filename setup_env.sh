@@ -94,7 +94,7 @@ run_dotnet_script(){
 		echo "Failed to download dotnet install script."
 	fi
 	chmod u+x "$HOME/dotnet-install.sh"
-	if ./dotnet-install.sh; then echo 'export PATH=$PATH:~/.dotnet/' >> "$HOME/.bashrc"; fi
+	if "$HOME/dotnet-install.sh"; then echo 'export PATH=$PATH:~/.dotnet/' >> "$HOME/.bashrc"; fi
 }
 
 setup_gitmodules(){
@@ -104,20 +104,16 @@ setup_gitmodules(){
 }
 
 setup_swagger(){
-	echo "Patching swagger modules..."
-	cd "$REPO_DIR/submodules/swagger-ui";
-	git apply "$REPO_DIR/submodules/module-patches/swagger-ui.patch"
-	cd "$REPO_DIR/submodules/swagger-validator";
-	git apply "$REPO_DIR/submodules/module-patches/swagger-validator.patch"
-	echo "Installing swagger to $REPO_DIR/srv/dev/swagger..."
-	cp -r "$REPO_DIR/submodules/swagger-ui/dist" "$REPO_DIR/srv/dev/swagger/"
+	cd "$DEST_PATH/submodules/swagger-ui";
+	git reset --hard
+	git apply "$DEST_PATH/submodules/module-patches/swagger-ui.patch"
+	cd "$DEST_PATH/submodules/swagger-validator";
+	git reset --hard
+	git apply "$DEST_PATH/submodules/module-patches/swagger-validator.patch"
+	echo "Installing swagger to $DEST_PATH/srv/dev/swagger..."
+	cp -r "$DEST_PATH/submodules/swagger-ui/dist" "$DEST_PATH/srv/dev/swagger/"
 }
 
-setup_gitmodules(){
-	cd "$SCRIPT_DIR";
-	echo "Getting submodules..."
-	git submodule update --init --recursive --remote --progress
-}
 
 check_installs(){
 # Make array for apt packages to get.
@@ -165,7 +161,6 @@ then
 	fi
 fi
 setup_gitmodules
-setup_swagger
 if [ $RELOAD_PATH -eq 1 ]
 then
 	echo "Waiting for dotnet install..."
@@ -186,6 +181,8 @@ sudo systemctl stop nginx
 sudo cp -r ./nginx_config/* /etc/nginx/
 echo "Restoring mongodb..."
 restore_db
+echo "Patching and installing swagger modules..."
+setup_swagger
 if [ $RELOAD_PATH -ne 0 ]
 then
 	echo "REMINDER: You must restart your terminal before running dotnet."
