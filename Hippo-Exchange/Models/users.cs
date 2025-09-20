@@ -1,34 +1,37 @@
-﻿using Isopoh.Cryptography.Argon2;
-using Microsoft.AspNetCore.Identity;
-using MongoDB.Bson;
+﻿﻿using Isopoh.Cryptography.Argon2;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 
 namespace Hippo_Exchange.Models
 {
-	[BsonIgnoreExtraElements]
+    [BsonIgnoreExtraElements]
     public class Users
-	{
-		[BsonId]
+    {
+        [BsonId]
         public string? strUserID { get; set; }
-		[BsonElement("FirstName")]
+        [BsonElement("FirstName")]
         public string? strFirstName { get; set; }
-		[BsonElement("LastName")]
+        [BsonElement("LastName")]
         public string? strLastName { get; set; }
-		[BsonElement("Email")]
+        [BsonElement("Email")]
         public string? strEmail { get; set; }
-		[BsonElement("phoneNumber")]
+        [BsonElement("phoneNumber")]
         public string? strPhoneNumber { get; set; }
-	        [BsonElement("PasswordHash")]
+        [BsonElement("PasswordHash")]
         public string? strPasswordHash { get; set; }
-	        [BsonElement("Birthday")]
-	public string? strBirthday { get; set;}
+        [BsonElement("Birthday")]
+        public string? strBirthday { get; set; }
+
         public void SetPassword(string strPassword)
         {
             if (string.IsNullOrWhiteSpace(strPassword))
                 throw new ArgumentException("Password must not be empty.", nameof(strPassword));
             this.strPasswordHash = Argon2.Hash(strPassword);
         }
+
+        public void Normalize()
+        {
+            if (strEmail != null) strEmail = strEmail.Trim().ToLowerInvariant();
+        }
     }
 }
-
