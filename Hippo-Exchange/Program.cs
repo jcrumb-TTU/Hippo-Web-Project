@@ -1,9 +1,9 @@
 using System.Text;
 using Isopoh.Cryptography.Argon2;
 using MongoDB.Driver;
-using Hippo_Exchange.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Hippo_Exchange.Models;
 
 // ------------------------------------------------------------
 // Minimal API bootstrap
@@ -94,51 +94,51 @@ if (app.Environment.IsDevelopment())
 // DTO Records
 // ------------------------------------------------------------
 record RegisterRequest(
-    string fname,
-    string lname,
-    string bday,
-    string email,
-    string phone,
-    string password,
-    string confirm_password,
-    bool terms);
+    string FirstName,
+    string LastName,
+    string Birthday,
+    string Email,
+    string Phone,
+    string Password,
+    string ConfirmPassword,
+    bool Terms);
 
-record RegisterResponse(string userId, string email);
+record RegisterResponse(string UserId, string Email);
 
-record LoginRequest(string email, string password);
+record LoginRequest(string Email, string Password);
 
-record LoginResponse(string userId, string email, string? token);
+record LoginResponse(string UserId, string Email, string? Token);
 
 // ------------------------------------------------------------
 // Registration Endpoint
 // ------------------------------------------------------------
 app.MapPost("/api/register", async (RegisterRequest req, IUserService users) =>
 {
-    var problems = new Dictionary<string, string>();
+    var problems = new Dictionary<string, string[]>();
 
-    if (string.IsNullOrWhiteSpace(req.fname)) problems["fname"] = "First name required.";
-    if (string.IsNullOrWhiteSpace(req.lname)) problems["lname"] = "Last name required.";
-    if (string.IsNullOrWhiteSpace(req.email)) problems["email"] = "Email required.";
-    if (string.IsNullOrWhiteSpace(req.password)) problems["password"] = "Password required.";
-    if (req.password != req.confirm_password) problems["confirm_password"] = "Passwords do not match.";
-    if (!req.terms) problems["terms"] = "Terms must be accepted.";
+    if (string.IsNullOrWhiteSpace(req.FirstName)) problems["FirstName"] = ["First name required."];
+    if (string.IsNullOrWhiteSpace(req.LastName)) problems["LastName"] = ["Last name required."];
+    if (string.IsNullOrWhiteSpace(req.Email)) problems["Email"] = ["Email required."];
+    if (string.IsNullOrWhiteSpace(req.Password)) problems["Password"] = ["Password required."];
+    if (req.Password != req.ConfirmPassword) problems["ConfirmPassword"] = ["Passwords do not match."];
+    if (!req.Terms) problems["Terms"] = ["Terms must be accepted."];
 
     if (problems.Count > 0)
         return Results.ValidationProblem(problems);
 
-    var normalizedEmail = req.email.Trim().ToLowerInvariant();
+    var normalizedEmail = req.Email.Trim().ToLowerInvariant();
     if (await users.EmailExistsAsync(normalizedEmail))
         return Results.Conflict(new { message = "Email already in use." });
 
     var user = new Users
     {
-        strFirstName = req.fname.Trim(),
-        strLastName = req.lname.Trim(),
+        strFirstName = req.FirstName.Trim(),
+        strLastName = req.LastName.Trim(),
         strEmail = normalizedEmail,
-        strPhoneNumber = req.phone?.Trim(),
-        strBirthday = req.bday?.Trim()
+        strPhoneNumber = req.Phone?.Trim(),
+        strBirthday = req.Birthday?.Trim()
     };
-    user.SetPassword(req.password);
+    user.SetPassword(req.Password);
 
     var userId = await users.CreateAsync(user);
 
@@ -157,12 +157,12 @@ app.MapPost("/api/register", async (RegisterRequest req, IUserService users) =>
 // ------------------------------------------------------------
 app.MapPost("/api/login", async (LoginRequest req, IUserService users) =>
 {
-    var normalizedEmail = (req.email ?? "").Trim().ToLowerInvariant();
+    var normalizedEmail = (req.Email ?? "").Trim().ToLowerInvariant();
     var user = await users.GetByEmailAsync(normalizedEmail);
     if (user is null)
         return Results.Unauthorized();
 
-    if (!Argon2.Verify(user.strPasswordHash, req.password))
+    if (!Argon2.Verify(user.strPasswordHash, req.Password))
         return Results.Unauthorized();
 
     string? token = null;
