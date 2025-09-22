@@ -1,19 +1,16 @@
-using System.Text;
-using Isopoh.Cryptography.Argon2;
-using MongoDB.Driver;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using Hippo_Exchange.Contracts;
 using Hippo_Exchange.Models;
+using Hippo_Exchange.Services;
+using Isopoh.Cryptography.Argon2;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
+using System.Text;
 
-// ------------------------------------------------------------
-// Minimal API bootstrap
-// ------------------------------------------------------------
 var builder = WebApplication.CreateBuilder(args);
 
-// ------------------------------------------------------------
-// Configuration (environment or appsettings.json)
-// MONGODB_CONNECTION can override the configured connection string.
-// ------------------------------------------------------------
+// Mongo configuration
 var mongoConnection =
     builder.Configuration.GetValue<string>("Mongo:ConnectionString")
     ?? Environment.GetEnvironmentVariable("MONGODB_CONNECTION")
@@ -23,9 +20,7 @@ var mongoDbName =
     builder.Configuration.GetValue<string>("Mongo:Database")
     ?? "HippoExchangeDb";
 
-// ------------------------------------------------------------
-// MongoDB Services
-// ------------------------------------------------------------
+// Mongo services
 builder.Services.AddSingleton<IMongoClient>(_ => new MongoClient(mongoConnection));
 builder.Services.AddScoped(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(mongoDbName));
 builder.Services.AddScoped<IMongoCollection<Users>>(sp =>
@@ -34,20 +29,14 @@ builder.Services.AddScoped<IMongoCollection<Users>>(sp =>
 // Domain services
 builder.Services.AddScoped<IUserService, UserService>();
 
-// ------------------------------------------------------------
-// Swagger / OpenAPI
-// ------------------------------------------------------------
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// ------------------------------------------------------------
-// (Optional) JWT Authentication scaffolding
-// Uncomment this block + the middleware calls below to enable JWT.
-// ------------------------------------------------------------
+// OPTIONAL JWT (leave commented until needed)
 /*
 var jwtKey = builder.Configuration.GetValue<string>("Jwt:Key") ?? "dev-secret-change";
 var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
-
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -61,13 +50,9 @@ builder.Services
             ClockSkew = TimeSpan.FromMinutes(1)
         };
     });
-
 builder.Services.AddAuthorization();
 */
 
-// ------------------------------------------------------------
-// CORS (adjust allowed origins as needed)
-// ------------------------------------------------------------
 builder.Services.AddCors(o =>
 {
     o.AddPolicy("Default", p =>
@@ -79,49 +64,26 @@ builder.Services.AddCors(o =>
 var app = builder.Build();
 app.UseCors("Default");
 
-// Enable Swagger UI in Development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Uncomment when JWT auth is enabled
 // app.UseAuthentication();
 // app.UseAuthorization();
 
-// ------------------------------------------------------------
-// DTO Records
-// ------------------------------------------------------------
-record RegisterRequest(
-    string FirstName,
-    string LastName,
-    string Birthday,
-    string Email,
-    string Phone,
-    string Password,
-    string ConfirmPassword,
-    bool Terms);
-
-record RegisterResponse(string UserId, string Email);
-
-record LoginRequest(string Email, string Password);
-
-record LoginResponse(string UserId, string Email, string? Token);
-
-// ------------------------------------------------------------
 // Registration Endpoint
-// ------------------------------------------------------------
 app.MapPost("/api/register", async (RegisterRequest req, IUserService users) =>
 {
     var problems = new Dictionary<string, string[]>();
 
-    if (string.IsNullOrWhiteSpace(req.FirstName)) problems["FirstName"] = ["First name required."];
-    if (string.IsNullOrWhiteSpace(req.LastName)) problems["LastName"] = ["Last name required."];
-    if (string.IsNullOrWhiteSpace(req.Email)) problems["Email"] = ["Email required."];
-    if (string.IsNullOrWhiteSpace(req.Password)) problems["Password"] = ["Password required."];
-    if (req.Password != req.ConfirmPassword) problems["ConfirmPassword"] = ["Passwords do not match."];
-    if (!req.Terms) problems["Terms"] = ["Terms must be accepted."];
+    if (string.IsNullOrWhiteSpace(req.FirstName)) problems["FirstName"] = new[] { "First name required." };
+    if (string.IsNullOrWhiteSpace(req.LastName)) problems["LastName"] = new[] { "Last name required." };
+    if (string.IsNullOrWhiteSpace(req.Email)) problems["Email"] = new[] { "Email required." };
+    if (string.IsNullOrWhiteSpace(req.Password)) problems["Password"] = new[] { "Password required." };
+    if (req.Password != req.ConfirmPassword) problems["ConfirmPassword"] = new[] { "Passwords do not match." };
+    if (!req.Terms) problems["Terms"] = new[] { "Terms must be accepted." };
 
     if (problems.Count > 0)
         return Results.ValidationProblem(problems);
@@ -152,9 +114,7 @@ app.MapPost("/api/register", async (RegisterRequest req, IUserService users) =>
 .Produces(409)
 .WithOpenApi();
 
-// ------------------------------------------------------------
 // Login Endpoint
-// ------------------------------------------------------------
 app.MapPost("/api/login", async (LoginRequest req, IUserService users) =>
 {
     var normalizedEmail = (req.Email ?? "").Trim().ToLowerInvariant();
@@ -166,7 +126,8 @@ app.MapPost("/api/login", async (LoginRequest req, IUserService users) =>
         return Results.Unauthorized();
 
     string? token = null;
-    // Uncomment this block when JWT is enabled
+
+    // Uncomment to issue JWTs
     /*
     var jwtKey = builder.Configuration.GetValue<string>("Jwt:Key") ?? "dev-secret-change";
     var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
@@ -192,56 +153,4 @@ app.MapPost("/api/login", async (LoginRequest req, IUserService users) =>
 .Produces(401)
 .WithOpenApi();
 
-// ------------------------------------------------------------
-// Run
-// ------------------------------------------------------------
 app.Run();
-
-// ------------------------------------------------------------
-// User Service Abstractions (kept here for simplicity)
-// Consider moving to /Services/UserService.cs as project grows.
-// ------------------------------------------------------------
-public interface IUserService
-{
-    Task<bool> EmailExistsAsync(string email);
-    Task<string> CreateAsync(Users user);
-    Task<Users?> GetByEmailAsync(string email);
-}
-
-public class UserService : IUserService
-{
-    private readonly IMongoCollection<Users> _users;
-
-    public UserService(IMongoCollection<Users> users)
-    {
-        _users = users;
-        EnsureIndexesAsync().GetAwaiter().GetResult();
-    }
-
-    private async Task EnsureIndexesAsync()
-    {
-        // Idempotent unique index on Email
-        var indexKeys = Builders<Users>.IndexKeys.Ascending(u => u.strEmail);
-        var indexModel = new CreateIndexModel<Users>(indexKeys, new CreateIndexOptions { Unique = true });
-        await _users.Indexes.CreateOneAsync(indexModel);
-    }
-
-    public async Task<bool> EmailExistsAsync(string email)
-    {
-        var filter = Builders<Users>.Filter.Eq(u => u.strEmail, email);
-        return await _users.Find(filter).AnyAsync();
-    }
-
-    public async Task<string> CreateAsync(Users user)
-    {
-        user.strUserID = Guid.NewGuid().ToString("n");
-        await _users.InsertOneAsync(user);
-        return user.strUserID!;
-    }
-
-    public async Task<Users?> GetByEmailAsync(string email)
-    {
-        var filter = Builders<Users>.Filter.Eq(u => u.strEmail, email);
-        return await _users.Find(filter).FirstOrDefaultAsync();
-    }
-}
