@@ -1,0 +1,5 @@
+dependencies:
+  - role: srvbase
+    vars:
+      apt_deps_ex:
+        - maven

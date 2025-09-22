@@ -1,0 +1,33 @@
+- name: Locate local git directory
+  ansible.builtin.command:
+    chdir: "{{ playbook_dir }}"
+    argv: 
+      - git
+      - rev-parse
+      - --show-toplevel
+  register: local_repo
+  #delegate_to: locals
+  #connection: local
+
+- name: Pull Swagger Submodules
+  ansible.builtin.command:
+    chdir: "{{ local_repo.stdout  }}"
+    argv:
+      - git
+      - submodule
+      - update
+      - --init
+      - --remote
+      - --recursive
+  register: submodule_pull
+  #delegate_to: locals
+  #connection: local
+- name: Run ls to test!
+  ansible.builtin.command:
+    chdir: "{{ local_repo.stdout  }}"
+    argv:
+      - ls
+  register: ls
+
+- debug: msg="{{ ls }}"
+    

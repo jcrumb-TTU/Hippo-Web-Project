@@ -1,0 +1,27 @@
+#- debug: msg="{{apt_deps}}"
+#- debug: msg="{{apt_deps_ex}}"
+- name: Git Git
+  become: true
+  ansible.builtin.apt:
+    name: git
+    state: present
+- name: Git Repository
+  ansible.builtin.git:
+    repo: 'https://github.com/jcrumb-TTU/Hippo-Web-Project.git'
+    version: 'HEAD'
+    dest: "~/Hippo-Web-Project-Deployment"
+    #recursive: false
+  async: 120 # Wait 60s...
+  poll: 0
+  register: hippo_proc
+- name: Register git repository process
+  ansible.builtin.set_fact:
+    processes: "{{processes + [dict([['name','Clone Hippo Repo'],['proc',hippo_proc]])]}}"
+#- name: await_hippo_repo
+#  ansible.builtin.async_status:
+#    jid: '{{ hippo_proc.ansible_job_id  }}'
+#  register: hippo_result
+#  until: hippo_result.finished
+#  retries: 60
+#  delay: 1
+#
