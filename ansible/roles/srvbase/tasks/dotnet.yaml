@@ -1,0 +1,20 @@
+- name: Get dotnet install script
+  ansible.builtin.get_url:
+    url: "{{ dotnet_url }}"
+    dest: "~/dotnet_install.sh"
+  register: dotnet_script
+- name: Set dotnet install script permissions
+  ansible.builtin.file:
+    path: '{{ dotnet_script.dest }}'
+    mode: "a+x"
+  register: dotnet_script
+- name: Run dotnet install script
+  ansible.builtin.command:
+    cmd: '{{ dotnet_script.path }}'
+    creates: '~/.dotnet/'
+  async: 60
+  poll: 0
+  register: dotnet_proc
+- name: Store dotnet install job info
+  ansible.builtin.set_fact:
+    processes: "{{ processes + [dict([['name','dotnet install script'] + ['proc', dotnet_proc]]) }}"

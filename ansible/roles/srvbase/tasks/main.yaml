@@ -1,0 +1,18 @@
+#- debug: msg="{{apt_deps}}"
+- name: Initialize the apt dependency list
+  ansible.builtin.set_fact:
+    apt_deps: "{{apt_deps}}"
+- name: Checking if dotnet is installed
+  ansible.builtin.stat:
+    path: "~/.dotnet/"
+  register: dotnet_dir
+#- debug: msg="{{ dotnet_dir  }}"
+- name: Load dotnet install script if necessary...
+  when: dotnet_dir.stat.exists is false
+  ansible.builtin.import_tasks:
+    file: "dotnet.yaml"
+- name: Ensure dotnet is in the path
+  ansible.builtin.lineinfile:
+    create: true
+    line: 'export PATH="$PATH:~/.dotnet/"'
+    path: "~/.bashrc"

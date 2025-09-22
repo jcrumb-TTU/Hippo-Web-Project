@@ -1,0 +1,24 @@
+- name: Test registering multiple results to a variable.
+  hosts: locals
+  vars:
+    items: {}
+  tasks:
+    - name: Task 1
+      ansible.builtin.command:
+        command: ls
+      async: 100
+      poll: 0
+      register: items.ls
+    - name: Task 2
+      ansible.builtin.command:
+        command: ls -l
+      async: 100
+      poll: 0
+      register: items.lsl
+    - name: Task 3
+      ansible.builtin.command:
+        command: ls -a
+      async: 100
+      poll: 0
+      register: items.lsa
+    - debug: msg="{{items}}" 
