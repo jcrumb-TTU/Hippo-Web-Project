@@ -1,0 +1,143 @@
+﻿body {
+    background-color: #E7EEFD;
+}
+
+/*text*/
+#landingHeader {
+    color: #132339;
+    font-family: "Manrope", sans-serif;
+    font-size: 48px;
+    font-weight: 400;
+}
+#landingBody {
+    color: #132339;
+    font-family: "Manrope", sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+}
+#signupHeader {
+    color: #132339;
+    font-family: "Manrope", sans-serif;
+    font-size: 36px;
+    font-weight: 400;
+}
+#signupCaption {
+    color: #33527D;
+    font-family: "Manrope", sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+}
+h4 {
+    color: #132339;
+}
+/*sign up form*/
+input:not([type="submit"]) {
+    color: #7F91A4;
+    font-family: "Manrope", sans-serif;
+    font-size: 20px;
+    width: 660px;
+    background-color: #EAF3FC;
+    border: none;
+    border-radius: 10px;
+    width: 308px;
+    height: 60px;
+    box-shadow: #9BC0D1 0px 5px 4px;
+    outline: thick;
+    
+}
+
+#firstLabel {
+    color: #33527D;
+    font-family: "Manrope", sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    width: 308px;
+    height: 60px;
+    position: relative;
+    left: 43px;
+    top: -10px;
+    border-radius: 10px;
+}
+#lastLabel {
+    color: #33527D;
+    font-family: "Manrope", sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    width: 308px;
+    height: 60px;
+    position: relative;
+    left: 390px;
+    top: -70px;
+    border-radius: 10px;
+   
+}
+#bodyLabels {
+    color: #33527D;
+    font-family: "Manrope", sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    width: 660px;
+    height: 60px;
+    position: relative;
+    left: 220px;
+    top: -70px;
+    
+}
+#mainBubble {
+    border: none;
+    background-color: #B7E4F6;
+    width: 742px;
+    height: 824px;
+    border-radius: 41px;
+    position: relative;
+    left: 381px;
+    top: 2px;
+}
+#bodyText {
+    position: relative;
+    left: 200px;
+    top: 20px;
+}
+#signupCaption {
+    position: relative;
+    left: 50px;
+    top: -20px;
+
+}
+
+/*buttons*/
+#join {
+    background-color: #3CCDDD;
+    color: #132339;
+    font-family: "Manrope", sans-serif;
+    font-size: 36px;
+    border: none;
+    border-radius: 20px;
+    border-width: 11px;
+    padding: 15px;
+    text-align: center;
+}
+#createprofile {
+    background-color: #3CCDDD;
+    color: #132339;
+    font-family: "Manrope", sans-serif;
+    font-size: 32px;
+    border: none;
+    border-radius: 20px;
+    width: 342px;
+    height: 66px;
+    text-align: center;
+    position: relative;
+    left: 203px;
+    top: 400px;
+}
+#signupLink:link {
+    color: #003782;
+    background-color: transparent;
+    text-decoration: underline;
+}
+#signupLink:visited {
+    color: #226ed6;
+    background-color: transparent;
+    text-decoration: underline;
+}
