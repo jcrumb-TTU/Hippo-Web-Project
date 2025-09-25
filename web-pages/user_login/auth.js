@@ -68,7 +68,7 @@ async function logout() {
     console.warn('Logout warning:', e);
   } finally {
     // Send user to login page
-    window.location.href = '../user_login/login.html';
+    window.location.href = '../../index.html';
   }
 }
 
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!USE_COOKIES && resp && resp.token) {
           localStorage.setItem('auth_token', resp.token);
         }
-        alert('Login successful');
+        //alert('Login successful');
         window.location.href = PATH_AFTER_LOGIN;
       } catch (err) {
         console.error('Login error:', err);
