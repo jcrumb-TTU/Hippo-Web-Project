@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         password,
         confirmPassword,
         terms
-        // birthday omitted intentionally
       };
 
       try {
