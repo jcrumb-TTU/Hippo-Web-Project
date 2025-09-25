@@ -57,11 +57,12 @@ builder.Services.AddCors(o =>
 {
     o.AddPolicy("Default", p =>
         p.WithOrigins(
-            "http://127.0.0.1:5500/",
-            "http://localhost:5500"
+             "http://127.0.0.1:5500",
+             "http://localhost:5500"
         )
-         .AllowAnyHeader()
-         .AllowAnyMethod());
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+    );
 });
 
 var app = builder.Build();
@@ -86,7 +87,7 @@ app.MapPost("/api/register", async (Hippo_Exchange.Contracts.RegisterRequest req
     if (string.IsNullOrWhiteSpace(req.Email)) problems["Email"] = new[] { "Email required." };
     if (string.IsNullOrWhiteSpace(req.Password)) problems["Password"] = new[] { "Password required." };
     if (req.Password != req.ConfirmPassword) problems["ConfirmPassword"] = new[] { "Passwords do not match." };
-    if (!req.Terms) problems["Terms"] = new[] { "Terms must be accepted." };
+     if (!req.Terms) problems["Terms"] = new[] { "Terms must be accepted." };
 
     if (problems.Count > 0)
         return Results.ValidationProblem(problems);
