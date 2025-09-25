@@ -9,7 +9,7 @@ const USE_COOKIES = false;
 
 // Redirect targets (relative to user_login folder)
 const PATH_AFTER_SIGNUP = 'login.html';
-const PATH_AFTER_LOGIN = '../dashboard/dashboard.html';
+const PATH_AFTER_LOGIN = 'dashboard/dashboard.html';
 
 async function postJson(path, payload, opts = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -132,11 +132,11 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const resp = await postJson('/api/register', payload);
         console.log('Registration success:', resp);
-        alert('Account created! Redirecting to sign in...');
+        //alert('Account created! Redirecting to sign in...');
         window.location.href = PATH_AFTER_SIGNUP;
       } catch (err) {
         console.error('Registration error:', err);
-        alert('Sign-up failed: ' + err.message);
+        //alert('Sign-up failed: ' + err.message);
       } finally {
         toggleSubmitting(submitBtn, false);
       }
