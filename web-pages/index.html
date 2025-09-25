@@ -7,7 +7,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #cfd9e8; /* slightly darker light blue */
+      /* Match signup/login page background */
+      background-color: #e8f0ff;
       font-family: Arial, sans-serif;
       color: #1a1a1a;
     }
@@ -17,9 +18,9 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      /* More vertical breathing room similar to the mock */
+      /* Vertical spacing similar to the mock */
       padding: 80px 15px 120px;
-      gap: 60px; /* larger gap between text block and image */
+      gap: 60px; /* gap between text block and image */
     }
 
     .hero-text {
@@ -28,32 +29,31 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      /* controls spacing between heading and body */
-      gap: 24px;
+      gap: 24px; /* spacing between heading and paragraph */
     }
 
     .hero-text h1 {
       font-size: 2.4rem;
       font-weight: 600;
-      margin: 0; /* let gap control spacing */
+      margin: 0; /* gap controls spacing */
     }
 
     .hero-text p {
       font-size: 1.15rem;
-      margin: 0; /* let gap control spacing */
+      margin: 0; /* gap controls spacing */
     }
 
     .cta-btn {
-      background-color: #3CCDDD;        /* teal like your original style */
+      background-color: #3CCDDD;        /* teal like existing style */
       border: none;
-      color: #132339;                    /* dark text for contrast on teal */
+      color: #132339;                    /* dark text for contrast */
       font-weight: 700;
       padding: 14px 30px;
       border-radius: 14px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       text-decoration: none;
       display: inline-block;
-      /* create extra space from paragraph like the mock */
+      /* extra space from paragraph as in the mock */
       margin-top: 56px;
     }
 
