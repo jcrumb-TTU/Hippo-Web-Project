@@ -61,10 +61,23 @@
 </head>
 <body>
 
-  <!-- Top bar with logo -->
+  <!-- Top bar with logo + top-right dropdown -->
   <div class="container-fluid bg-white py-2">
     <div class="container d-flex align-items-center">
       <div class="logo">Logo</div>
+
+      <!-- Dropdown aligned to top-right -->
+      <div class="dropdown ms-auto">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Menu
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#">Profile</a></li>
+          <li><a class="dropdown-item" href="#">Settings</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="#" id="logoutLink">Log out</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -75,10 +88,11 @@
       <div class="col-md-3 d-flex justify-content-center">
         <div class="profile-pic">pfp</div>
       </div>
-      <!-- Profile details & edit button -->
+      <!-- Profile details & edit button (hidden for now) -->
       <div class="col-md-9">
         <div class="info-card mb-2">profile details</div>
-        <button class="edit-btn">edit</button>
+        <!-- Hide edit by adding d-none. Remove d-none to make it visible again. -->
+        <button class="edit-btn d-none">edit</button>
       </div>
     </div>
 
@@ -95,5 +109,16 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Optional: JWT-style logout helper from the dropdown
+    document.getElementById('logoutLink')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Clear possible token locations
+      localStorage.removeItem('auth_token');
+      sessionStorage.removeItem('auth_token');
+      // Redirect back to login
+      window.location.href = '../login.html';
+    });
+  </script>
 </body>
 </html>
