@@ -38,6 +38,21 @@
       font-weight: 500;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
+    
+    .logo-btn {
+        background: transparent;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+    }
+    .logo-btn img {
+        height: 40px;     /* adjust to fit your navbar */
+        width: auto;
+        display: block;
+    }
+
     .edit-btn {
       background-color: #21215c;
       border: none;
@@ -64,7 +79,9 @@
   <!-- Top bar with logo + top-right dropdown -->
   <div class="container-fluid bg-white py-2">
     <div class="container d-flex align-items-center">
-      <div class="logo">Logo</div>
+      <button type="button" class="logo logo-btn" aria-label="Logo button">
+        <img src="../../images/hippo_logo.png" alt="HippoExchange logo">
+      </button>
 
       <!-- Dropdown aligned to top-right -->
       <div class="dropdown ms-auto">
