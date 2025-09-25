@@ -39,7 +39,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     .edit-btn {
-      background-color: #21215c; /* stronger teal */
+      background-color: #21215c;
       border: none;
       border-radius: 8px;
       padding: 8px 20px;
@@ -51,7 +51,7 @@
       background-color: #0c8f97;
     }
     .logo {
-      background-color: #495057; /* darker gray for logo badge */
+      background-color: #495057;
       color: #fff;
       padding: 6px 16px;
       border-radius: 20px;
@@ -72,9 +72,6 @@
           Menu
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="#">Profile</a></li>
-          <li><a class="dropdown-item" href="#">Settings</a></li>
-          <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="#" id="logoutLink">Log out</a></li>
         </ul>
       </div>
@@ -91,7 +88,7 @@
       <!-- Profile details & edit button (hidden for now) -->
       <div class="col-md-9">
         <div class="info-card mb-2">profile details</div>
-        <!-- Hide edit by adding d-none. Remove d-none to make it visible again. -->
+        <!-- Hidden: remove d-none to show it again -->
         <button class="edit-btn d-none">edit</button>
       </div>
     </div>
@@ -110,13 +107,17 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Optional: JWT-style logout helper from the dropdown
+    // JWT-style logout helper
     document.getElementById('logoutLink')?.addEventListener('click', (e) => {
       e.preventDefault();
-      // Clear possible token locations
+      // Clear likely token locations
       localStorage.removeItem('auth_token');
       sessionStorage.removeItem('auth_token');
-      // Redirect back to login
+
+      // If you also store refresh tokens or other keys, clear them here:
+      // localStorage.removeItem('refresh_token');
+
+      // Redirect to login page
       window.location.href = '../login.html';
     });
   </script>
