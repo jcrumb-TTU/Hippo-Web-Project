@@ -156,4 +156,25 @@ app.MapPost("/api/login", async (Hippo_Exchange.Contracts.LoginRequest req, IUse
 .Produces(401)
 .WithOpenApi();
 
+app.MapPost("/api/logout", (HttpContext ctx) =>
+{
+    var cookieNames = new[] { "auth_token", "Auth", ".AspNetCore.Cookies" };
+
+    foreach (var name in cookieNames)
+    {
+        if (ctx.Request.Cookies.ContainsKey(name))
+        {
+            ctx.Response.Cookies.Delete(name, new CookieOptions
+            {
+                Path = "/",
+                SameSite = SameSiteMode.Lax, // or Strict if desired
+                Secure = false,              // set true if using HTTPS in dev
+                HttpOnly = true
+            });
+        }
+    }
+
+    return Results.Ok(new { message = "Logged out" });
+});
+
 app.Run();
