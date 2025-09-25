@@ -74,7 +74,7 @@ if (app.Environment.IsDevelopment())
 // app.UseAuthorization();
 
 // Registration Endpoint
-app.MapPost("/api/register", async (RegisterRequest req, IUserService users) =>
+app.MapPost("/api/register", async (Hippo_Exchange.Contracts.RegisterRequest req, IUserService users) =>
 {
     var problems = new Dictionary<string, string[]>();
 
@@ -114,8 +114,7 @@ app.MapPost("/api/register", async (RegisterRequest req, IUserService users) =>
 .Produces(409)
 .WithOpenApi();
 
-// Login Endpoint
-app.MapPost("/api/login", async (LoginRequest req, IUserService users) =>
+app.MapPost("/api/login", async (Hippo_Exchange.Contracts.LoginRequest req, IUserService users) =>
 {
     var normalizedEmail = (req.Email ?? "").Trim().ToLowerInvariant();
     var user = await users.GetByEmailAsync(normalizedEmail);
