@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    <title>Sign-up</title>
+</head>
+<body>
+    <!--Sign up page-->
+    <div id="mainBubble">
+        <div id="bodyText">
+            <h3 id="signupHeader">Create your account</h3>
+            <h4 id="signupCaption">Have an account? <a href="login.html" id="signupLink">Sign in</a></h4>
+        </div>
+        <!--should form have id and name-->
+        <form>
+            
+            <div id="firstLabel">
+                <label for="fname"></label>
+                <input type="text" id="fname" name="firstname" placeholder="first name" required />
+            </div>
+
+            <div id="lastLabel">
+                <label for="lname"></label>
+                <input type="text" id="lname" name="lastname" placeholder="last name" required />
+            </div>
+
+            <div id="bodyLabels">
+                <label for="email"></label><br />
+                <input type="email" id="email" name="email" placeholder="email" required /><br />
+
+                <br />
+                <label for="dob"></label>birthday:<br />
+                <input type="date" id="dob" name="dob" placeholder="birthday:" required /><br />
+
+                <br />
+                <label for="phone">phone number:</label><br />
+                <input type="tel" id="phone" name="phone" placeholder="000-000-0000" required /><br />
+
+                <label for="password"></label><br />
+                <input type="password" id="password" name="password" placeholder="password" required /><br />
+
+                <label for="confirmpass"></label><br />
+                <input type="password" id="confirmpass" name="confirmpass" placeholder="confirm password" required /><br />
+
+            </div>
+            <br />
+            <!--sumbits and goes to homepage (but how)-->
+            
+                <input id="createprofile" type="submit" value="create profile" />
+            
+        </form>
+        </div>
+</body>
+</html>
