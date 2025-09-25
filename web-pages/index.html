@@ -17,57 +17,79 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      padding: 80px 15px;
-      gap: 40px;
+      /* More vertical breathing room similar to the mock */
+      padding: 80px 15px 120px;
+      gap: 60px; /* larger gap between text block and image */
     }
 
     .hero-text {
-      flex: 1 1 350px;
-      max-width: 500px;
+      flex: 1 1 420px;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      /* controls spacing between heading and body */
+      gap: 24px;
     }
 
     .hero-text h1 {
-      font-size: 2.2rem;
+      font-size: 2.4rem;
       font-weight: 600;
-      margin-bottom: 20px;
+      margin: 0; /* let gap control spacing */
     }
 
     .hero-text p {
-      font-size: 1.1rem;
-      margin-bottom: 30px;
+      font-size: 1.15rem;
+      margin: 0; /* let gap control spacing */
     }
 
-    .hero-text .cta-btn {
-      background-color: #5c52e9; /* teal button */
+    .cta-btn {
+      background-color: #3CCDDD;        /* teal like your original style */
       border: none;
-      color: #fff;
-      font-weight: 600;
-      padding: 12px 28px;
-      border-radius: 12px;
+      color: #132339;                    /* dark text for contrast on teal */
+      font-weight: 700;
+      padding: 14px 30px;
+      border-radius: 14px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       text-decoration: none;
       display: inline-block;
+      /* create extra space from paragraph like the mock */
+      margin-top: 56px;
     }
 
-    .hero-text .cta-btn:hover {
-      background-color: #1ba4b6;
+    .cta-btn:hover {
+      filter: brightness(0.95);
+    }
+
+    .returning {
+      margin-top: 10px;  /* subtle space under the button */
+      font-size: 0.98rem;
+      color: #33527D;
+    }
+    .returning a {
+      color: #003782;
+      text-decoration: underline;
+    }
+    .returning a:hover {
+      text-decoration-thickness: 2px;
     }
 
     .hero-image {
-      flex: 1 1 350px;
-      max-width: 500px;
-      border-radius: 24px;
-      height: 300px;
-      background-color: #d6d6d6;
+      flex: 1 1 420px;
+      max-width: 560px;
+      height: 420px;                /* taller like the mock */
+      background-color: #d6d6d6;    /* placeholder bg behind image */
+      border-radius: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden; /* ensures corners round the image */
+      overflow: hidden;             /* rounds the image corners */
     }
+
     .hero-image img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: cover;            /* fill area similar to mock */
     }
   </style>
 </head>
@@ -78,12 +100,16 @@
     <div class="hero-text">
       <h1>Hippo Exchange</h1>
       <p>Your one-stop solution for all your exchange needs</p>
+
       <a href="user_login/signup.html" class="cta-btn">Join Now!</a>
+      <p class="returning">
+        Returning user? <a href="user_login/login.html">Log in</a>
+      </p>
     </div>
 
-    <!-- Right side image using an <img> tag -->
-    <div class="hero-image">
-      <img src="images/hippo_img.png" alt="Landing illustration">
+    <!-- Right side image using an <img> tag (Option B) -->
+    <div class="hero-image" aria-label="Landing illustration">
+      <img src="images/hippo_img.png" alt="Illustration of a hippo wearing a top hat, monocle, and bow tie." />
     </div>
   </section>
 
