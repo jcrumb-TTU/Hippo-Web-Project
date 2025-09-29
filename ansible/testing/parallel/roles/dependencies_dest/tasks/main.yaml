@@ -16,3 +16,12 @@
     create: true
     line: 'export PATH="$PATH:~/.dotnet/"'
     path: "~/.bashrc"
+- name: Install Dependencies in Apt
+  become: true
+  ansible.builtin.apt:
+    pkg: "{{ apt_deps }}"
+    state: present
+  async: 60 # Wait 60s...
+  poll: 0
+  register: apt_proc
+

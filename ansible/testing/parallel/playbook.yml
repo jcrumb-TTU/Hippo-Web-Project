@@ -14,7 +14,10 @@
   vars:
     apt_deps: []
   roles:
-  - local
+  - dependencies_local
+  hosts: testing
+  roles:
+  - deploy_local
   tasks:
   #- debug: msg="{{apt_deps}}"
   - name: Finalize Dependencies

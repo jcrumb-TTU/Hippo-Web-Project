@@ -1,0 +1,52 @@
+- name: Local dependencies
+  hosts: locals
+  tasks:
+  - name: Locate repository 
+    ansible.builtin.command:
+      chdir: "{{ playbook_dir }}"
+      argv: 
+        - git
+        - rev-parse
+        - --show-toplevel
+    register: local_repo_out
+    #delegate_to: locals
+    #connection: local
+  - name: Register Local Git Directory
+    ansible.builtin.set_fact:
+      local_repo: "{{ local_repo_out.stdout }}"
+  - name: Pull Swagger Submodules
+    ansible.builtin.command:
+      chdir: "{{ local_repo }}"
+      argv:
+        - git
+        - submodule
+        - update
+        - --init
+        - --remote
+        - --recursive
+    register: submodule_proc
+
+- name: Remote Dependencies
+  hosts: testing
+  tasks: 
+  - name: Install APT Dependencies
+    ansible.builtin.apt:
+      pkg:
+        - nginx
+        - maven
+        - git
+      state: present
+  - name: Checking if dotnet is installed
+    ansible.builtin.stat:
+      path: "~/.dotnet/"
+    register: dotnet_dir
+  - name: Download and install dotnet if necessary...
+    when: dotnet_dir.stat.exists is false
+    ansible.builtin.import_tasks:
+      file: "dotnet.yaml"
+  - name: Ensure dotnet is in the path
+    ansible.builtin.lineinfile:
+      create: true
+      line: 'export PATH="$PATH:~/.dotnet/"'
+      path: "~/.bashrc"
+

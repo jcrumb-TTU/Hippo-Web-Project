@@ -1,0 +1,16 @@
+- name: Pull Swagger Submodules locally
+  hosts: locals
+  roles:
+    - dependencies_src
+
+- name: Setup remote server dependencies
+  hosts: testing
+    - dependencies_dest
+
+- name: Deploy files from local to server
+  hosts: 
+  roles:
+    - deploy_src
+
+- name: Patch and deploy files on remote.
+  

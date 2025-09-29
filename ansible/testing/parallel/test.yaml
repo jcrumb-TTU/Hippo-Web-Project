@@ -1,0 +1,27 @@
+- name: Test registering multiple results to a variable.
+  hosts: locals
+  tasks:
+  - name: Run items asynchronously from a file?
+    vars:
+      sleep_durations:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+    #durations: "{{ item }}"
+    import_tasks: test_sleep.yaml  
+    async: 120
+    poll: 0
+    register: async_res
+  - debug: msg="Tasks have been started!"
+  - name: Do a quick sleep
+    ansible.builtin.command: sleep 1
+  - debug: msg="Did a quick sleep!!"
+  - name: Wait for sleep loop to finish.
+    async_status:
+      jid: "{{ async_res.ansible_job_id }}"
+    register: async_done
+    until: async_done is finished
+    delay: 1
+    retries: 60

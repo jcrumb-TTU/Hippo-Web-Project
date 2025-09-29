@@ -1,0 +1,6 @@
+- name: Ensure dependencies are installed.
+  ansible.builtin.import_playbook: dependencies.yaml
+
+
+- name: Deploy the files to the server.
+  ansible.builtin.import_playbook: deploy.yaml

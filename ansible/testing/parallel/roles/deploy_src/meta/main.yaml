@@ -1,0 +1,6 @@
+dependencies:
+  - role: dependencies_base
+    vars:
+      apt_deps_ex:
+        - maven
+

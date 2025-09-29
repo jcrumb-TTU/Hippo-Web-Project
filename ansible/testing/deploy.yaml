@@ -1,0 +1,25 @@
+- name: Deploy app to local VM.
+  hosts: locals
+  tasks:
+    - name: Determine Tarball Path
+      ansible.builtin.set_fact:
+        tar_path: "{{ local_repo | regex_replace('[\\\/]$','') }}.tar.gz"
+    - debug: msg="{{ tar_path  }}"
+    - name: Create tarball of repository directory.
+      ansible.builtin.raw: tar -caf "{{ tar_path|quote }}" "{{ local_repo|quote }}"
+
+- name: Setup the app on the local vm.
+  hosts: testing
+  tasks:
+    - name: Copy app files from your machine to the VM.
+      ansible.builtin.copy:
+        src: "{{ hostvars['localhost']['tar_path'] }}"
+        dest: "~/Hippo-Web-Project-Deployment.tar.gz"
+      register: local_deploy
+    - name: Stop Nginx if running.
+      ansible.builtin.service:
+        name: nginx
+        state: stopped
+        enabled: false
+    - name: Stop Backend if running.  
+
