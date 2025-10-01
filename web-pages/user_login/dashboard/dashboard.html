@@ -1,89 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profile Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap 5 + Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+
   <style>
+    :root{
+      --accent:#21215c;
+      --accent-2:#0c8f97;
+      --card:#ffffff;
+      --bg:#c8e1f5;
+      --muted:#6c757d;
+    }
     body {
-      background-color: #c8e1f5; /* darker light-blue background */
+      background-color: var(--bg);
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
+
+    .topbar{
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
     .dashboard-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 30px 15px;
+      max-width: 1100px;
+      margin: 28px auto;
+      padding: 24px;
     }
-    .profile-pic {
+
+    /* Profile area */
+    .profile-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .profile-pic-wrapper {
+      width: 180px;
+      height: 180px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .profile-pic-wrapper .profile-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      border: 6px solid rgba(255,255,255,0.85);
+      box-shadow: 0 6px 18px rgba(33,33,92,0.06);
+      background: #fff;
+    }
+
+    /* small round edit button bottom-right */
+    .profile-edit {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      z-index: 5;
+    }
+    .profile-edit .btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    }
+    .profile-edit .btn:hover { background: var(--accent-2); }
+
+    .file-error {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -22px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: none;
+    }
+
+    .info-card {
+      background-color: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .bio-actions { gap: 8px; }
+
+    /* Modal preview image circle */
+    .preview-circle {
       width: 180px;
       height: 180px;
       border-radius: 50%;
-      background-color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      font-weight: 500;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin: 0 auto 8px;
+      display: block;
     }
-    .info-card {
-      background-color: #ffffff;
-      border-radius: 15px;
-      padding: 20px;
-      text-align: center;
-      min-height: 120px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 500;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    
-    .logo-btn {
-        background: transparent;
-        border: 0;
-        padding: 0;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-    }
-    .logo-btn img {
-        height: 40px;     /* adjust to fit your navbar */
-        width: auto;
-        display: block;
-    }
+    .preview-circle img { width:100%; height:100%; object-fit:cover; display:block; }
 
-    .edit-btn {
-      background-color: #21215c;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 20px;
-      color: #fff;
-      font-weight: 500;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    .edit-btn:hover {
-      background-color: #0c8f97;
-    }
-    .logo {
-      background-color: #495057;
-      color: #fff;
-      padding: 6px 16px;
-      border-radius: 20px;
-      display: inline-block;
+    /* small responsiveness */
+    @media (max-width: 768px) {
+      .dashboard-container { padding: 12px; margin: 12px; }
+      .profile-pic-wrapper { width: 140px; height: 140px; }
+      .preview-circle, .profile-pic-wrapper .profile-img { width: 140px; height: 140px; }
     }
   </style>
 </head>
 <body>
-
   <!-- Top bar with logo + top-right dropdown -->
-  <div class="container-fluid bg-white py-2">
+  <div class="container-fluid topbar py-2">
     <div class="container d-flex align-items-center">
-      <button type="button" class="logo logo-btn" aria-label="Logo button">
-        <img src="../../images/hippo_logo.png" alt="HippoExchange logo">
+      <button type="button" class="logo logo-btn" aria-label="Logo button" style="background:transparent;border:0;padding:0;">
+        <img src="../../images/hippo_logo.png" alt="HippoExchange logo" style="height:40px;">
       </button>
 
-      <!-- Dropdown aligned to top-right -->
       <div class="dropdown ms-auto">
         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
           Menu
@@ -95,48 +144,447 @@
     </div>
   </div>
 
-  <!-- Dashboard content -->
+  <!-- Main dashboard -->
   <div class="dashboard-container">
-    <div class="row mb-4">
-      <!-- Profile picture -->
-      <div class="col-md-3 d-flex justify-content-center">
-        <div class="profile-pic">pfp</div>
-      </div>
-      <!-- Profile details & edit button (hidden for now) -->
-      <div class="col-md-9">
-        <div class="info-card mb-2">profile details</div>
-        <!-- Hidden: remove d-none to show it again -->
-        <button class="edit-btn d-none">edit</button>
+    <!-- Alerts area -->
+    <div id="alerts"></div>
+
+    <div class="profile-card mb-4">
+      <div class="row align-items-center gx-4">
+        <!-- Profile picture -->
+        <div class="col-auto d-flex">
+          <div style="position:relative;">
+            <div class="file-error text-danger" id="fileError">Only PNG, JPG or GIF allowed</div>
+
+            <div class="profile-pic-wrapper">
+              <img id="profileImg" class="profile-img" alt="Profile picture" src="" />
+              <!-- edit dropdown -->
+              <div class="profile-edit">
+                <div class="dropdown">
+                  <button class="btn" type="button" id="profileEditBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Edit profile photo">
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><button class="dropdown-item" id="uploadOption">Upload photo</button></li>
+                    <li><button class="dropdown-item text-danger" id="removeOption">Remove photo</button></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hidden file input -->
+            <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg,image/gif" style="display:none"/>
+          </div>
+        </div>
+
+        <!-- Profile details -->
+        <div class="col">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h4 class="mb-1">Your Profile</h4>
+              <div class="text-muted small">Manage your profile picture and bio</div>
+            </div>
+            <div>
+              <!-- optionally add quick actions here -->
+            </div>
+          </div>
+
+          <div class="info-card mt-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <h5 class="mb-0">Profile details</h5>
+              <div>
+                <button class="btn btn-sm btn-outline-secondary" id="editBioBtn" title="Edit bio"><i class="bi bi-pencil"></i> Edit</button>
+              </div>
+            </div>
+
+            <p id="bioText" class="mt-3 text-start" style="white-space:pre-wrap;line-height:1.4;">No bio yet. Click edit to add one.</p>
+
+            <div id="bioEditor" class="mt-2 d-none">
+              <textarea id="bioInput" class="form-control" rows="4" maxlength="500"></textarea>
+              <div class="d-flex justify-content-end mt-2 bio-actions">
+                <button class="btn btn-sm btn-outline-secondary" id="cancelBioBtn">Cancel</button>
+                <button class="btn btn-sm btn-primary" id="saveBioBtn">Save</button>
+              </div>
+              <div class="text-muted small mt-1">Max 500 characters.</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- Listings / Rents (placeholders for your other pages) -->
     <div class="row g-4">
-      <!-- Current listings -->
       <div class="col-md-6">
-        <div class="info-card">current listings</div>
+        <div class="info-card">
+          <h6 class="mb-2">Current listings</h6>
+          <div class="text-muted small">Your items available to borrow. (Link to listings page)</div>
+          <div class="mt-3"><a href="/listings.html" class="btn btn-sm btn-outline-primary">Manage listings</a></div>
+        </div>
       </div>
-      <!-- Current rents -->
       <div class="col-md-6">
-        <div class="info-card">current rents</div>
+        <div class="info-card">
+          <h6 class="mb-2">Current rents</h6>
+          <div class="text-muted small">Items you are currently borrowing.</div>
+          <div class="mt-3"><a href="/rents.html" class="btn btn-sm btn-outline-primary">View rents</a></div>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Preview modal (select confirm) -->
+  <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3">
+        <div class="modal-body text-center">
+          <div class="preview-circle mb-2"><img id="previewImage" alt="Preview"/></div>
+          <div class="mb-2" id="previewName"></div>
+          <div class="d-flex justify-content-center gap-2">
+            <button class="btn btn-outline-secondary" data-bs-dismiss="modal" id="cancelPreviewBtn">Cancel</button>
+            <button class="btn btn-primary" id="confirmUploadBtn">
+              <span id="confirmText">Confirm</span>
+              <span id="confirmSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Remove confirm modal -->
+  <div class="modal fade" id="removeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h6>Remove profile photo?</h6>
+          <p class="mb-3 small text-muted">This will reset your avatar to the default image.</p>
+          <div class="d-flex justify-content-end gap-2">
+            <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">No</button>
+            <button class="btn btn-danger btn-sm" id="confirmRemoveBtn">Sure — remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
   <script>
-    // JWT-style logout helper
+    /* -----------------------
+       Constants & elements
+       ----------------------- */
+    const DEFAULT_AVATAR = "data:image/svg+xml;utf8," +
+      "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'>" +
+      "<rect width='100%' height='100%' fill='%23e6f3fb'/>" +
+      "<text x='50%' y='54%' font-size='58' text-anchor='middle' fill='%2321215c' font-family='Arial, Helvetica, sans-serif'>P</text>" +
+      "</svg>";
+
+    const allowedTypes = ['image/png','image/jpeg','image/jpg','image/gif'];
+    const profileImg = document.getElementById('profileImg');
+    const fileInput = document.getElementById('fileInput');
+    const fileError = document.getElementById('fileError');
+    const previewModalEl = document.getElementById('previewModal');
+    const previewModal = new bootstrap.Modal(previewModalEl, { backdrop: 'static' });
+    const previewImage = document.getElementById('previewImage');
+    const previewName = document.getElementById('previewName');
+    const confirmUploadBtn = document.getElementById('confirmUploadBtn');
+    const confirmSpinner = document.getElementById('confirmSpinner');
+    const confirmText = document.getElementById('confirmText');
+    const removeModalEl = document.getElementById('removeModal');
+    const removeModal = new bootstrap.Modal(removeModalEl, {});
+    const alerts = document.getElementById('alerts');
+
+    let lastSelectedFile = null;
+    let lastSelectedDataUrl = null;
+
+    const bioText = document.getElementById('bioText');
+    const editBioBtn = document.getElementById('editBioBtn');
+    const bioEditor = document.getElementById('bioEditor');
+    const bioInput = document.getElementById('bioInput');
+    const cancelBioBtn = document.getElementById('cancelBioBtn');
+    const saveBioBtn = document.getElementById('saveBioBtn');
+
+    /* -----------------------
+       Helper UI functions
+       ----------------------- */
+    function showAlert(message, type = 'success', timeout = 4000) {
+      const id = 'a' + Date.now();
+      const alertHTML = `
+        <div id="${id}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+      alerts.insertAdjacentHTML('afterbegin', alertHTML);
+      if (timeout) setTimeout(()=> {
+        const el = document.getElementById(id);
+        if (el) bootstrap.Alert.getOrCreateInstance(el).close();
+      }, timeout);
+    }
+
+    function showFileError(text) {
+      fileError.textContent = text;
+      fileError.style.display = 'block';
+      setTimeout(()=> fileError.style.display = 'none', 3500);
+    }
+
+    /* -----------------------
+       Upload / Preview flows
+       ----------------------- */
+    document.getElementById('uploadOption').addEventListener('click', (e) => {
+      e.preventDefault();
+      // open file dialog
+      fileInput.value = '';
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', handleFileSelect);
+
+    function handleFileSelect(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      // Some browsers report 'image/jpg' rarely; normalize jpeg
+      const type = file.type === 'image/jpg' ? 'image/jpeg' : file.type;
+
+      if (!allowedTypes.includes(type)) {
+        showFileError('Only PNG, JPG or GIF allowed');
+        fileInput.value = '';
+        return;
+      }
+
+      lastSelectedFile = file;
+      previewName.textContent = file.name;
+
+      const reader = new FileReader();
+      reader.onload = function(event){
+        lastSelectedDataUrl = event.target.result;
+        previewImage.src = lastSelectedDataUrl;
+        previewModal.show();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    confirmUploadBtn.addEventListener('click', async () => {
+      if (!lastSelectedFile || !lastSelectedDataUrl) {
+        previewModal.hide();
+        return;
+      }
+      // UI: show spinner
+      confirmSpinner.classList.remove('d-none');
+      confirmText.textContent = 'Uploading...';
+      confirmUploadBtn.disabled = true;
+
+      try {
+        /*
+        !!!!!!!!!!!!   
+        CONFIRM UPLOAD BUTTON
+        Call the API to actually upload the photo to your backend
+        !!!!!!!!!!!!
+      */
+        await uploadProfilePic(lastSelectedFile, lastSelectedDataUrl);
+        previewModal.hide();
+      } catch (err) {
+        console.error(err);
+        showAlert('Upload failed. Preview applied locally. Check console for details.', 'warning', 7000);
+        // even on failure, set preview locally so user sees change (but not persisted)
+        profileImg.src = lastSelectedDataUrl;
+        // store fallback in localStorage so page reload retains it until backend is fixed
+        localStorage.setItem('profile_local_photo', lastSelectedDataUrl);
+        previewModal.hide();
+      } finally {
+        confirmSpinner.classList.add('d-none');
+        confirmText.textContent = 'Confirm';
+        confirmUploadBtn.disabled = false;
+        lastSelectedFile = null;
+        lastSelectedDataUrl = null;
+        fileInput.value = '';
+      }
+    });
+
+    /* -----------------------
+       Remove photo flow
+       ----------------------- */
+    document.getElementById('removeOption').addEventListener('click', (e) => {
+      e.preventDefault();
+      removeModal.show();
+    });
+
+    document.getElementById('confirmRemoveBtn').addEventListener('click', async () => {
+      try {
+        /*
+        !!!!!!!!!!!!   
+        REMOVE PHOTO
+        Call the API to actually remove the photo in your backend
+        !!!!!!!!!!!!
+      */
+        await removeProfilePic();
+        showAlert('Profile photo removed', 'success');
+      } catch (err) {
+        console.error(err);
+        // fallback to local: clear local stored preview
+        profileImg.src = DEFAULT_AVATAR;
+        localStorage.removeItem('profile_local_photo');
+        showAlert('Couldn\'t remove on server — reset locally.', 'warning', 5000);
+      } finally {
+        removeModal.hide();
+      }
+    });
+
+    /* -----------------------
+       Networking: Upload / Remove / Load / Save
+       ----------------------- */
+
+    /*
+      !!!!!!!!!!!!   
+      NETWORKING SECTION / API ENDPOINTS
+      Adjust these endpoints to match your backend routes
+      !!!!!!!!!!!!
+      */
+    const API = {
+      getProfile: '/api/user/profile',             // GET -> returns { bio, photoUrl }
+      uploadPhoto: '/api/user/profile/photo',     // POST (multipart/form-data) -> returns { imageUrl }
+      removePhoto: '/api/user/profile/photo',     // DELETE -> returns { ok:true }
+      updateProfile: '/api/user/profile'          // PUT -> { bio } returns { ok:true, bio }
+    };
+
+    // helper to get auth token if you use JWT or similar
+    // !!!!!!!!!!!!!!!!!! We won't nead this once we get sessions set up
+    function getAuthHeaders() {
+      const token = localStorage.getItem('auth_token'); // adjust as needed
+      return token ? { 'Authorization': 'Bearer ' + token } : {};
+    }
+
+    async function uploadProfilePic(file, fallbackDataUrl) {
+      const fd = new FormData();
+      fd.append('photo', file);
+
+      // try uploading to your backend
+      const res = await fetch(API.uploadPhoto, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: fd
+      });
+
+      if (!res.ok) {
+        // throw to trigger fallback handling
+        throw new Error('Upload failed: ' + res.status);
+      }
+      const data = await res.json();
+      // backend should return the publicly accessible URL as `imageUrl` or `url`
+      const imageUrl = data.imageUrl || data.url;
+      profileImg.src = imageUrl || fallbackDataUrl || DEFAULT_AVATAR;
+      // also save to local cache so UI is smooth
+      if (imageUrl) localStorage.setItem('profile_server_photo', imageUrl);
+      showAlert('Profile photo updated', 'success');
+    }
+
+    async function removeProfilePic() {
+      // Try deleting on server via DELETE
+      const res = await fetch(API.removePhoto, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (!res.ok) throw new Error('Remove failed: ' + res.status);
+      // on success, clear UI
+      profileImg.src = DEFAULT_AVATAR;
+      localStorage.removeItem('profile_server_photo');
+      localStorage.removeItem('profile_local_photo');
+    }
+
+    async function loadProfile() {
+      // first try to get from server
+      try {
+        const res = await fetch(API.getProfile, { method: 'GET', headers: getAuthHeaders() });
+        if (res.ok) {
+          const data = await res.json();
+          profileImg.src = data.photoUrl || localStorage.getItem('profile_local_photo') || DEFAULT_AVATAR;
+          bioText.textContent = data.bio || 'No bio yet. Click edit to add one.';
+          return;
+        }
+      } catch (err) {
+        console.warn('Could not load profile from server:', err);
+      }
+
+      // fallback local cache (works if user previewed image but backend not set up)
+      profileImg.src = localStorage.getItem('profile_server_photo') || localStorage.getItem('profile_local_photo') || DEFAULT_AVATAR;
+      bioText.textContent = localStorage.getItem('profile_bio') || 'No bio yet. Click edit to add one.';
+    }
+
+    async function saveBioToServer(newBio) {
+      const res = await fetch(API.updateProfile, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify({ bio: newBio })
+      });
+      if (!res.ok) throw new Error('Save bio failed: ' + res.status);
+      const data = await res.json();
+      return data;
+    }
+
+    /* -----------------------
+       Bio edit UI handlers
+       ----------------------- */
+    editBioBtn.addEventListener('click', () => {
+      bioEditor.classList.remove('d-none');
+      bioInput.value = bioText.textContent.trim() === 'No bio yet. Click edit to add one.' ? '' : bioText.textContent;
+      bioInput.focus();
+    });
+    cancelBioBtn.addEventListener('click', () => {
+      bioEditor.classList.add('d-none');
+    });
+
+    saveBioBtn.addEventListener('click', async () => {
+      const newBio = bioInput.value.trim();
+      saveBioBtn.disabled = true;
+      try {
+        // optimistic UI update:
+        bioText.textContent = newBio || 'No bio yet. Click edit to add one.';
+        bioEditor.classList.add('d-none');
+
+        // attempt server save
+        try {
+          await saveBioToServer(newBio);
+          showAlert('Bio saved', 'success');
+        } catch (serverErr) {
+          // fallback: store locally and warn
+          localStorage.setItem('profile_bio', newBio);
+          showAlert('Saved locally. Server update failed.', 'warning', 5000);
+          console.warn(serverErr);
+        }
+      } finally {
+        saveBioBtn.disabled = false;
+      }
+    });
+
+    /* -----------------------
+       Logout link (keeps your existing logic)
+       ----------------------- */
     document.getElementById('logoutLink')?.addEventListener('click', (e) => {
       e.preventDefault();
-      // Clear likely token locations
+
+      /*
+      !!!!!!!!!!!!   
+      UPLOAD OPTION TRIGGER
+      This is all local code! You can use the code I have commented out below if you have a backend logout endpoint
+        fileInput.value = '';
+        fileInput.click();
+      !!!!!!!!!!!!
+      */
       localStorage.removeItem('auth_token');
       sessionStorage.removeItem('auth_token');
-
-      // If you also store refresh tokens or other keys, clear them here:
-      // localStorage.removeItem('refresh_token');
-
-      // Redirect to login page
+      // redirect (adjust to your login path)
       window.location.href = '../login.html';
     });
+
+    /* -----------------------
+       Init
+       ----------------------- */
+    (function init() {
+      // load profile data (server or fallback)
+      loadProfile();
+    })();
   </script>
 </body>
 </html>
