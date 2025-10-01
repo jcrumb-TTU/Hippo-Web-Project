@@ -1,0 +1,50 @@
+login:  
+  post:
+    #Inputs: Email, Password
+    summary: Authenticates a user and creates a session if authenticated.
+    description: Sends the user's credentials to the server to be validated. If they are, creates a new session for them. Will be done via JWT or cookies, but method undecided for now.
+    tags:
+      - account
+    requestBody:
+      description: The user's credentials.
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+    responses:
+      "200":
+        description: Login was successful, a session will be created (How is undecided).
+          #Outputs: 200: Login successful, 404: Account not present. 403: Login failed (Bad credentials).
+
+logout:
+  post:
+    summary: Lets a user log out.
+    description: Ends the users session when called while logged in, does nothing else otherwise.
+    tags:
+      - account
+    requestBody:
+      description: "The user's session identifier [PLACEHOLDER]"
+      content:
+        text/plain:
+          schema:
+            type: string
+        
+    responses:
+      "200":
+        description: Logout successful!
+
+me:
+  get:
+    summary: Gets the active user's session
+    tags:
+      - account
+    responses:
+      "200":
+        description: Got the session.
+    # Will also define responses on failure.

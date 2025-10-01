@@ -9,74 +9,31 @@ servers:
   - url: /api/
     description: Requests will be sent to the url of this swagger instance.
 
+components:
+  securitySchemes:
+    placeholder: # A placeholder cookie auth schema until we decide on something better.
+      type: apiKey
+      in: cookie
+      name: SESSIONID
+tags:
+  - name : account
+    description: Account related endpoint methods. These endpoints should validate user account information and create sessions as needed.
+  - name: listing
+    description: Item listing related endpoint methods. These endpoints should handle the creation, alteration, and removal of item listings.
+  - name: loan
+    description: Borrow-Related endpoint methods. These endpoints should handle transactions related to items being borrowed and returned. 
 paths:
-  /register:
-    post:
-      summary: Creates a new user account.
-      description: Validates the user's information, then uses it to add a new account to the database if it is valid and the account doesn't already exist.
-      requestBody:
-        description: Optional description in *Markdown*
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                fname:
-                  type: string
-                  description: The user's first name.
-                lname:
-                  type: string
-                  description: The user's last name.
-                bday:
-                  type: string
-                  format: date
-                  description: The user's date of birth (YYYY-MM-DD).
-                email:  
-                  type: string
-                  description: The user's email address.
-                phone:
-                  type: string
-                  description: The user's phone number.
-                password:
-                  type: string
-                  description: The user's password.
-                confirm_password:
-                  type: string
-                  description: The user's password again.
-                terms:
-                  type: string
-                  description: \"on\" if the terms box was checked, \"off\" otherwise.
-      responses:
-        "200":
-          description: A message indicating success is returned.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        "400":
-          description: There was an issue with the provided user input.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  fname:
-                    type: string
-                  lname:
-                    type: string
-                  bday:
-                    type: string
-                  email:  
-                    type: string
-                  phone:
-                    type: string
-                  password:
-                    type: string
-                  confirm_password:
-                    type: string
-                  terms:
-                    type: string
+  /register: #Endpoint
+    $ref: "endpoints/account/register.yaml#/register"
+  /login:
+    $ref: "endpoints/account/session.yaml#/login"
+  /logout:
+    $ref: "endpoints/account/session.yaml#/logout"
+  /me:
+    $ref: "endpoints/account/session.yaml#/me"
+  # The item listing endpoints.
+  /items:  
+    $ref: "endpoints/listing/items.yaml#/~1items"
+  /items/{id}:
+    $ref: "endpoints/listing/items.yaml#/~1items~1{id}"
+  

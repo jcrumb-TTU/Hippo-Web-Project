@@ -1,0 +1,117 @@
+/items:
+  # Methods in this file should handle adding, updating, and removing items.
+  post:
+    summary: "Creates a new item listing on the server under the authenticated user."
+    tags:
+      - listing
+    requestBody:
+      description: "The item's details being sent to the server. NOTE: Content type is not final and can be changed on request."
+      required: true
+      content:
+        mulitpart/form-data: # Not final, can be changed if necessary.
+          schema:
+            type: object
+            properties:
+              Name:
+                type: string
+                description: The item's name
+                required: true;
+              Desc:
+                type: string
+                description: The item's long description.
+              Properties:
+                type: object
+                description: The item's properties. Should be in a key value pairs.
+                additionalProperties:
+                  type: string 
+              Maintenance:
+                type: object
+                description: Preventative maintenance steps.
+                additionalProperties:
+                  type: string
+  
+        $ref: "itemform.yaml#/form"
+    responses: 
+      "201":
+        description: "Item added successfully."
+      "400":
+        description: "Item form contained invalid data."
+      "401":
+        description: "The user is not logged in, or their session expired. Therefore, the item was not created."
+  
+/items/{id}:
+  get:
+    summary: "Retrieves an item's details."
+    tags:
+      - listing
+    parameters:
+      - in: path
+        name: id
+        description: "The identifier of the requested item."
+        schema:
+          type: integer
+        required: true
+    responses:
+      "200":
+        description: "Item details retrieved."
+      "404":
+        descsription: "Item not found."
+  put:
+    summary: "Update the existing item at id if authorized."
+    tags:
+      - listing
+    parameters:
+      - in: path
+        name: id
+        description: "The identifier of the requested item."
+        schema:
+          type: integer
+        required: true
+      - in: header
+        name: force
+        description: "Update the item anyways despite it being loaned out. The user with the item will be notified in this case."
+        schema:
+          type: bool
+        required: true
+    requestBody:
+      $ref: "#/~1items/post/requestBody" # References the form body from the post methond in /items.
+    # Responses: 201 - item updated, 400 - Some detail was invalid, so the item was not modified, 401 - Session expired - login in again, 403 - Not authorized to remove, 404: Item not found.
+    responses:
+      "201":
+        description: "The item was updated successfully."
+      "400":
+        description: "Item form contained invalid data."
+      "401":
+        description: "The user is not logged in, or their session expired. Therefore, the item was not created."
+      "403":
+        description: "User is not authorized to update item id (i.e. the item belongs to another user)."
+      "404":
+        description: "Item was not found (Perhaps it was removed from another tab?)"
+      "409":
+        description: "The item is out on loan. The user should be prompted to either cancel the changes, or do them anyways, which will notify the user with the item. If they choose to proceed, resend the request with force=true."
+
+  delete:
+    summary: "Attempts to remove the item at id."
+    tags:
+      - listing
+    # Inputs: Item id 
+    parameters:
+      - in: path
+        name: id
+        description: "The identifier of the requested item."
+        schema:
+          type: integer
+        required: true
+    # Responses: 204 - item removed, 401 - Session expired - login in again, 403 - Not authorized to remove, 404: Item not found. 409 - The item is out on loan, so not removed 
+    responses:
+      "201":
+        description: "The item was updated successfully."
+      "400":
+        description: "Item form contained invalid data."
+      "401":
+        description: "The user is not logged in, or their session expired. Therefore, the item was not created."
+      "403":
+        description: "User is not authorized to remove item id (i.e. the item belongs to another user)."
+      "409":
+        description: "The item is out on loan. Unlike with put, the item cannot be removed until it is returned."
+  
