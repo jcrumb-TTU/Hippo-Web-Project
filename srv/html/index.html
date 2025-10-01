@@ -1,20 +1,31 @@
-﻿<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
-    <title>HippoExchange</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landing Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/landing.css">	<!-- This should go to the root of the webserver when running on nginx? --!>
 </head>
-<body style="background-color: #e7eefd;">
-    <h1 id="landingHeader">Intersting heading</h1>
-    <h3 id="landingBody">Witty paragraph about company</h3>
+<body>
 
-    <button id="join" onclick="document.location='signup.html'">Join now!</button>
+  <section class="hero">
+    <!-- Left side text -->
+    <div class="hero-text">
+      <h1>Hippo Exchange</h1>
+      <p>Your one-stop solution for all your exchange needs</p>
 
-   
-    
+      <a href="user_login/signup.html" class="cta-btn">Join Now!</a>
+      <p class="returning">
+        Returning user? <a href="user_login/login.html">Log in</a>
+      </p>
+    </div>
+
+    <!-- Right side image using an <img> tag (Option B) -->
+    <div class="hero-image" aria-label="Landing illustration">
+      <img src="images/hippo_img.png" alt="Illustration of a hippo wearing a top hat, monocle, and bow tie." />
+    </div>
+  </section>
+
 </body>
 </html>
