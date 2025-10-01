@@ -2,15 +2,16 @@ using Hippo_Exchange.Contracts;
 using Hippo_Exchange.Models;
 using Hippo_Exchange.Services;
 using Isopoh.Cryptography.Argon2;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
-using System.Text;
+
+// Cookie auth
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Mongo configuration
+// Mongo configuration (as in mongo_api_test)
 var mongoConnection =
     builder.Configuration.GetValue<string>("Mongo:ConnectionString")
     ?? Environment.GetEnvironmentVariable("MONGODB_CONNECTION")
@@ -33,26 +34,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// OPTIONAL JWT (leave commented until needed)
-/*
-var jwtKey = builder.Configuration.GetValue<string>("Jwt:Key") ?? "dev-secret-change";
-var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
-            ClockSkew = TimeSpan.FromMinutes(1)
-        };
-    });
-builder.Services.AddAuthorization();
-*/
-
+// CORS (keep your current dev origins)
 builder.Services.AddCors(o =>
 {
     o.AddPolicy("Default", p =>
@@ -62,10 +44,29 @@ builder.Services.AddCors(o =>
         )
         .AllowAnyHeader()
         .AllowAnyMethod()
+        .AllowCredentials()
     );
 });
 
+// Cookie authentication
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "hippo.auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;      // Strict if same-site only; None + Secure if cross-site
+        options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Use Always in HTTPS
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+        options.LoginPath = "/api/login";
+        options.LogoutPath = "/api/logout";
+    });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
+
 app.UseCors("Default");
 
 if (app.Environment.IsDevelopment())
@@ -74,11 +75,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
-// Registration Endpoint
-app.MapPost("/api/register", async (Hippo_Exchange.Contracts.RegisterRequest req, IUserService users) =>
+// Registration Endpoint (unchanged logic, persists to Mongo)
+app.MapPost("/api/register", async (RegisterRequest req, IUserService users) =>
 {
     var problems = new Dictionary<string, string[]>();
 
@@ -87,7 +88,7 @@ app.MapPost("/api/register", async (Hippo_Exchange.Contracts.RegisterRequest req
     if (string.IsNullOrWhiteSpace(req.Email)) problems["Email"] = new[] { "Email required." };
     if (string.IsNullOrWhiteSpace(req.Password)) problems["Password"] = new[] { "Password required." };
     if (req.Password != req.ConfirmPassword) problems["ConfirmPassword"] = new[] { "Passwords do not match." };
-     if (!req.Terms) problems["Terms"] = new[] { "Terms must be accepted." };
+    if (!req.Terms) problems["Terms"] = new[] { "Terms must be accepted." };
 
     if (problems.Count > 0)
         return Results.ValidationProblem(problems);
@@ -118,63 +119,67 @@ app.MapPost("/api/register", async (Hippo_Exchange.Contracts.RegisterRequest req
 .Produces(409)
 .WithOpenApi();
 
-app.MapPost("/api/login", async (Hippo_Exchange.Contracts.LoginRequest req, IUserService users) =>
+// Login: verify password, then issue auth cookie
+app.MapPost("/api/login", async (LoginRequest req, IUserService users, HttpContext ctx) =>
 {
     var normalizedEmail = (req.Email ?? "").Trim().ToLowerInvariant();
     var user = await users.GetByEmailAsync(normalizedEmail);
-    if (user is null)
+    if (user is null || string.IsNullOrWhiteSpace(user.strPasswordHash))
         return Results.Unauthorized();
 
     if (!Argon2.Verify(user.strPasswordHash, req.Password))
         return Results.Unauthorized();
 
-    string? token = null;
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.strUserID ?? string.Empty),
+        new Claim(ClaimTypes.Email, user.strEmail ?? string.Empty),
+        new Claim(ClaimTypes.Name, $"{user.strFirstName} {user.strLastName}".Trim())
+    };
+    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var principal = new ClaimsPrincipal(identity);
 
-    // Uncomment to issue JWTs
-    /*
-    var jwtKey = builder.Configuration.GetValue<string>("Jwt:Key") ?? "dev-secret-change";
-    var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-    var creds = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
-    var jwt = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
-        claims: new[]
-        {
-            new System.Security.Claims.Claim("sub", user.strUserID!),
-            new System.Security.Claims.Claim("email", user.strEmail!)
-        },
-        expires: DateTime.UtcNow.AddMinutes(30),
-        signingCredentials: creds
-    );
-    token = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().WriteToken(jwt);
-    */
+    await ctx.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-    return Results.Ok(new LoginResponse(user.strUserID!, user.strEmail!, token));
+    // If your UI expects a response body:
+    return Results.Ok(new LoginResponse(user.strUserID!, user.strEmail!, Token: null));
 })
 .WithName("LoginUser")
-.WithSummary("Authenticates a user")
-.WithDescription("Verifies credentials using Argon2 hash. Optionally returns JWT.")
+.WithSummary("Authenticates a user and issues an auth cookie")
+.WithDescription("Verifies credentials using Argon2 hash and signs in via cookie.")
 .Produces<LoginResponse>(200)
 .Produces(401)
 .WithOpenApi();
 
-app.MapPost("/api/logout", (HttpContext ctx) =>
+// Logout: clear cookie-backed session
+app.MapPost("/api/logout", async (HttpContext ctx) =>
 {
-    var cookieNames = new[] { "auth_token", "Auth", ".AspNetCore.Cookies" };
-
-    foreach (var name in cookieNames)
-    {
-        if (ctx.Request.Cookies.ContainsKey(name))
-        {
-            ctx.Response.Cookies.Delete(name, new CookieOptions
-            {
-                Path = "/",
-                SameSite = SameSiteMode.Lax, // or Strict if desired
-                Secure = false,              // set true if using HTTPS in dev
-                HttpOnly = true
-            });
-        }
-    }
-
+    await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     return Results.Ok(new { message = "Logged out" });
-});
+})
+.WithName("LogoutUser")
+.WithSummary("Logs out the current user")
+.WithDescription("Clears the authentication cookie.")
+.Produces(200)
+.WithOpenApi();
+
+// Example protected endpoint
+app.MapGet("/api/me", (HttpContext ctx) =>
+{
+    if (!(ctx.User.Identity?.IsAuthenticated ?? false))
+        return Results.Unauthorized();
+
+    var id = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var name = ctx.User.FindFirstValue(ClaimTypes.Name) ?? "";
+    var email = ctx.User.FindFirstValue(ClaimTypes.Email) ?? "";
+    return Results.Ok(new { id, name, email });
+})
+.RequireAuthorization()
+.WithName("CurrentUser")
+.WithSummary("Returns the current authenticated user")
+.WithDescription("Requires an auth cookie.")
+.Produces(200)
+.Produces(401)
+.WithOpenApi();
 
 app.Run();
