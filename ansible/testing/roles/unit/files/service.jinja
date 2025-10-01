@@ -1,0 +1,14 @@
+[Unit]
+Description={{description|quote}}
+
+[Service]
+{% if dir is defined %}
+WorkingDirectory={{dir|quote}}
+{% endif %}
+{% if exec is undefined %}
+ExecStart={{argv|map('quote')|join(' ')}}
+{% else %}
+ExecStart={{exec|quote}} {{argv|map('quote')|join(' ')}}
+{% endif %}
+[Install]
+WantedBy=multi-user.target

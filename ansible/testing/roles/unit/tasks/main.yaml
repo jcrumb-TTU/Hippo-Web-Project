@@ -1,0 +1,14 @@
+# This is a group of tasks, not a playbook.
+- name: "Create systemd unit for {{ title }} in the user scope"
+  when: user_unit is true
+  become: true
+  ansible.builtin.template:
+    src: files/service.jinja
+    dest: "/etc/systemd/user/{{ title }}.service"
+
+- name: "Create systemd unit for {{ title }} in the user scope"
+  become: true
+  when: user_unit is false
+  ansible.builtin.template:
+    src: files/service.jinja
+    dest: "/etc/systemd/system/{{ title }}.service"

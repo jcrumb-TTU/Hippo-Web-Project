@@ -13,3 +13,13 @@
     cmd: '{{ dotnet_script.path }}'
     creates: '~/.dotnet/'
   register: dotnet_proc
+- name: Move install to the correct location.
+  ansible.builtin.command:
+    argv: 
+      - 'mv'
+      - '~/.dotnet/'
+      - '/usr/share/dotnet'
+    creates: '/usr/share/dotnet/'
+    removes: "~/.dotnet/" 
+  become: true
+  register: dotnet_install

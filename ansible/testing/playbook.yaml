@@ -1,3 +1,6 @@
+- name: Clean previous instance from VM.
+  ansible.builtin.import_playbook: clean.yaml
+  
 - name: Ensure dependencies are installed.
   ansible.builtin.import_playbook: dependencies.yaml
 

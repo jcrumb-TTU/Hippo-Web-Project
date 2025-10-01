@@ -1,0 +1,48 @@
+# Directory structure:
+# /usr/share/dotnet/: Dotnet install directory.
+# /usr/share/Hippo-Backend: Hippo-Exchange Backend Export Directory. Removed before each run.
+# /usr/share/nginx/: Nginx config directory. Certain files will be removed from it.
+# /usr/share/swagger-validator: The swagger-validator badge directory. Will be removed before each run.
+# /srv/: HTML Files served by the webserver. Emptied before each run.
+- name: Clear Old Install.
+  hosts: testing
+  tasks:
+    block:
+      - name: Stop Nginx if running.
+        ansible.builtin.systemd_service:
+          name: nginx
+          state: stopped
+          enabled: false
+        become: true
+    rescue:
+      - debug: msg='NOTE{{":"}} Nginx did not stop.'
+    block:
+      - name: Stop Swagger Validator if running
+        ansible.builtin.systemd_service:
+          name: Swagger-Validator
+          state: stopped
+          enabled: false
+          scope: user
+    rescue:
+      - debug: "msg=NOTE: Swagger-Validator did not stop."
+    block:
+      - name: Stop Backend if running.
+        ansible.builtin.systemd_service:
+          name: Hippo-Backend
+          state: stopped
+          enabled: false
+          scope: user
+    rescue:
+      - debug: "msg=NOTE: Swagger-Validator did not stop."
+    - name: Remove previous install artifacts.
+      become: true
+      ansible.builtin.command:
+        argv:
+          - rm
+          - -rf
+          - /srv/*
+          - /usr/share/Hippo-Backend/
+          - /usr/share/swagger-validator/
+          - /usr/share/nginx/nginx.conf
+          - /usr/share/nginx/sites-available/
+      register: rm_artifacts
