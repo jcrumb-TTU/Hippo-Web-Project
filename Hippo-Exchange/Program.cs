@@ -1,115 +1,185 @@
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections;
-using System.Collections.Specialized;
-using Microsoft.Extensions.Primitives;
+using Hippo_Exchange.Contracts;
 using Hippo_Exchange.Models;
-using SampleDB;
-using System.Text.Json;
-using System.Text.Json.Nodes;
+using Hippo_Exchange.Services;
+using Isopoh.Cryptography.Argon2;
+using MongoDB.Driver;
 
+// Cookie auth
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
-//For CORS
-var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<TodoDb>(opt => opt.UseInMemoryDatabase("TodoList"));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-//For CORS
-builder.Services.AddCors(options =>
+
+// Mongo configuration (as in mongo_api_test)
+var mongoConnection =
+    builder.Configuration.GetValue<string>("Mongo:ConnectionString")
+    ?? Environment.GetEnvironmentVariable("MONGODB_CONNECTION")
+    ?? "mongodb://localhost:27017";
+
+var mongoDbName =
+    builder.Configuration.GetValue<string>("Mongo:Database")
+    ?? "HippoExchangeDb";
+
+// Mongo services
+builder.Services.AddSingleton<IMongoClient>(_ => new MongoClient(mongoConnection));
+builder.Services.AddScoped(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(mongoDbName));
+builder.Services.AddScoped<IMongoCollection<Users>>(sp =>
+    sp.GetRequiredService<IMongoDatabase>().GetCollection<Users>("users"));
+
+// Domain services
+builder.Services.AddScoped<IUserService, UserService>();
+
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// CORS (keep your current dev origins)
+builder.Services.AddCors(o =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                      policy  =>
-                      {
-                          policy.WithOrigins("http://localhost:80");
-                      });
+    o.AddPolicy("Default", p =>
+        p.WithOrigins(
+             "http://127.0.0.1:5500",
+             "http://localhost:5500"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+    );
 });
+
+// Cookie authentication
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "hippo.auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;      // Strict if same-site only; None + Secure if cross-site
+        options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Use Always in HTTPS
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+        options.LoginPath = "/api/login";
+        options.LogoutPath = "/api/logout";
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
-app.UseCors(MyAllowSpecificOrigins);
-var todoItems = app.MapGroup("/todoitems");
 
-app.MapGet("/api/search/", () => {
-    //return Results.Ok(new { message = "Hello from Minimal API!" });
-    return Results.Json(SampleItems.MakeSamples());
-    //return Results.Json(new { wrench = { desc = "A wrench used to do things!", properties = {size = "50in"}}, book = { desc = "A cool book!", properties = {size = "12in"}}});
-});
+app.UseCors("Default");
 
-app.MapPost("/api/register", (HttpRequest formHeader) => {
-	IFormCollection form = formHeader.Form;
-	AccountManager.UserValidator data = AccountManager.UserValidator.FromForm(form);
-        /*
-	if(form.TryGetValue("fname", out field)) data.fname = field.ToString(); else Console.WriteLine("First Name field is missing!");
-        if(form.TryGetValue("lname", out field)) data.lname = field.ToString(); else Console.WriteLine("Last Name field is missing!");
-        if(form.TryGetValue("bday", out field)) data.bday = field.ToString(); else Console.WriteLine("Birthday field is missing!");
-        if(form.TryGetValue("email", out field)) data.email = field.ToString(); else Console.WriteLine("Email field is missing!");
-	if(form.TryGetValue("phone", out field)) data.phone = field.ToString(); else Console.WriteLine("Phone field is missing!"); 
-	if(form.TryGetValue("password", out field)) data.password = field.ToString(); else Console.WriteLine("Password field is missing!");
-	if(form.TryGetValue("confirm_password", out field)) data.confirm_password = field.ToString(); else Console.WriteLine("Confirm Password field is missing!");
-	if(form.TryGetValue("terms", out field)) data.terms = field.ToString(); else Console.WriteLine("Terms field is missing!");
-/*	//Console.WriteLine($"Got Post with {form.Count} fields!");
-	foreach(KeyValuePair<String,StringValues> item in form){
-		Console.WriteLine($"{item.Key}: {item.Value}");
-	}
-*/
-	if(data.enroll()){
-		Console.WriteLine("Account Validated!");
-	    return Results.Ok(new { message = "Account creation form accepted!" });
-	}
-	else{
-		
-	
-		//Console.WriteLine("Account had bad info!");
-		//Console.WriteLine(data.Problems);
-		//Console.WriteLine(JsonSerializer.Serialize(data));
-		return data.Problems;
-	}
-});
-
-/*
-todoItems.MapGet("/", async (TodoDb db) =>
-    await db.Todos.ToListAsync());
-
-todoItems.MapGet("/complete", async (TodoDb db) =>
-    await db.Todos.Where(t => t.IsComplete).ToListAsync());
-
-todoItems.MapGet("/{id}", async (int id, TodoDb db) =>
-    await db.Todos.FindAsync(id)
-        is ToDo todo
-            ? Results.Ok(todo)
-            : Results.NotFound());
-
-todoItems.MapPost("/", async (ToDo todo, TodoDb db) =>
+if (app.Environment.IsDevelopment())
 {
-    db.Todos.Add(todo);
-    await db.SaveChangesAsync();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-    return Results.Created($"/todoitems/{todo.Id}", todo);
-});
+app.UseAuthentication();
+app.UseAuthorization();
 
-todoItems.MapPut("/{id}", async (int id, ToDo inputTodo, TodoDb db) =>
+// Registration Endpoint (unchanged logic, persists to Mongo)
+app.MapPost("/api/register", async (RegisterRequest req, IUserService users) =>
 {
-    var todo = await db.Todos.FindAsync(id);
+    var problems = new Dictionary<string, string[]>();
 
-    if (todo is null) return Results.NotFound();
+    if (string.IsNullOrWhiteSpace(req.FirstName)) problems["FirstName"] = new[] { "First name required." };
+    if (string.IsNullOrWhiteSpace(req.LastName)) problems["LastName"] = new[] { "Last name required." };
+    if (string.IsNullOrWhiteSpace(req.Email)) problems["Email"] = new[] { "Email required." };
+    if (string.IsNullOrWhiteSpace(req.Password)) problems["Password"] = new[] { "Password required." };
+    if (req.Password != req.ConfirmPassword) problems["ConfirmPassword"] = new[] { "Passwords do not match." };
+    if (!req.Terms) problems["Terms"] = new[] { "Terms must be accepted." };
 
-    todo.Name = inputTodo.Name;
-    todo.IsComplete = inputTodo.IsComplete;
+    if (problems.Count > 0)
+        return Results.ValidationProblem(problems);
 
-    await db.SaveChangesAsync();
+    var normalizedEmail = req.Email.Trim().ToLowerInvariant();
+    if (await users.EmailExistsAsync(normalizedEmail))
+        return Results.Conflict(new { message = "Email already in use." });
 
-    return Results.NoContent();
-});
-
-todoItems.MapDelete("/{id}", async (int id, TodoDb db) =>
-{
-    if (await db.Todos.FindAsync(id) is ToDo todo)
+    var user = new Users
     {
-        db.Todos.Remove(todo);
-        await db.SaveChangesAsync();
-        return Results.NoContent();
-    }
+        strFirstName = req.FirstName.Trim(),
+        strLastName = req.LastName.Trim(),
+        strEmail = normalizedEmail,
+        strPhoneNumber = req.Phone?.Trim(),
+        strBirthday = req.Birthday?.Trim()
+    };
+    user.SetPassword(req.Password);
 
-    return Results.NotFound();
-});
-*/
+    var userId = await users.CreateAsync(user);
+
+    return Results.Created($"/api/users/{userId}", new RegisterResponse(userId, user.strEmail!));
+})
+.WithName("RegisterUser")
+.WithSummary("Creates a new user")
+.WithDescription("Validates input, hashes password (Argon2), stores user in MongoDB.")
+.Produces<RegisterResponse>(201)
+.ProducesProblem(400)
+.Produces(409)
+.WithOpenApi();
+
+// Login: verify password, then issue auth cookie
+app.MapPost("/api/login", async (LoginRequest req, IUserService users, HttpContext ctx) =>
+{
+    var normalizedEmail = (req.Email ?? "").Trim().ToLowerInvariant();
+    var user = await users.GetByEmailAsync(normalizedEmail);
+    if (user is null || string.IsNullOrWhiteSpace(user.strPasswordHash))
+        return Results.Unauthorized();
+
+    if (!Argon2.Verify(user.strPasswordHash, req.Password))
+        return Results.Unauthorized();
+
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.strUserID ?? string.Empty),
+        new Claim(ClaimTypes.Email, user.strEmail ?? string.Empty),
+        new Claim(ClaimTypes.Name, $"{user.strFirstName} {user.strLastName}".Trim())
+    };
+    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var principal = new ClaimsPrincipal(identity);
+
+    await ctx.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+    // If your UI expects a response body:
+    return Results.Ok(new LoginResponse(user.strUserID!, user.strEmail!, Token: null));
+})
+.WithName("LoginUser")
+.WithSummary("Authenticates a user and issues an auth cookie")
+.WithDescription("Verifies credentials using Argon2 hash and signs in via cookie.")
+.Produces<LoginResponse>(200)
+.Produces(401)
+.WithOpenApi();
+
+// Logout: clear cookie-backed session
+app.MapPost("/api/logout", async (HttpContext ctx) =>
+{
+    await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    return Results.Ok(new { message = "Logged out" });
+})
+.WithName("LogoutUser")
+.WithSummary("Logs out the current user")
+.WithDescription("Clears the authentication cookie.")
+.Produces(200)
+.WithOpenApi();
+
+// Example protected endpoint
+app.MapGet("/api/me", (HttpContext ctx) =>
+{
+    if (!(ctx.User.Identity?.IsAuthenticated ?? false))
+        return Results.Unauthorized();
+
+    var id = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var name = ctx.User.FindFirstValue(ClaimTypes.Name) ?? "";
+    var email = ctx.User.FindFirstValue(ClaimTypes.Email) ?? "";
+    return Results.Ok(new { id, name, email });
+})
+.RequireAuthorization()
+.WithName("CurrentUser")
+.WithSummary("Returns the current authenticated user")
+.WithDescription("Requires an auth cookie.")
+.Produces(200)
+.Produces(401)
+.WithOpenApi();
+
 app.Run();
