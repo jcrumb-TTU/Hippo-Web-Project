@@ -112,11 +112,11 @@
         }
 
         .btn-cancel:hover {
-            background-color: #5C6B55;
+            background-color: #36433c;
         }
 
         .btn-add:hover {
-            background-color: #87ae73;
+            background-color: #658d51;
         }
     </style>
 </head>
@@ -171,17 +171,20 @@
 
             <!--How to handle this type of input FIX-->
             <div class="d-flex gap-2">
-                <input type="text" class="form-control" placeholder="Needed Materials" required>
+                <input type="text" class="form-control" placeholder="Required Materials" required>
             </div>
 
             <div class="d-flex gap-2">
-                <input type="text" class="form-control" placeholder="Required Tools" required>
+                <input type="text" class="form-control" placeholder="Required Tools">
             </div>
 
             <!-- Buttons: they don't go anywhere or do anything FIX-->
             <div class="d-flex justify-content-between mt-4">
-                <button type="button" class="btn-cancel">cancel</button>
-                <button class="btn-add" type="submit">add</button>
+                <!-- Cancel Button -->
+                <button type="button" class="btn btn-cancel" id="cancelBtn">Cancel</button>
+
+                <!-- Submit Button -->
+                <button class="btn btn-add" type="submit">Submit</button>
             </div>
         </form>
     </div>
@@ -207,6 +210,21 @@
         const descCount = document.getElementById('descCount');
         desc.addEventListener('input', () => {
             descCount.textContent = `${desc.value.length} / 200`;
+        });
+
+        //Buttons !!!!!STILL DONT WORK
+        document.getElementById("cancelBtn").addEventListener("click", () => {
+            // Reset the form
+            document.getElementById("listingForm").reset();
+
+            // If you’re showing image previews, clear them too
+            const previewContainer = document.getElementById("previewContainer");
+            if (previewContainer) {
+                previewContainer.innerHTML = "";
+            }
+
+            // Redirect to dashboard
+            window.location.href = "dashboard.html"; // adjust path if needed
         });
 
         //ENDPOINT THINGS OR OTHER PROBABLY
