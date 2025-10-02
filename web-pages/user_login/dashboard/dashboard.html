@@ -11,16 +11,36 @@
 
   <style>
     :root{
-      --accent:#21215c;
-      --accent-2:#0c8f97;
+      --accent:#87ae73;
+      --accent-2:#5f7e52;
       --card:#ffffff;
-      --bg:#c8e1f5;
+      --bg:#f7e4d5;
       --muted:#6c757d;
     }
     body {
       background-color: var(--bg);
       min-height: 100vh;
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      border-color: var(--accent);
+    }
+    .btn-primary:hover,
+    .btn-primary:focus {
+      background-color: var(--accent-2);
+      border-color: var(--accent-2);
+    }
+
+    .btn-outline-primary {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--accent);
+      color: #fff;
     }
 
     .topbar{
@@ -130,7 +150,7 @@
   <div class="container-fluid topbar py-2">
     <div class="container d-flex align-items-center">
       <button type="button" class="logo logo-btn" aria-label="Logo button" style="background:transparent;border:0;padding:0;">
-        <img src="../../images/hippo_logo.png" alt="HippoExchange logo" style="height:40px;">
+        <img src="../../images/login_icon.png" alt="HippoExchange logo" style="height:40px;">
       </button>
 
       <div class="dropdown ms-auto">
