@@ -1,9 +1,12 @@
 /items:
   # Methods in this file should handle adding, updating, and removing items.
   post:
+    security:
+      - SessionCookie: []
     summary: "Creates a new item listing on the server under the authenticated user."
     tags:
       - listing
+      - protected
     requestBody:
       description: "The item's details being sent to the server. NOTE: Content type is not final and can be changed on request."
       required: true
@@ -57,9 +60,12 @@
       "404":
         descsription: "Item not found."
   put:
+    security:
+      - SessionCookie: []
     summary: "Update the existing item at id if authorized."
     tags:
       - listing
+      - protected
     parameters:
       - in: path
         name: id
@@ -91,9 +97,12 @@
         description: "The item is out on loan. The user should be prompted to either cancel the changes, or do them anyways, which will notify the user with the item. If they choose to proceed, resend the request with force=true."
 
   delete:
+    security:
+      - SessionCookie: []
     summary: "Attempts to remove the item at id."
     tags:
       - listing
+      - protected
     # Inputs: Item id 
     parameters:
       - in: path

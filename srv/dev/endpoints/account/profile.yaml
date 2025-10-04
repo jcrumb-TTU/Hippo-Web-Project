@@ -1,0 +1,106 @@
+/users:
+  get:
+    summary: "Gets the user profile of user {id}."
+    tags:
+      - account
+    parameters:
+      - in: query
+        name: id
+        description: "The profile owner's user id."
+        schema:
+          type: integer
+        required: true
+
+/me:
+  get:
+    summary: "Get the current user's profile."
+    description: "Get the profile of the active user, or nothing if not logged in."
+    tags:
+      - account
+    security:
+      - SessionCookie: []
+    responses:
+      "200":
+        description: "The active user's profile information in JSON."
+      "401":
+        description: "The user is not logged in, so we have no profile to get."
+  put:
+    security:
+      - SessionCookie: []
+    summary: "Update the Current User's Profile"
+    description: "Sends changes made to a user's profile to the server. The changes will be validated to ensure everything is fine."
+    tags:
+      - account
+      - protected
+    requestBody:
+      description: "The updated user profile. Empty fields are unchanged."
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              fname:
+                type: object
+                description: The user's first name.
+                schema:
+                  value:
+                    type: string
+                  changed:
+                    type: bool
+              lname:
+                type: object
+                schema:
+                  value:
+                    type: string
+                  changed:
+                    type: bool
+                description: The user's new last name.
+              bday:
+                type: object
+                schema:
+                  value:
+                    type: string
+                    format: date
+                  changed:
+                    type: bool
+                description: The user's date of birth (YYYY-MM-DD).
+              email:  
+                type: object
+                schema:
+                  value:
+                    type: string
+                  changed:
+                    type: bool
+                description: The user's new email address.
+              phone:
+                type: object
+                schema:
+                  value:
+                    type: string
+                  changed:
+                    type: bool
+                description: The user's phone number.
+              password:
+                description: The user's new password.
+                type: object
+                schema:
+                  value:
+                    type: string
+                  changed:
+                    type: bool
+              confirm_password:
+                description: The user's new password again.
+                type: object
+                schema:
+                  value:
+                    type: string
+                  changed:
+                    type: bool
+      responses:
+        "200":
+          description: "Profile updated."
+        "401":
+          description: "Not logged in."
+        "403":
+          description: "Not authorized. (Is this your profile????)"

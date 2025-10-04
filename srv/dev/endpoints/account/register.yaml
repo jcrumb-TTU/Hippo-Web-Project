@@ -39,7 +39,12 @@ register:
                 description: \"on\" if the terms box was checked, \"off\" otherwise.
     responses:
       "200":
-        description: A message indicating success is returned.
+        description: A message indicating success is returned. Also includes a session token for the new account.
+        headers:
+          Set-Cookie:
+            schema:
+              type: string
+              example: HIPPOSESSIONID=ALongAndRandomAndUniqueToken; Path=/;
         content:
           application/json:
             schema:

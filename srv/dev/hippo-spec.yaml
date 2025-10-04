@@ -11,29 +11,44 @@ servers:
 
 components:
   securitySchemes:
-    placeholder: # A placeholder cookie auth schema until we decide on something better.
+    SessionCookie: # A placeholder cookie auth schema until we decide on something better.
       type: apiKey
       in: cookie
-      name: SESSIONID
+      name: HIPPOSESSIONID
 tags:
   - name : account
     description: Account related endpoint methods. These endpoints should validate user account information and create sessions as needed.
   - name: listing
     description: Item listing related endpoint methods. These endpoints should handle the creation, alteration, and removal of item listings.
   - name: loan
-    description: Borrow-Related endpoint methods. These endpoints should handle transactions related to items being borrowed and returned. 
+    description: Borrow-Related endpoint methods. These endpoints should handle transactions related to items being borrowed and returned.
+  - name: protected
+    description: Endpoints that require user authentication and authorization to use.
 paths:
+  # User-Related Endpoints
   /register: #Endpoint
     $ref: "endpoints/account/register.yaml#/register"
   /login:
+    security:
+      - SessionCookie: []
     $ref: "endpoints/account/session.yaml#/login"
   /logout:
+    security:
+      - SessionCookie: []
     $ref: "endpoints/account/session.yaml#/logout"
+  /users:
+    $ref: "endpoints/account/profile.yaml#/~1users"
   /me:
-    $ref: "endpoints/account/session.yaml#/me"
+    $ref: "endpoints/account/profile.yaml#/~1me"
   # The item listing endpoints.
   /items:  
     $ref: "endpoints/listing/items.yaml#/~1items"
   /items/{id}:
     $ref: "endpoints/listing/items.yaml#/~1items~1{id}"
-  
+  # Image Items
+  /items/{id}/images:
+    $ref: "endpoints/listing/images.yaml#/~1items~1{id}~1images"
+  /items/{id}/images/{index}:
+    $ref: "endpoints/listing/images.yaml#/~1items~1{id}~1images~1{index}"
+  /items/{id}/images/order:
+    $ref: "endpoints/listing/images.yaml#/~1items~1{id}~1images~1order"

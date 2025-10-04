@@ -1,0 +1,130 @@
+/items/{id}/images:
+  # Adds a list of image files to an item.
+  post:
+    security:
+      - SessionCookie: []
+    summary: "Upload 1+ item images."
+    description: "Recieves a list of new item images."
+    tags:
+      - listing
+      - protected
+    parameters:
+      - in: path
+        name: id
+        description: "The identifier of the item the images or for."
+        schema:
+          type: integer
+          required: true
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              images:
+                type: array
+                description: A list containing the contents of image files in binary.
+                items:
+                  type: string
+                  format: binary
+                  description: An image in binary form.
+    responses:
+      "200":
+        description: "OK"
+
+# NOTE: 
+/items/{id}/images/{index}:
+  # Returns the requested image or an error.
+  get:
+    summary: "Retrieves the item image @ index for item {id} from the server."
+    tags:
+      - listing
+    parameters:
+      - in: path
+        name: id
+        description: "The identifier of the item the images or for."
+        schema:
+          type: integer
+          required: true
+      - in: path
+        name: index
+        description: "The index of the image to retrieve."
+        schema:
+          type: integer
+          required: true
+  
+  # Updates the requested image if authorized.
+  put:
+    security:
+      - SessionCookie: []
+    summary: Update an Item Image.
+    description: "Replaces the item image at {index} with a new one."
+    tags:
+      - listing
+      - protected
+    parameters:
+      - in: path
+        name: id
+        description: "The identifier of the item the images or for."
+        schema:
+          type: integer
+          required: true
+      - in: path
+        name: index
+        description: "The index of the image to retrieve."
+        schema:
+          type: integer
+          required: true
+  # Remove the image identified by img. This will cause later indexes to be changed.
+  delete:
+    security:
+      - SessionCookie: []
+    summary: Remove an Item Image.
+    description: "Remove the item image at {index}."
+    tags:
+      - listing
+      - protected
+    parameters:
+      - in: path
+        name: id
+        description: "The identifier of the item the images or for."
+        schema:
+          type: integer
+          required: true
+      - in: path
+        name: index
+        description: "The index of the image to retrieve."
+        schema:
+          type: integer
+          required: true
+
+# Handles the order images are displayed.
+/items/{id}/images/order:
+  # Update the order of an item's images by passing a list of indexes.
+  put:
+    security:
+      - SessionCookie: []
+    summary: Change the Item Image Order
+    description: Change the order in which item images are presented to a user.
+    tags:
+      - listing
+      - protected
+    parameters:
+      - in: path
+        name: id
+        description: "The identifier of the item the images or for."
+        schema:
+          type: integer
+          required: true
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              order:
+                type: array
+                description: "A list of new indexes for the images. The item at images[i] will be moved to the index at order[i]."
+                items:
+                  type: integer
+                  description: The new index for the image currently at this index.
