@@ -1,2 +1,3 @@
 srv/dev/swagger/*
 logs
+*.tar.gz
