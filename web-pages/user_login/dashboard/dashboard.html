@@ -54,7 +54,6 @@
       padding: 24px;
     }
 
-    /* Profile area */
     .profile-card {
       background: var(--card);
       border-radius: 14px;
@@ -80,7 +79,6 @@
       background: #fff;
     }
 
-    /* small round edit button bottom-right */
     .profile-edit {
       position: absolute;
       right: 4px;
@@ -126,7 +124,6 @@
 
     .bio-actions { gap: 8px; }
 
-    /* Modal preview image circle */
     .preview-circle {
       width: 180px;
       height: 180px;
@@ -137,7 +134,6 @@
     }
     .preview-circle img { width:100%; height:100%; object-fit:cover; display:block; }
 
-    /* small responsiveness */
     @media (max-width: 768px) {
       .dashboard-container { padding: 12px; margin: 12px; }
       .profile-pic-wrapper { width: 140px; height: 140px; }
@@ -146,7 +142,7 @@
   </style>
 </head>
 <body>
-  <!-- Top bar with logo + top-right dropdown -->
+  <!-- Top bar -->
   <div class="container-fluid topbar py-2">
     <div class="container d-flex align-items-center">
       <button type="button" class="logo logo-btn" aria-label="Logo button" style="background:transparent;border:0;padding:0;">
@@ -166,19 +162,16 @@
 
   <!-- Main dashboard -->
   <div class="dashboard-container">
-    <!-- Alerts area -->
     <div id="alerts"></div>
 
     <div class="profile-card mb-4">
       <div class="row align-items-center gx-4">
-        <!-- Profile picture -->
         <div class="col-auto d-flex">
           <div style="position:relative;">
             <div class="file-error text-danger" id="fileError">Only PNG, JPG or GIF allowed</div>
 
             <div class="profile-pic-wrapper">
               <img id="profileImg" class="profile-img" alt="Profile picture" src="" />
-              <!-- edit dropdown -->
               <div class="profile-edit">
                 <div class="dropdown">
                   <button class="btn" type="button" id="profileEditBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Edit profile photo">
@@ -192,53 +185,53 @@
               </div>
             </div>
 
-            <!-- Hidden file input -->
             <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg,image/gif" style="display:none"/>
           </div>
         </div>
 
-        <!-- Profile details -->
         <div class="col">
           <div class="d-flex justify-content-between align-items-start">
             <div>
               <h4 class="mb-1">Your Profile</h4>
               <div class="text-muted small">Manage your profile picture and bio</div>
             </div>
-            <div>
-              <!-- optionally add quick actions here -->
-            </div>
           </div>
 
-          <div class="info-card mt-3">
-            <div class="d-flex justify-content-between align-items-start">
-              <h5 class="mb-0">Profile details</h5>
-              <div>
-                <button class="btn btn-sm btn-outline-secondary" id="editBioBtn" title="Edit bio"><i class="bi bi-pencil"></i> Edit</button>
+            <div class="info-card mt-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <h5 class="mb-0">Profile details</h5>
+                <div>
+                  <button class="btn btn-sm btn-outline-secondary" id="editBioBtn" title="Edit bio">
+                    <i class="bi bi-pencil"></i> Edit
+                  </button>
+                </div>
+              </div>
+
+              <p id="bioText" class="mt-3 text-start" style="white-space:pre-wrap;line-height:1.4;">Loading...</p>
+
+              <div id="bioEditor" class="mt-2 d-none">
+                <textarea id="bioInput" class="form-control" rows="4" maxlength="500"></textarea>
+                <div class="d-flex justify-content-end mt-2 bio-actions">
+                  <button class="btn btn-sm btn-outline-secondary" id="cancelBioBtn">Cancel</button>
+                  <button class="btn btn-sm btn-primary" id="saveBioBtn">Save</button>
+                </div>
+                <div class="text-muted small mt-1">Max 500 characters.</div>
               </div>
             </div>
-
-            <p id="bioText" class="mt-3 text-start" style="white-space:pre-wrap;line-height:1.4;">No bio yet. Click edit to add one.</p>
-
-            <div id="bioEditor" class="mt-2 d-none">
-              <textarea id="bioInput" class="form-control" rows="4" maxlength="500"></textarea>
-              <div class="d-flex justify-content-end mt-2 bio-actions">
-                <button class="btn btn-sm btn-outline-secondary" id="cancelBioBtn">Cancel</button>
-                <button class="btn btn-sm btn-primary" id="saveBioBtn">Save</button>
-              </div>
-              <div class="text-muted small mt-1">Max 500 characters.</div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
 
-    <!-- Listings / Rents (placeholders for your other pages) -->
+    <!-- Listings / Rents -->
     <div class="row g-4">
       <div class="col-md-6">
         <div class="info-card">
           <h6 class="mb-2">Current listings</h6>
-          <div class="text-muted small">Your items available to borrow. (Link to listings page)</div>
-          <div class="mt-3"><a href="/listings.html" class="btn btn-sm btn-outline-primary">Manage listings</a></div>
+          <div class="text-muted small">Your items available to borrow.</div>
+          <div class="mt-3">
+            <!-- Updated to point to Add Item page -->
+            <a href="../../add_item.html" class="btn btn-sm btn-outline-primary">Manage listings</a>
+          </div>
         </div>
       </div>
       <div class="col-md-6">
@@ -251,7 +244,7 @@
     </div>
   </div>
 
-  <!-- Preview modal (select confirm) -->
+  <!-- Preview modal -->
   <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content p-3">
@@ -289,322 +282,4 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <script>
-    /* -----------------------
-       Constants & elements
-       ----------------------- */
-    const DEFAULT_AVATAR = "data:image/svg+xml;utf8," +
-      "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'>" +
-      "<rect width='100%' height='100%' fill='%23e6f3fb'/>" +
-      "<text x='50%' y='54%' font-size='58' text-anchor='middle' fill='%2321215c' font-family='Arial, Helvetica, sans-serif'>P</text>" +
-      "</svg>";
-
-    const allowedTypes = ['image/png','image/jpeg','image/jpg','image/gif'];
-    const profileImg = document.getElementById('profileImg');
-    const fileInput = document.getElementById('fileInput');
-    const fileError = document.getElementById('fileError');
-    const previewModalEl = document.getElementById('previewModal');
-    const previewModal = new bootstrap.Modal(previewModalEl, { backdrop: 'static' });
-    const previewImage = document.getElementById('previewImage');
-    const previewName = document.getElementById('previewName');
-    const confirmUploadBtn = document.getElementById('confirmUploadBtn');
-    const confirmSpinner = document.getElementById('confirmSpinner');
-    const confirmText = document.getElementById('confirmText');
-    const removeModalEl = document.getElementById('removeModal');
-    const removeModal = new bootstrap.Modal(removeModalEl, {});
-    const alerts = document.getElementById('alerts');
-
-    let lastSelectedFile = null;
-    let lastSelectedDataUrl = null;
-
-    const bioText = document.getElementById('bioText');
-    const editBioBtn = document.getElementById('editBioBtn');
-    const bioEditor = document.getElementById('bioEditor');
-    const bioInput = document.getElementById('bioInput');
-    const cancelBioBtn = document.getElementById('cancelBioBtn');
-    const saveBioBtn = document.getElementById('saveBioBtn');
-
-    /* -----------------------
-       Helper UI functions
-       ----------------------- */
-    function showAlert(message, type = 'success', timeout = 4000) {
-      const id = 'a' + Date.now();
-      const alertHTML = `
-        <div id="${id}" class="alert alert-${type} alert-dismissible fade show" role="alert">
-          ${message}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>`;
-      alerts.insertAdjacentHTML('afterbegin', alertHTML);
-      if (timeout) setTimeout(()=> {
-        const el = document.getElementById(id);
-        if (el) bootstrap.Alert.getOrCreateInstance(el).close();
-      }, timeout);
-    }
-
-    function showFileError(text) {
-      fileError.textContent = text;
-      fileError.style.display = 'block';
-      setTimeout(()=> fileError.style.display = 'none', 3500);
-    }
-
-    /* -----------------------
-       Upload / Preview flows
-       ----------------------- */
-    document.getElementById('uploadOption').addEventListener('click', (e) => {
-      e.preventDefault();
-      // open file dialog
-      fileInput.value = '';
-      fileInput.click();
-    });
-
-    fileInput.addEventListener('change', handleFileSelect);
-
-    function handleFileSelect(e) {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      // Some browsers report 'image/jpg' rarely; normalize jpeg
-      const type = file.type === 'image/jpg' ? 'image/jpeg' : file.type;
-
-      if (!allowedTypes.includes(type)) {
-        showFileError('Only PNG, JPG or GIF allowed');
-        fileInput.value = '';
-        return;
-      }
-
-      lastSelectedFile = file;
-      previewName.textContent = file.name;
-
-      const reader = new FileReader();
-      reader.onload = function(event){
-        lastSelectedDataUrl = event.target.result;
-        previewImage.src = lastSelectedDataUrl;
-        previewModal.show();
-      };
-      reader.readAsDataURL(file);
-    }
-
-    confirmUploadBtn.addEventListener('click', async () => {
-      if (!lastSelectedFile || !lastSelectedDataUrl) {
-        previewModal.hide();
-        return;
-      }
-      // UI: show spinner
-      confirmSpinner.classList.remove('d-none');
-      confirmText.textContent = 'Uploading...';
-      confirmUploadBtn.disabled = true;
-
-      try {
-        /*
-        !!!!!!!!!!!!   
-        CONFIRM UPLOAD BUTTON
-        Call the API to actually upload the photo to your backend
-        !!!!!!!!!!!!
-      */
-        await uploadProfilePic(lastSelectedFile, lastSelectedDataUrl);
-        previewModal.hide();
-      } catch (err) {
-        console.error(err);
-        showAlert('Upload failed. Preview applied locally. Check console for details.', 'warning', 7000);
-        // even on failure, set preview locally so user sees change (but not persisted)
-        profileImg.src = lastSelectedDataUrl;
-        // store fallback in localStorage so page reload retains it until backend is fixed
-        localStorage.setItem('profile_local_photo', lastSelectedDataUrl);
-        previewModal.hide();
-      } finally {
-        confirmSpinner.classList.add('d-none');
-        confirmText.textContent = 'Confirm';
-        confirmUploadBtn.disabled = false;
-        lastSelectedFile = null;
-        lastSelectedDataUrl = null;
-        fileInput.value = '';
-      }
-    });
-
-    /* -----------------------
-       Remove photo flow
-       ----------------------- */
-    document.getElementById('removeOption').addEventListener('click', (e) => {
-      e.preventDefault();
-      removeModal.show();
-    });
-
-    document.getElementById('confirmRemoveBtn').addEventListener('click', async () => {
-      try {
-        /*
-        !!!!!!!!!!!!   
-        REMOVE PHOTO
-        Call the API to actually remove the photo in your backend
-        !!!!!!!!!!!!
-      */
-        await removeProfilePic();
-        showAlert('Profile photo removed', 'success');
-      } catch (err) {
-        console.error(err);
-        // fallback to local: clear local stored preview
-        profileImg.src = DEFAULT_AVATAR;
-        localStorage.removeItem('profile_local_photo');
-        showAlert('Couldn\'t remove on server — reset locally.', 'warning', 5000);
-      } finally {
-        removeModal.hide();
-      }
-    });
-
-    /* -----------------------
-       Networking: Upload / Remove / Load / Save
-       ----------------------- */
-
-    /*
-      !!!!!!!!!!!!   
-      NETWORKING SECTION / API ENDPOINTS
-      Adjust these endpoints to match your backend routes
-      !!!!!!!!!!!!
-      */
-    const API = {
-      getProfile: '/api/user/profile',             // GET -> returns { bio, photoUrl }
-      uploadPhoto: '/api/user/profile/photo',     // POST (multipart/form-data) -> returns { imageUrl }
-      removePhoto: '/api/user/profile/photo',     // DELETE -> returns { ok:true }
-      updateProfile: '/api/user/profile'          // PUT -> { bio } returns { ok:true, bio }
-    };
-
-    // helper to get auth token if you use JWT or similar
-    // !!!!!!!!!!!!!!!!!! We won't nead this once we get sessions set up
-    function getAuthHeaders() {
-      const token = localStorage.getItem('auth_token'); // adjust as needed
-      return token ? { 'Authorization': 'Bearer ' + token } : {};
-    }
-
-    async function uploadProfilePic(file, fallbackDataUrl) {
-      const fd = new FormData();
-      fd.append('photo', file);
-
-      // try uploading to your backend
-      const res = await fetch(API.uploadPhoto, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: fd
-      });
-
-      if (!res.ok) {
-        // throw to trigger fallback handling
-        throw new Error('Upload failed: ' + res.status);
-      }
-      const data = await res.json();
-      // backend should return the publicly accessible URL as `imageUrl` or `url`
-      const imageUrl = data.imageUrl || data.url;
-      profileImg.src = imageUrl || fallbackDataUrl || DEFAULT_AVATAR;
-      // also save to local cache so UI is smooth
-      if (imageUrl) localStorage.setItem('profile_server_photo', imageUrl);
-      showAlert('Profile photo updated', 'success');
-    }
-
-    async function removeProfilePic() {
-      // Try deleting on server via DELETE
-      const res = await fetch(API.removePhoto, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      });
-      if (!res.ok) throw new Error('Remove failed: ' + res.status);
-      // on success, clear UI
-      profileImg.src = DEFAULT_AVATAR;
-      localStorage.removeItem('profile_server_photo');
-      localStorage.removeItem('profile_local_photo');
-    }
-
-    async function loadProfile() {
-      // first try to get from server
-      try {
-        const res = await fetch(API.getProfile, { method: 'GET', headers: getAuthHeaders() });
-        if (res.ok) {
-          const data = await res.json();
-          profileImg.src = data.photoUrl || localStorage.getItem('profile_local_photo') || DEFAULT_AVATAR;
-          bioText.textContent = data.bio || 'No bio yet. Click edit to add one.';
-          return;
-        }
-      } catch (err) {
-        console.warn('Could not load profile from server:', err);
-      }
-
-      // fallback local cache (works if user previewed image but backend not set up)
-      profileImg.src = localStorage.getItem('profile_server_photo') || localStorage.getItem('profile_local_photo') || DEFAULT_AVATAR;
-      bioText.textContent = localStorage.getItem('profile_bio') || 'No bio yet. Click edit to add one.';
-    }
-
-    async function saveBioToServer(newBio) {
-      const res = await fetch(API.updateProfile, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...getAuthHeaders()
-        },
-        body: JSON.stringify({ bio: newBio })
-      });
-      if (!res.ok) throw new Error('Save bio failed: ' + res.status);
-      const data = await res.json();
-      return data;
-    }
-
-    /* -----------------------
-       Bio edit UI handlers
-       ----------------------- */
-    editBioBtn.addEventListener('click', () => {
-      bioEditor.classList.remove('d-none');
-      bioInput.value = bioText.textContent.trim() === 'No bio yet. Click edit to add one.' ? '' : bioText.textContent;
-      bioInput.focus();
-    });
-    cancelBioBtn.addEventListener('click', () => {
-      bioEditor.classList.add('d-none');
-    });
-
-    saveBioBtn.addEventListener('click', async () => {
-      const newBio = bioInput.value.trim();
-      saveBioBtn.disabled = true;
-      try {
-        // optimistic UI update:
-        bioText.textContent = newBio || 'No bio yet. Click edit to add one.';
-        bioEditor.classList.add('d-none');
-
-        // attempt server save
-        try {
-          await saveBioToServer(newBio);
-          showAlert('Bio saved', 'success');
-        } catch (serverErr) {
-          // fallback: store locally and warn
-          localStorage.setItem('profile_bio', newBio);
-          showAlert('Saved locally. Server update failed.', 'warning', 5000);
-          console.warn(serverErr);
-        }
-      } finally {
-        saveBioBtn.disabled = false;
-      }
-    });
-
-    /* -----------------------
-       Logout link (keeps your existing logic)
-       ----------------------- */
-    document.getElementById('logoutLink')?.addEventListener('click', (e) => {
-      e.preventDefault();
-
-      /*
-      !!!!!!!!!!!!   
-      UPLOAD OPTION TRIGGER
-      This is all local code! You can use the code I have commented out below if you have a backend logout endpoint
-        fileInput.value = '';
-        fileInput.click();
-      !!!!!!!!!!!!
-      */
-      localStorage.removeItem('auth_token');
-      sessionStorage.removeItem('auth_token');
-      // redirect (adjust to your login path)
-      window.location.href = '../login.html';
-    });
-
-    /* -----------------------
-       Init
-       ----------------------- */
-    (function init() {
-      // load profile data (server or fallback)
-      loadProfile();
-    })();
-  </script>
-</body>
-</html>
+  <script src="dashboard.js" defer></script>
