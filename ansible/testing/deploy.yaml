@@ -18,16 +18,18 @@
     - name: Copy the tarball.
       ansible.builtin.copy:
         src: "{{ hostvars['localhost']['tar_path'] }}"
-        dest: "{{ temp_dir | quote }}/Hippo-Web-Project-Deployment.tar.gz"
+        dest: "{{ temp_dir.path + srcs.tarball | quote }}"
       register: local_deploy
-    - name: Extract the tarball on the remote.
+    - name: "Extract the tarball on the remote."
       ansible.builtin.command:
         argv:
           - "tar"
+          - "-C"
+          - "{{temp_dir.path|quote}}"
           - "-xf"
           - "{{ local_deploy.dest|quote }}"
           - "--one-top-level"
-        register: repo_extract
+      register: repo_extract
 
 - name: Install systemd units.
   hosts: testing
@@ -38,58 +40,120 @@
       vars:
         title: HippoExBackend
         description: Acts as a middle-man that retrieves information on an authorized user's request.
-        exec: /usr/share/Hippo-Backend/Hippo-Exchange
-        user_unit: true 
+        exec: /usr/local/share/Hippo-Backend/Hippo-Exchange
+        user: APIHippo
       ansible.builtin.include_role:
         name: unit
       vars:
         title: SwaggerValidatorBadge
         description: Displays whether or not the API Spec file has errors in the swagger ui.
         argv:
-          - mvn
-          - package
-          - jetty:run
-        dir: /usr/share/swagger-validator/
-        user_unit: true
+          - "mvn"
+          - "package"
+          - "jetty:run"
+        dir: "{{ dests.swagger_validator }}"
+        user: "SwaggerHippo"
+    
+- name: Configure NGINX
+  hosts: testing
+  become: true
+  tasks:
+    - name: Install Main NGINX Configuration File
+      ansible.builtin.command:
+        argv:
+          - "mv"
+          - "{{ temp_dir.path + srcs.nginx + '/nginx.conf'|quote }}"
+          - "{{ dests.nginx|quote }}"
+    - name: Install Sites-Available File
+      ansible.builtin.command:
+        argv:
+          - "mv"
+          - "{{ temp_dir.path + srcs.nginx + '/sites-available/default'|quote }}"
+          - "{{ dests.nginx + '/sites-available/' |quote }}"
 
-- name: Prepare files on remote
+    - name: Ensure link to sites-available is present in sites-enabled
+      ansible.builtin.file:
+        state: link
+        src: "{{dests.nginx + '/sites-available/default'|quote}}"
+        path: "{{dests.nginx + '/sites-enabled/default'|quote}}"
+
+
+- name: "Patch Swagger Repositories"
+  hosts: testing
+  tasks:
+    - name: "Patch Swagger-UI repository"
+      ansible.builtin.command:
+        argv:
+          - git
+          - apply
+          - "{{ temp_dir.path + srcs.patches + '/swagger-ui.patch'|quote }}"
+        chdir: "{{ temp_dir.path + srcs.swagger_ui |quote }}"
+      register: patch_ui
+    - name: "Patch swagger-validator repository"
+      ansible.builtin.command:
+        argv:
+          - git
+          - apply
+          - "{{ temp_dir.path + srcs.patches + '/swagger-validator.patch'|quote }}"
+        chdir: "{{ temp_dir.path + srcs.swagger_validator|quote  }}"
+      register: patch_validator
+
+- name: Build and Install Hippo Backend
   hosts: testing
   tasks:
     - name: Build Hippo Backend
       ansible.builtin.command:
         argv:
-          - dotnet
-          - publish
-        chdir: "{{ local_deploy.dest + 'hippo-exchange'|quote  }}"
-
-    - name: Patch swagger-ui repository
-      ansible.builtin.command:
-        argv:
-          - git
-          - apply
-          - "{{ local_deploy.dest + '/submodules/module-patches/swagger-ui.patch'|quote }}"
-        chdir: "{{ local_deploy.dest + 'submodules/swagger-ui'|quote  }}"
-      register: patch_ui
-
-    - name: Patch swagger-validator repository
-      ansible.builtin.command:
-        argv:
-          - git
-          - apply
-          - "{{ local_deploy.dest + '/submodules/module-patches/swagger-validator.patch'|quote }}"
-        chdir: "{{ local_deploy.dest + 'submodules/swagger-validator'|quote  }}"
-      register: patch_validator
-
-
-- name: Install Nginx Config
-  hosts: testing
-  tasks:
-    - name: Install main configuration file.
+          - "{{dests.dotnet + '/dotnet'|quote}}"
+          - "publish"
+        chdir: "{{temp_dir.path + srcs.HippoAPI|quote}}"
+    - name: Install Hippo Backend
       become: true
       ansible.builtin.command:
         argv:
+          - "mv"
+          - "{{ temp_dir.path + srcs.HippoAPI|quote }}"
+          - "{{ dests.HippoAPI|quote }}"
+    - name: Set Backend Directory Permissions
+      become: true
+      ansible.builtin.file:
+        path: "{{ dests.HippoAPI|quote }}"
+        owner: "APIHippo"
+        mode: "u+rwX,go+rX" 
+        state: directory
+        recurse: true
+
+- name: "Install Swagger-Validator"
+  hosts: testing
+  become: true
+  tasks:
+    - name: "Install Swagger-Validator Repository"
+      ansible.builtin.command:
+        argv:
           - mv
-          - "{{ local_deploy.dest + ''|quote }}"
-          - "/etc/nginx/default.conf"
-  
-  
+          - "{{ temp_dir.path + srcs.swagger_validator|quote }}"
+          - "{{ dests.swagger_validator|quote }}"
+
+- name: "Setup /srv/"
+  hosts: testing
+  become: true
+  tasks:
+    - name: "Move Hippo Exchange html files"
+      ansible.builtin.command:
+        argv:
+          - mv
+          - "{{temp_dir.path + srcs.html|quote}}"
+          - "{{dests.html|quote}}" 
+    - name: "Move the swagger API Specification"
+      ansible.builtin.command:
+        argv:
+          - mv
+          - "{{temp_dir.path + srcs.swagger_spec|quote}}"
+          - "{{dests.swagger_spec|quote}}" 
+    - name: "Install Swagger-UI Repository"
+      ansible.builtin.command:
+        argv:
+          - mv
+          - "{{ temp_dir.path + srcs.swagger_ui + '/dist/'|quote }}"
+          - "{{ dests.swagger_ui|quote }}"
+

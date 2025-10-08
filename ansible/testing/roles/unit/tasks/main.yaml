@@ -1,4 +1,9 @@
 # This is a group of tasks, not a playbook.
+- name: "Setup Unit User Account"
+  when: user is defined
+  ansible.builtin.include_tasks:
+    file: "user.yaml"
+
 - name: "Create systemd unit for {{ title }} in the user scope"
   when: user_unit is true
   become: true

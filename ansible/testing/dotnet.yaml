@@ -1,25 +1,38 @@
+- name: Make tempdir for dotnet install process.
+  ansible.builtin.tempfile:
+    state: directory
+  register: dotnet_tmp
 - name: Get dotnet install script
   ansible.builtin.get_url:
     url: "{{ dotnet_url }}"
-    dest: "~/dotnet_install.sh"
+    dest: "{{dotnet_tmp.path + '/dotnet_install.sh'|quote}}"
   register: dotnet_script
 - name: Set dotnet install script permissions
   ansible.builtin.file:
     path: '{{ dotnet_script.dest }}'
     mode: "a+x"
   register: dotnet_script
+- debug: msg="{{dotnet_script.path}}"
 - name: Run dotnet install script
   ansible.builtin.command:
-    cmd: '{{ dotnet_script.path }}'
-    creates: '~/.dotnet/'
+    argv: 
+      - "{{ dotnet_script.path|quote }}"
+      - "-i"
+      - "{{dotnet_tmp.path + '/dotnet'|quote}}"
+    creates: "{{dotnet_tmp.path + '/dotnet'|quote}}"
   register: dotnet_proc
+- debug: msg="{{dotnet_proc}}"
 - name: Move install to the correct location.
+  become: true
   ansible.builtin.command:
     argv: 
       - 'mv'
-      - '~/.dotnet/'
+      - "{{dotnet_tmp.path + '/dotnet'|quote}}"
       - '/usr/share/dotnet'
     creates: '/usr/share/dotnet/'
-    removes: "~/.dotnet/" 
-  become: true
+    removes: "{{dotnet_tmp.path + '/dotnet'|quote}}" 
   register: dotnet_install
+- name: "Remove dotnet tempdir."
+  ansible.builtin.file:
+    path: "{{dotnet_tmp.path}}"
+    state: absent

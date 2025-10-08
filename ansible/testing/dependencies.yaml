@@ -49,4 +49,3 @@
       create: true
       line: 'export PATH="$PATH:~/.dotnet/"'
       path: "~/.bashrc"
-

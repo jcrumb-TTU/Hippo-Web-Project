@@ -1,0 +1,10 @@
+- name: Print variables for debug.
+  hosts: testing
+  tasks:
+    - name: Print Sources Dictionary
+      ansible.builtin.debug:
+        msg: "{{srcs}}"
+    - name: Print Dests Dictionary
+      ansible.builtin.debug:
+        msg: "{{dests}}"
+    

@@ -1,0 +1,18 @@
+# Will be loaded if {{user}} is defined.
+- name: "Ensure the System Group {{group|default(user)}} is Present."
+  become: true
+  ansible.builtin.group:
+    name: "{{group|default(user)}}"
+    state: present
+    system: true
+
+- name: "Ensure the System User {{user}} and Group {{group}} is Present"
+  when: user is defined and group is defined
+  become: true
+  ansible.builtin.user:
+    name: "{{user}}"
+    password: '!' #Login disabled for system users.
+    group: "{{group|default(user)}}" #Primary Group. Additional groups go in groups:.
+    state: present
+    system: true
+

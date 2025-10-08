@@ -2,6 +2,16 @@
 Description={{description|quote}}
 
 [Service]
+{% if user is defined %}
+User={{user|quote}}
+{% if group is defined %}
+Group={{group|quote}}
+{% else %}
+Group={{user|quote}}
+{% endif %}
+{% elif group is defined %}
+Group={{group|quote}}
+{% endif %}
 {% if dir is defined %}
 WorkingDirectory={{dir|quote}}
 {% endif %}

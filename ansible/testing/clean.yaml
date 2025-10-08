@@ -7,42 +7,92 @@
 - name: Clear Old Install.
   hosts: testing
   tasks:
-    block:
-      - name: Stop Nginx if running.
-        ansible.builtin.systemd_service:
-          name: nginx
-          state: stopped
-          enabled: false
-        become: true
-    rescue:
-      - debug: msg='NOTE{{":"}} Nginx did not stop.'
-    block:
-      - name: Stop Swagger Validator if running
-        ansible.builtin.systemd_service:
-          name: Swagger-Validator
-          state: stopped
-          enabled: false
-          scope: user
-    rescue:
-      - debug: "msg=NOTE: Swagger-Validator did not stop."
-    block:
-      - name: Stop Backend if running.
-        ansible.builtin.systemd_service:
-          name: Hippo-Backend
-          state: stopped
-          enabled: false
-          scope: user
-    rescue:
-      - debug: "msg=NOTE: Swagger-Validator did not stop."
-    - name: Remove previous install artifacts.
-      become: true
-      ansible.builtin.command:
-        argv:
-          - rm
-          - -rf
-          - /srv/*
-          - /usr/share/Hippo-Backend/
-          - /usr/share/swagger-validator/
-          - /usr/share/nginx/nginx.conf
-          - /usr/share/nginx/sites-available/
-      register: rm_artifacts
+    - name: Stop webserver
+      block:
+        - name: Stop Nginx if running.
+          ansible.builtin.systemd_service:
+            name: nginx
+            state: stopped
+            enabled: false
+          become: true
+      rescue:
+        - name: "Print warning."
+          ansible.builtin.debug: 
+            msg: 'NOTE{{":"}} Nginx did not stop.'
+    - name: Stop validator badge
+      block:
+        - name: Stop Swagger Validator if running
+          ansible.builtin.systemd_service:
+            name: Swagger-Validator
+            state: stopped
+            enabled: false
+            scope: user
+      rescue:
+        - name: "Print warning."
+          ansible.builtin.debug: 
+            msg: 'NOTE{{":"}} Swagger-Validator did not stop.'
+    - name: Stop Hippo Backend
+      block:
+        - name: Stop Backend if running.
+          ansible.builtin.systemd_service:
+            name: Hippo-Backend
+            state: stopped
+            enabled: false
+            scope: user
+      rescue:
+        - name: "Print warning."
+          ansible.builtin.debug: 
+            msg: "NOTE: Swagger-Validator did not stop."
+    - name: "Remove webpage files from /srv/."
+      block:
+        - name: "Remove html subdirectory."
+          become: true
+          ansible.builtin.file:
+            state: absent
+            path: "/srv/html"
+        - name: "Remove dev subdirectory"
+          become: true
+          ansible.builtin.file:
+            state: absent
+            path: "/srv/dev"
+      rescue:
+        - name: "Print warning"
+          ansible.builtin.debug:
+            msg: "WARNING: Failed to remove folder(s) from /srv/."
+    - name: "Remove API files from /usr/local/share."
+      block:
+        - name: "Remove HippoAPI."
+          become: true
+          ansible.builtin.file:
+            state: absent
+            path: "{{dests.HippoAPI|quote}}"
+        - name: "Remove Swagger-Validator."           
+          become: true
+          ansible.builtin.file:
+            state: absent
+            path: "{{dests.swagger_validator|quote}}"
+      rescue:
+        - name: "Print warning"
+          ansible.builtin.debug:
+            msg: "WARNING: Failed to remove folder(s) from /usr/local/share."
+    - name: "Remove old NGINX config."
+      block:
+        - name: "Remove site from sites-available."
+          become: true
+          ansible.builtin.file:
+            state: absent
+            path: "{{ dests.nginx + '/sites_available/hippo-exchange.conf'|quote  }}"
+        - name: "Remove site from sites-enabled."
+          become: true
+          ansible.builtin.file:
+            state: absent
+            path: "{{ dests.nginx + '/sites_enabled/hippo-exchange.conf'|quote}}"
+        - name: "Remove Main NGINX Configuration File."
+          become: true
+          ansible.builtin.file:
+            state: absent
+            path: "{{ dests.nginx + '/nginx.conf'|quote  }}"
+      rescue:
+        - name: "Print warning"
+          ansible.builtin.debug:
+            msg: "WARNING: Failed to remove folder(s) from {{dests.nginx}}."
