@@ -1,4 +1,6 @@
-﻿using Isopoh.Cryptography.Argon2;
+﻿﻿// ADDED: Bio + PhotoUrl fields (with BsonElement attributes)
+
+using Isopoh.Cryptography.Argon2;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -28,6 +30,13 @@ public class Users
 
     [BsonElement("Birthday")]
     public string? strBirthday { get; set; }
+
+    // NEW FIELDS (profile data)
+    [BsonElement("Bio")]
+    public string? Bio { get; set; }
+
+    [BsonElement("PhotoUrl")]
+    public string? PhotoUrl { get; set; }
 
     public void SetPassword(string strPassword)
     {

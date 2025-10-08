@@ -38,4 +38,27 @@ public class UserService : IUserService
         var filter = Builders<Users>.Filter.Eq(u => u.strEmail, email);
         return await _users.Find(filter).FirstOrDefaultAsync();
     }
+
+    // NEW: Get by ID
+    public async Task<Users?> GetByIdAsync(string userId)
+    {
+        var filter = Builders<Users>.Filter.Eq(u => u.strUserID, userId);
+        return await _users.Find(filter).FirstOrDefaultAsync();
+    }
+
+    // NEW: Update Bio
+    public async Task<bool> UpdateBioAsync(string userId, string? bio)
+    {
+        var update = Builders<Users>.Update.Set(u => u.Bio, bio ?? "");
+        var result = await _users.UpdateOneAsync(u => u.strUserID == userId, update);
+        return result.MatchedCount > 0;
+    }
+
+    // NEW: Update Photo URL
+    public async Task<bool> UpdatePhotoUrlAsync(string userId, string? photoUrl)
+    {
+        var update = Builders<Users>.Update.Set(u => u.PhotoUrl, photoUrl ?? "");
+        var result = await _users.UpdateOneAsync(u => u.strUserID == userId, update);
+        return result.MatchedCount > 0;
+    }
 }
