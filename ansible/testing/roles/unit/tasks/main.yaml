@@ -1,4 +1,10 @@
 # This is a group of tasks, not a playbook.
+- name: "Print unit user."
+  ansible.builtin.debug:
+    msg: "User: {{user|default('undefined')}}"
+- name: "Print unit group."
+  ansible.builtin.debug:
+    msg: "Group: {{group|default('undefined')}}"
 - name: "Setup Unit User Account"
   when: user is defined
   ansible.builtin.include_tasks:

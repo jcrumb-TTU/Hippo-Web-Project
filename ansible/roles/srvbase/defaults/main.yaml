@@ -1,8 +1,0 @@
-dotnet_url: 'https://dot.net/v1/dotnet-install.sh'
-dotnet_path: "~/.dotnet"
-# Packages to be installed to the VM from apt:
-apt_deps_ex: []
-# Information regarding srvbase processes running remotly.
-srvbase:
-  # Stores async results.
-  processes: []

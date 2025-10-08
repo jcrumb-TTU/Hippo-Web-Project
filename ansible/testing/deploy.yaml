@@ -39,9 +39,10 @@
         name: unit
       vars:
         title: HippoExBackend
-        description: Acts as a middle-man that retrieves information on an authorized user's request.
-        exec: /usr/local/share/Hippo-Backend/Hippo-Exchange
-        user: APIHippo
+        description: "Acts as a middle-man that retrieves information when an authorized user requests it."
+        exec: "{{ dests.HippoAPI + '/Hippo-Exchange'  }}"
+        user: "APIHippo"
+    - name: Install Systemd Service for the Swagger Validator Badge.
       ansible.builtin.include_role:
         name: unit
       vars:
@@ -49,10 +50,15 @@
         description: Displays whether or not the API Spec file has errors in the swagger ui.
         argv:
           - "mvn"
+          - "-Dmaven.repo.local=/var/cache/swagger_validator"
           - "package"
           - "jetty:run"
         dir: "{{ dests.swagger_validator }}"
         user: "SwaggerHippo"
+    - name: Reload SystemD Units
+      become: true
+      ansible.builtin.systemd_service:
+        daemon-reload: true
     
 - name: Configure NGINX
   hosts: testing
@@ -112,7 +118,7 @@
       ansible.builtin.command:
         argv:
           - "mv"
-          - "{{ temp_dir.path + srcs.HippoAPI|quote }}"
+          - "{{ temp_dir.path + srcs.HippoAPIPub|quote }}"
           - "{{ dests.HippoAPI|quote }}"
     - name: Set Backend Directory Permissions
       become: true
@@ -133,6 +139,13 @@
           - mv
           - "{{ temp_dir.path + srcs.swagger_validator|quote }}"
           - "{{ dests.swagger_validator|quote }}"
+    - name: "Make mvn cache directory"
+      ansible.builtin.file:
+        path: "/var/cache/swagger_validator"
+        owner: "SwaggerHippo"
+        mode: "u+rwX,go+rX"
+        state: directory
+      register: validator_cache
 
 - name: "Setup /srv/"
   hosts: testing
@@ -157,3 +170,10 @@
           - "{{ temp_dir.path + srcs.swagger_ui + '/dist/'|quote }}"
           - "{{ dests.swagger_ui|quote }}"
 
+- name: "Remove Temporary Directory"
+  hosts: testing
+  tasks:
+    - name: "Remove the temporary directory"
+      ansible.builtin.file:
+        state: absent
+        path: "{{temp_dir.path}}"

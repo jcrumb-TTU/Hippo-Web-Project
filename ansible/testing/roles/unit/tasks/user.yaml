@@ -7,7 +7,7 @@
     system: true
 
 - name: "Ensure the System User {{user}} and Group {{group}} is Present"
-  when: user is defined and group is defined
+  when: user is defined
   become: true
   ansible.builtin.user:
     name: "{{user}}"

@@ -4,6 +4,7 @@ srcs:
   tarball: "{{srcs.toplevel}}.tar.gz"
   html: "{{srcs.toplevel}}/srv/html"
   HippoAPI: "{{srcs.toplevel}}/Hippo-Exchange"
+  HippoAPIPub: "{{srcs.HippoAPI}}/bin/Release/net8.0/publish/"
   patches: "{{srcs.toplevel}}/submodules/module-patches"
   swagger_ui: "{{srcs.toplevel}}/submodules/swagger-ui"
   swagger_spec: "{{srcs.toplevel}}/srv/dev"
