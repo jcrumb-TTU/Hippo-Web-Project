@@ -2,36 +2,40 @@
 // Example: localStorage.setItem('API_BASE', 'http://localhost:5257')
 const API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:5257';
 
-// If your API authenticates with cookies (Set-Cookie on login), set this to true.
-// Then ensure CORS on the API allows credentials and specific origins.
-// Otherwise, leave false and use token-based auth via Authorization headers.
-const USE_COOKIES = false;
+/*
+  BACKEND MODE:
+  Your Program.cs uses cookie-based auth (AddCookie). To make that work
+  the browser must send credentials (include) so the hippo.auth cookie is set
+  and later sent with each request.
+*/
+const USE_COOKIES = true;
 
 // Redirect targets (relative to user_login folder)
 const PATH_AFTER_SIGNUP = 'login.html';
 const PATH_AFTER_LOGIN = 'dashboard/dashboard.html';
 
+// Optional: path to send the user to if an auth check fails on a protected page
+const LOGIN_PAGE_REL = 'login.html';
+
+/* ----------- Core fetch helpers ----------- */
 async function postJson(path, payload, opts = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(USE_COOKIES ? {} : opts.headers),
+      // In cookie mode we do not need Authorization header
+      ...(USE_COOKIES ? {} : opts.headers || {})
     },
     body: JSON.stringify(payload),
-    credentials: USE_COOKIES ? 'include' : 'same-origin',
+    credentials: USE_COOKIES ? 'include' : 'omit'
   });
 
-  let data = null;
   const ct = res.headers.get('content-type') || '';
+  let data = null;
   if (ct.includes('application/json')) {
-    data = await res.json();
+    try { data = await res.json(); } catch { data = null; }
   } else {
-    try {
-      data = await res.text();
-    } catch {
-      data = null;
-    }
+    try { data = await res.text(); } catch { data = null; }
   }
 
   if (!res.ok) {
@@ -41,6 +45,25 @@ async function postJson(path, payload, opts = {}) {
   return data;
 }
 
+async function getJson(path) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'GET',
+    credentials: USE_COOKIES ? 'include' : 'omit',
+    headers: USE_COOKIES ? {} : authHeader()
+  });
+  if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`);
+  const ct = res.headers.get('content-type') || '';
+  return ct.includes('application/json') ? res.json() : res.text();
+}
+
+/* ----------- Auth header (token mode fallback) ----------- */
+function authHeader() {
+  if (USE_COOKIES) return {};
+  const token = localStorage.getItem('auth_token');
+  return token ? { Authorization: 'Bearer ' + token } : {};
+}
+
+/* ----------- UI utility ----------- */
 function toggleSubmitting(button, isSubmitting, busyText = 'Processing...') {
   if (!button) return;
   if (isSubmitting) {
@@ -53,30 +76,43 @@ function toggleSubmitting(button, isSubmitting, busyText = 'Processing...') {
   }
 }
 
-// Logout helper
+/* ----------- Logout ----------- */
 async function logout() {
   try {
     if (USE_COOKIES) {
-      // Tell the API to clear any auth cookies
+      // In cookie mode notify server to clear cookie
       await postJson('/api/logout', {});
     } else {
-      // Token-based: just clear client storage
+      // Token mode: discard client token
       localStorage.removeItem('auth_token');
     }
   } catch (e) {
-    // No-op; logout should complete even if API not reachable
     console.warn('Logout warning:', e);
   } finally {
-    // Send user to login page
+    // Always go to root or login
     window.location.href = '../../index.html';
   }
 }
-
-// Make available globally so you can call window.logout() from any page
 window.logout = logout;
 
+/* ----------- Session check (call on protected pages) ----------- */
+// Example usage on dashboard:
+// sessionCheck().catch(() => window.location.href = '../login.html');
+async function sessionCheck() {
+  const res = await fetch(`${API_BASE}/api/me`, {
+    method: 'GET',
+    credentials: USE_COOKIES ? 'include' : 'omit',
+    headers: USE_COOKIES ? {} : authHeader()
+  });
+  if (!res.ok) throw new Error('Not authenticated');
+  return res.json();
+}
+window.sessionCheck = sessionCheck;
+
+/* ----------- DOM wiring ----------- */
 document.addEventListener('DOMContentLoaded', () => {
-  // Handle Login submit
+
+  /* ---- LOGIN ---- */
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -89,10 +125,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         const resp = await postJson('/api/login', { email, password });
+
+        // Token mode (not active now) fallback:
         if (!USE_COOKIES && resp && resp.token) {
-          localStorage.setItem('auth_token', resp.token);
+            localStorage.setItem('auth_token', resp.token);
         }
-        //alert('Login successful');
+
+        // Immediately test session (optional, helps debug cookie issues)
+        try {
+          await sessionCheck();
+        } catch {
+          alert('Login response received, but session not established (cookie not stored). Check CORS/origin.');
+          return;
+        }
+
         window.location.href = PATH_AFTER_LOGIN;
       } catch (err) {
         console.error('Login error:', err);
@@ -103,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Handle Signup submit
+  /* ---- SIGNUP ---- */
   const signupForm = document.getElementById('signupForm');
   if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
@@ -130,8 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       try {
-        const resp = await postJson('/api/register', payload);
-        console.log('Registration success:', resp);
+        await postJson('/api/register', payload);
         alert('Account created! Redirecting to sign in...');
         window.location.href = PATH_AFTER_SIGNUP;
       } catch (err) {
