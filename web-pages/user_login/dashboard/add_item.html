@@ -1,286 +1,1248 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Add new equipment item with maintenance schedule">
     <title>Add an Item</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <style>
+        :root {
+            --color-bg-primary: #f7e4d5;
+            --color-bg-card: #c6dfb9;
+            --color-primary: #87ae73;
+            --color-primary-dark: #547444;
+            --color-secondary: #5C6B55;
+            --color-secondary-dark: #36433c;
+            --color-text-muted: #6c757d;
+            --color-border: #cdd5df;
+            --color-success: #28a745;
+            --color-warning: #ffc107;
+            --color-danger: #dc3545;
+            --color-info: #17a2b8;
+        }
+
         body {
-            background-color: #f7e4d5; /* soft tan */
+            background-color: var(--color-bg-primary);
+            min-height: 100vh;
         }
 
         .item-card {
-            background-color: #c6dfb9;
+            background-color: var(--color-bg-card);
             border-radius: 8px;
             width: 75%;
             max-width: 1000px;
             margin: 40px auto;
             padding: 30px 40px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         .item-header-bar {
-            background-color: #87ae73; /* green */
+            background-color: var(--color-primary);
             color: white;
             text-align: center;
             padding: 15px;
             border-radius: 6px 6px 0 0;
             font-size: 1.8rem;
-            margin: -30px -40px 30px -40px; /* full width of card */
+            margin: -30px -40px 30px -40px;
+            font-weight: 600;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-label {
+            font-weight: 600;
+            color: var(--color-secondary);
+            font-size: 0.9rem;
+        }
+
+        .progress-percentage {
+            font-weight: 700;
+            color: var(--color-primary);
+            font-size: 1.1rem;
+        }
+
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #e9ecef;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            transition: width 0.5s ease;
+        }
+
+        .field-checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .field-check-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            transition: color 0.3s;
+        }
+
+        .field-check-item.completed {
+            color: var(--color-success);
+        }
+
+        .field-check-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .field-check-item.completed .field-check-icon {
+            background: var(--color-success);
+            border-color: var(--color-success);
+        }
+
+        /* Validation Summary */
+        .validation-summary {
+            background: #fff3cd;
+            border-left: 4px solid var(--color-warning);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .validation-summary.show {
+            display: block;
+        }
+
+        .validation-summary-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .validation-summary-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .validation-summary-list li {
+            padding: 4px 0;
+            color: #856404;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .validation-summary-list li:hover {
+            color: var(--color-secondary);
+            text-decoration: underline;
+        }
+
+        /* Draft Banner */
+        .draft-banner {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.3s ease;
+        }
+
+        .draft-banner.show {
+            display: flex;
+        }
+
+        .draft-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .draft-banner-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-draft {
+            padding: 6px 16px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .btn-draft-primary {
+            background: white;
+            color: #17a2b8;
+        }
+
+        .btn-draft-primary:hover {
+            background: #f8f9fa;
+            transform: translateY(-1px);
+        }
+
+        .btn-draft-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-draft-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Auto-save Indicator */
+        .autosave-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .autosave-indicator.show {
+            display: flex;
+        }
+
+        .autosave-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--color-border);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Network Status */
+        .network-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            z-index: 1001;
+        }
+
+        .network-status.show {
+            display: flex;
+        }
+
+        .network-status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .network-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-success);
+            animation: pulse 2s infinite;
+        }
+
+        .network-status.offline .network-dot {
+            background: var(--color-danger);
+        }
+
+        /* Field Validation */
+        .form-control, .form-select {
+            border-radius: 6px;
+            margin-bottom: 0;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-control.is-valid,
+        .form-select.is-valid {
+            border-color: var(--color-success);
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .form-control.is-invalid,
+        .form-select.is-invalid {
+            border-color: var(--color-danger);
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .field-feedback {
+            display: none;
+            margin-top: 6px;
+            font-size: 0.875rem;
+            animation: slideIn 0.2s ease;
+        }
+
+        .field-feedback.show {
+            display: block;
+        }
+
+        .field-feedback.valid {
+            color: var(--color-success);
+        }
+
+        .field-feedback.invalid {
+            color: var(--color-danger);
+        }
+
+        .char-count {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            text-align: right;
+            margin-top: 5px;
+            transition: all 0.3s;
+        }
+
+        .char-count.warning {
+            color: var(--color-warning);
+            font-weight: 600;
+        }
+
+        .char-count.danger {
+            color: var(--color-danger);
+            font-weight: 700;
+        }
+
+        .section-divider {
+            border-top: 2px solid var(--color-primary);
+            margin: 30px 0 20px 0;
+            padding-top: 20px;
+        }
+
+        .section-title {
+            color: var(--color-secondary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-completion {
+            margin-left: auto;
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-completion.complete {
+            color: var(--color-success);
+        }
+
+        .image-upload-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
         }
 
         .image-drop {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border: 2px dashed #cdd5df;
-            height: 200px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 12px;
+            border: 2px dashed var(--color-border);
+            height: 180px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: #6c757d;
+            color: var(--color-text-muted);
             cursor: pointer;
             margin-bottom: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-drop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(135, 174, 115, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .image-drop:hover::before {
+            opacity: 1;
+        }
+
+        .image-drop:hover {
+            border-color: var(--color-primary);
+            background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(135, 174, 115, 0.15);
+        }
+
+        .image-drop.drag-over {
+            border-color: var(--color-primary);
+            background: linear-gradient(135deg, #d4edda 0%, #e9f5e9 100%);
+            border-width: 3px;
+            border-style: solid;
+            transform: scale(1.02);
+        }
+
+        .image-drop.drag-over::before {
+            opacity: 1;
+        }
+
+        .image-drop-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            transition: transform 0.3s ease;
+            filter: grayscale(20%);
+        }
+
+        .image-drop:hover .image-drop-icon {
+            transform: scale(1.1);
+        }
+
+        .image-drop.drag-over .image-drop-icon {
+            transform: scale(1.15) rotate(5deg);
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1.15) translateY(0); }
+            50% { transform: scale(1.15) translateY(-10px); }
+        }
+
+        .image-drop-text {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--color-secondary);
+            margin-bottom: 6px;
+        }
+
+        .image-drop-subtext {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+        }
+
+        .image-counter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: var(--color-secondary);
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid var(--color-primary);
+        }
+
+        .image-counter-badge {
+            background: var(--color-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.875rem;
         }
 
         .preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
         }
 
         .preview-item {
             position: relative;
-            display: inline-block;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f8f9fa;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeIn 0.3s ease;
         }
 
-            .preview-item img {
-                max-width: 100px;
-                max-height: 100px;
-                object-fit: cover;
-                border-radius: 6px;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
             }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .preview-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .preview-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .preview-item:hover::before {
+            opacity: 1;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .preview-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .preview-item.loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .preview-item-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(135, 174, 115, 0.95);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 2;
+            backdrop-filter: blur(4px);
+        }
 
         .remove-btn {
             position: absolute;
-            top: -6px;
-            right: -6px;
-            background: rgba(0,0,0,0.6);
+            top: 8px;
+            right: 8px;
+            background: rgba(220, 53, 69, 0.95);
             color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 18px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2;
+            opacity: 0;
+            transform: scale(0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        .preview-item:hover .remove-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .remove-btn:hover {
+            background: rgba(200, 35, 51, 1);
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        .remove-btn:active {
+            transform: scale(0.95);
+        }
+
+        .form-label {
+            color: var(--color-secondary);
+            margin-bottom: 8px;
+        }
+
+        .price-symbol {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-secondary);
+            font-weight: 600;
+            font-size: 1rem;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .btn-cancel {
+            background-color: var(--color-secondary);
+            color: white;
+            border: none;
+            width: 120px;
+            height: 45px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-submit {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            min-width: 120px;
+            height: 45px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .btn-cancel:hover:not(:disabled) {
+            background-color: var(--color-secondary-dark);
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(135, 174, 115, 0.3);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-tag-add {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            height: 38px;
+            border-radius: 6px;
+            padding: 0 20px;
+            white-space: nowrap;
+            transition: background-color 0.3s;
+        }
+
+        .btn-tag-add:hover {
+            background-color: var(--color-primary-dark);
+        }
+
+        .maintenance-tag {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .maintenance-tag .remove-tag {
+            background: rgba(255, 255, 255, 0.3);
             border: none;
             border-radius: 50%;
             width: 20px;
             height: 20px;
             font-size: 14px;
-            line-height: 18px;
-            text-align: center;
+            line-height: 1;
             cursor: pointer;
+            color: white;
             padding: 0;
+            transition: background 0.2s;
         }
 
-        .char-count {
-            font-size: 0.875rem;
-            color: #6c757d;
-            text-align: right;
-            margin-top: -10px;
-            margin-bottom: 10px;
+        .maintenance-tag .remove-tag:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
 
-        .form-control, .form-select {
+        .tag-container {
+            min-height: 40px;
+            padding: 10px;
+            background: #f8f9fa;
             border-radius: 6px;
-            margin-bottom: 15px;
+            border: 1px solid var(--color-border);
         }
 
-        .btn-cancel {
-            background-color: #5C6B55;
-            color: white;
-            border: none;
-            width: 120px;
-            height: 45px;
-            border-radius: 8px;
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
         }
 
-        .btn-add {
-            background-color: #87ae73;
-            color: white;
-            border: none;
-            width: 120px;
-            height: 45px;
-            border-radius: 8px;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .btn-cancel:hover {
-            background-color: #36433c;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
-        .btn-add:hover {
-            background-color: #547444;
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .success-animation.show {
+            display: flex;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: translate(-50%, -50%) scale(0);
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--color-success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: checkmarkPop 0.6s ease 0.2s both;
+        }
+
+        @keyframes checkmarkPop {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .success-checkmark svg {
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: checkmarkDraw 0.5s ease 0.4s forwards;
+        }
+
+        @keyframes checkmarkDraw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .keyboard-shortcuts-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            z-index: 999;
+        }
+
+        .kbd {
+            background: #f8f9fa;
+            border: 1px solid var(--color-border);
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 768px) {
+            .item-card {
+                width: 95%;
+                padding: 20px;
+                margin: 20px auto;
+            }
+
+            .item-header-bar {
+                margin: -20px -20px 20px -20px;
+                font-size: 1.5rem;
+            }
+
+            .image-upload-section {
+                padding: 16px;
+            }
+
+            .image-drop {
+                height: 160px;
+            }
+
+            .image-drop-icon svg {
+                width: 40px;
+                height: 40px;
+            }
+
+            .preview-container {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 12px;
+            }
+
+            .preview-item-badge {
+                font-size: 0.7rem;
+                padding: 3px 8px;
+            }
+
+            .remove-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+                opacity: 1;
+            }
+
+            .image-counter {
+                font-size: 0.8rem;
+            }
+
+            .field-checklist {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .keyboard-shortcuts-hint {
+                display: none;
+            }
+
+            .autosave-indicator {
+                bottom: 10px;
+                right: 10px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .preview-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .field-checklist {
+                grid-template-columns: 1fr;
+            }
+
+            .draft-banner {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .draft-banner-actions {
+                width: 100%;
+            }
+
+            .btn-draft {
+                flex: 1;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- Network Status Indicator -->
+    <div class="network-status" id="networkStatus">
+        <div class="network-dot"></div>
+        <span id="networkStatusText">Online</span>
+    </div>
+
+    <!-- Auto-save Indicator -->
+    <div class="autosave-indicator" id="autosaveIndicator">
+        <div class="autosave-spinner"></div>
+        <span id="autosaveText">Saving draft...</span>
+    </div>
+
+    <!-- Success Animation -->
+    <div class="success-animation" id="successAnimation">
+        <div class="success-checkmark">
+            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+        <h4 style="color: var(--color-success); margin: 0;">Success!</h4>
+        <p style="color: var(--color-text-muted); margin: 0;">Item added successfully</p>
+    </div>
+
+    <!-- Keyboard Shortcuts Hint -->
+    <div class="keyboard-shortcuts-hint">
+        <kbd class="kbd">Ctrl+S</kbd> Save Draft | <kbd class="kbd">Esc</kbd> Cancel
+    </div>
+
     <div class="item-card">
         <div class="item-header-bar">Add an Item</div>
 
-        <form class="needs-validation" novalidate>
+        <!-- Draft Resume Banner -->
+        <div class="draft-banner" id="draftBanner">
+            <div class="draft-banner-content">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <div>
+                    <strong>Draft Found</strong>
+                    <div style="font-size: 0.85rem; opacity: 0.9;">Would you like to resume your previous work?</div>
+                </div>
+            </div>
+            <div class="draft-banner-actions">
+                <button class="btn-draft btn-draft-primary" id="resumeDraftBtn">Resume</button>
+                <button class="btn-draft btn-draft-secondary" id="discardDraftBtn">Discard</button>
+            </div>
+        </div>
 
-            <!-- Image Upload -->
-            <label for="images" class="image-drop" id="dropZone">
-                Insert images
-            </label>
-            <input type="file" id="images" name="images" accept="image/*" multiple class="d-none" required>
-            <div id="preview" class="preview-container"></div>
-            <div id="imageAlert" class="alert alert-warning mt-2 d-none" role="alert">
-                You can only upload up to 5 images.
+        <!-- Validation Summary -->
+        <div class="validation-summary" id="validationSummary">
+            <div class="validation-summary-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                Please fix the following errors:
+            </div>
+            <ul class="validation-summary-list" id="validationList"></ul>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-container">
+            <div class="progress-header">
+                <span class="progress-label">Form Completion</span>
+                <span class="progress-percentage" id="progressPercentage">0%</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" id="progressBar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="field-checklist" id="fieldChecklist">
+                <div class="field-check-item" data-field="images">
+                    <div class="field-check-icon"></div>
+                    <span>Images</span>
+                </div>
+                <div class="field-check-item" data-field="description">
+                    <div class="field-check-icon"></div>
+                    <span>Description</span>
+                </div>
+                <div class="field-check-item" data-field="category">
+                    <div class="field-check-icon"></div>
+                    <span>Category</span>
+                </div>
+                <div class="field-check-item" data-field="price">
+                    <div class="field-check-icon"></div>
+                    <span>Price</span>
+                </div>
+                <div class="field-check-item" data-field="frequency">
+                    <div class="field-check-icon"></div>
+                    <span>Frequency</span>
+                </div>
+            </div>
+        </div>
+
+        <form id="itemForm" class="needs-validation" novalidate>
+
+            <!-- Image Upload Section -->
+            <div class="image-upload-section">
+                <label for="itemImages" class="form-label fw-semibold d-flex align-items-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    Item Images
+                </label>
+
+                <div id="imageCounter" class="image-counter d-none">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    <span id="imageCounterText">0 images selected</span>
+                    <span id="imageCounterBadge" class="image-counter-badge">0/5</span>
+                </div>
+
+                <div class="image-drop" id="dropZone">
+                    <div class="image-drop-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div class="image-drop-text">Click to upload or drag and drop</div>
+                    <div class="image-drop-subtext">JPG, PNG or WebP - Maximum 5 images</div>
+                </div>
+                <input
+                    type="file"
+                    id="itemImages"
+                    name="images"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    class="d-none"
+                    required
+                    aria-label="Upload item images"
+                >
+                <div id="imagePreview" class="preview-container" role="list" aria-label="Selected images"></div>
+                <div id="imageAlert" class="alert alert-warning mt-3 d-none" role="alert" aria-live="polite">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; margin-right: 8px;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    You can only upload up to 5 images. Additional files will be ignored.
+                </div>
+                <div class="field-feedback invalid" id="imagesFeedback">Please upload at least one image.</div>
             </div>
 
-            <!-- Description -->
-            <textarea class="form-control" id="description" placeholder="Description" maxlength="200" required></textarea>
-            <div class="char-count" id="descCount">0 / 200</div>
-            <div class="invalid-feedback">Please enter a description (max 200 characters).</div>
+            <!-- Item Description -->
+            <div class="form-group">
+                <label for="itemDescription" class="form-label fw-semibold">Description</label>
+                <textarea
+                    class="form-control"
+                    id="itemDescription"
+                    name="description"
+                    placeholder="Enter a detailed description of the item"
+                    maxlength="200"
+                    rows="3"
+                    required
+                    aria-describedby="itemDescCount descriptionFeedback"
+                ></textarea>
+                <div class="char-count" id="itemDescCount" aria-live="polite">0 / 200</div>
+                <div class="field-feedback invalid" id="descriptionFeedback">Please enter a description (max 200 characters).</div>
+            </div>
 
-            <!-- Categories -->
-            <div class="d-flex gap-2">
-                <input type="text" class="form-control" placeholder="Category" required>
+            <!-- Category -->
+            <div class="form-group">
+                <label for="itemCategory" class="form-label fw-semibold">Category</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="itemCategory"
+                    name="category"
+                    placeholder="e.g., Heavy Equipment, Tools, Vehicles"
+                    required
+                    maxlength="50"
+                    aria-label="Item category"
+                    aria-describedby="categoryFeedback"
+                >
+                <div class="field-feedback invalid" id="categoryFeedback">Please enter a category.</div>
             </div>
 
             <!-- Price -->
-            <input type="number" class="form-control" id="price" placeholder="Price ($)" min="0" step="0.01" required>
-            <div class="invalid-feedback">Please enter a valid price.</div>
-
-            <h6>Preventative Maintenance</h6>
-
-            <!-- Description -->
-            <textarea class="form-control" id="description" placeholder="Description" maxlength="200" required></textarea>
-            <div class="char-count" id="descCount">0 / 200</div>
-            <div class="invalid-feedback">Please enter a description (max 200 characters).</div>
-
-            <!-- Frequency -->
-            <select class="form-select" id="frequency" required>
-                <option value="">Frequency</option>
-                <option>Hourly</option>
-                <option>Daily</option>
-                <option>Weekly</option>
-                <option>Monthly</option>
-                <option>Yearly</option>
-            </select>
-            <div class="invalid-feedback">Please select a frequency.</div>
-
-            <!--How to handle this type of input FIX-->
-            <div class="d-flex gap-2">
-                <input type="text" class="form-control" placeholder="Required Materials" required>
+            <div class="form-group">
+                <label for="itemPrice" class="form-label fw-semibold">Price</label>
+                <div class="position-relative">
+                    <span class="price-symbol">$</span>
+                    <input
+                        type="number"
+                        class="form-control ps-4"
+                        id="itemPrice"
+                        name="price"
+                        placeholder="0.00"
+                        min="0"
+                        max="1000000"
+                        step="0.01"
+                        required
+                        aria-label="Item price in dollars"
+                        aria-describedby="priceFeedback"
+                    >
+                </div>
+                <div class="field-feedback invalid" id="priceFeedback">Please enter a valid price.</div>
             </div>
 
-            <div class="d-flex gap-2">
-                <input type="text" class="form-control" placeholder="Required Tools">
+            <!-- Preventative Maintenance Section -->
+            <div class="section-divider">
+                <h6 class="section-title">
+                    Preventative Maintenance Schedule
+                    <span class="section-completion" id="maintenanceCompletion">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        </svg>
+                    </span>
+                </h6>
+
+                <!-- Maintenance Tags -->
+                <div class="form-group">
+                    <label for="maintenanceTagInput" class="form-label fw-semibold">Maintenance Tasks</label>
+                    <div class="d-flex gap-2 mb-2">
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="maintenanceTagInput"
+                            placeholder="Enter a task (1-2 words) and press Add. Examples: Oil change, Tire rotation, Filter clean"
+                            maxlength="30"
+                            aria-label="Maintenance task tag"
+                        >
+                        <button type="button" class="btn btn-tag-add" id="addTagBtn" aria-label="Add maintenance tag">
+                            Add
+                        </button>
+                    </div>
+                    <div id="maintenanceTags" class="tag-container d-flex flex-wrap gap-2" role="list" aria-label="Added maintenance tasks"></div>
+                    <small class="text-muted">Add common maintenance tasks for this equipment</small>
+                </div>
+
+                <!-- Frequency -->
+                <div class="form-group">
+                    <label for="maintenanceFrequency" class="form-label fw-semibold">Maintenance Frequency</label>
+                    <select class="form-select" id="maintenanceFrequency" name="frequency" required aria-describedby="frequencyFeedback">
+                        <option value="">Select frequency</option>
+                        <option value="hourly">Hourly</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                    <div class="field-feedback invalid" id="frequencyFeedback">Please select a maintenance frequency.</div>
+                </div>
+
+                <!-- Required Materials -->
+                <div class="form-group">
+                    <label for="requiredMaterials" class="form-label fw-semibold">Required Materials</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="requiredMaterials"
+                        name="requiredMaterials"
+                        placeholder="e.g., Oil, filters, cleaning solution (comma-separated)"
+                        maxlength="200"
+                        aria-label="Required maintenance materials"
+                    >
+                    <small class="text-muted">List materials needed for maintenance</small>
+                </div>
+
+                <!-- Required Tools -->
+                <div class="form-group">
+                    <label for="requiredTools" class="form-label fw-semibold">Required Tools</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="requiredTools"
+                        name="requiredTools"
+                        placeholder="e.g., Wrench set, screwdrivers, pressure gauge (comma-separated)"
+                        maxlength="200"
+                        aria-label="Required maintenance tools"
+                    >
+                    <small class="text-muted">List tools needed for maintenance</small>
+                </div>
             </div>
 
-            <!-- Buttons: they don't go anywhere or do anything FIX-->
-            <div class="d-flex justify-content-between mt-4">
-                <!-- Cancel Button -->
-                <button type="button" class="btn btn-cancel" id="cancelBtn">Cancel</button>
-
-                <!-- Submit Button -->
-                <button class="btn btn-add" type="submit">Submit</button>
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <button type="button" class="btn btn-cancel" id="cancelBtn">
+                    Cancel
+                </button>
+                <button class="btn btn-submit" type="submit" id="submitBtn">
+                    <span id="submitText">Submit</span>
+                    <span id="submitSpinner" class="loading-spinner d-none"></span>
+                </button>
             </div>
         </form>
     </div>
 
-    <script>
-        // Bootstrap validation
-        (() => {
-            'use strict'
-            const forms = document.querySelectorAll('.needs-validation')
-            Array.from(forms).forEach(form => {
-                form.addEventListener('submit', event => {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-                    form.classList.add('was-validated')
-                }, false)
-            })
-        })()
-
-        // Character counter
-        const desc = document.getElementById('description');
-        const descCount = document.getElementById('descCount');
-        desc.addEventListener('input', () => {
-            descCount.textContent = `${desc.value.length} / 200`;
-        });
-
-        //Buttons !!!!!STILL DONT WORK
-        document.getElementById("cancelBtn").addEventListener("click", () => {
-            // Reset the form
-            document.getElementById("listingForm").reset();
-
-            // If you’re showing image previews, clear them too
-            const previewContainer = document.getElementById("previewContainer");
-            if (previewContainer) {
-                previewContainer.innerHTML = "";
-            }
-
-            // Redirect to dashboard
-            window.location.href = "dashboard.html"; // adjust path if needed
-        });
-
-        //ENDPOINT THINGS OR OTHER PROBABLY
-        // Image upload with limit + remove
-        const input = document.getElementById('images');
-        const dropZone = document.getElementById('dropZone');
-        const preview = document.getElementById('preview');
-        const alertBox = document.getElementById('imageAlert');
-        let dt = new DataTransfer();
-
-        dropZone.addEventListener('click', () => input.click());
-
-        input.addEventListener('change', function () {
-            dt = new DataTransfer();
-            preview.innerHTML = '';
-            alertBox.classList.add('d-none');
-
-            const files = Array.from(this.files);
-            if (files.length > 5) {
-                alertBox.classList.remove('d-none');
-            }
-
-            files.slice(0, 5).forEach((file, index) => {
-                if (file.type.startsWith('image/')) {
-                    dt.items.add(file);
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                        const wrapper = document.createElement('div');
-                        wrapper.classList.add('preview-item');
-
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-
-                        const btn = document.createElement('button');
-                        btn.innerHTML = '?';
-                        btn.classList.add('remove-btn');
-                        btn.type = 'button';
-                        btn.onclick = () => {
-                            wrapper.remove();
-                            const newDt = new DataTransfer();
-                            Array.from(dt.files).forEach((f, i) => {
-                                if (i !== index) newDt.items.add(f);
-                            });
-                            dt = newDt;
-                            input.files = dt.files;
-                        };
-
-                        wrapper.appendChild(img);
-                        wrapper.appendChild(btn);
-                        preview.appendChild(wrapper);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-            input.files = dt.files;
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="add_item.js"></script>
 </body>
 </html>
