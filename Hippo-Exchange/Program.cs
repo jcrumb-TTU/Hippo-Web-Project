@@ -107,8 +107,11 @@ app.MapPost("/api/register", async (RegisterRequest req, IUserService users) =>
 
     var normalizedEmail = req.Email.Trim().ToLowerInvariant();
 
+    Console.WriteLine($"[REGISTER] Checking email: '{normalizedEmail}'");
+
     if (await users.EmailExistsAsync(normalizedEmail))
         return Results.Conflict(new { message = "Email already in use." });
+        Console.WriteLine($"[EmailExistsAsync] Querying for '{normalizedEmail}'");
 
     var user = new Users
     {
