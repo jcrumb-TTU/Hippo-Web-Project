@@ -22,7 +22,7 @@ const emailNotifications = document.getElementById('emailNotifications');
 const alerts = document.getElementById('alerts');
 const saveBtn = document.getElementById('saveBtn');
 const cancelBtn = document.getElementById('cancelBtn');
-const designToggle = document.getElementById('designModeToggle');
+// design mode removed; no toggle element
 
 function showAlert(msg, type='success', timeout=4000){
   const id = 'a' + Date.now();
@@ -35,13 +35,9 @@ function showAlert(msg, type='success', timeout=4000){
   if(timeout) setTimeout(()=>{ const e = document.getElementById(id); if(e) e.remove(); }, timeout);
 }
 
-// Design mode
-const urlSearch = new URLSearchParams(window.location.search);
-const DESIGN_MODE = (localStorage.getItem('DESIGN_MODE') === '1') || urlSearch.get('design') === '1';
-function mockProfile(){ return { firstName:'Ava', lastName:'Harrison', name:'Ava Harrison', email:'ava.harrison@example.com', phone:'555-123-4567', address:{street:'123 Oak St', city:'College Town', state:'TX', zip:'77840'}, settings:{ } }; }
+// design mode removed: always use live API
 
 async function sessionCheck(){
-  if(DESIGN_MODE) return Promise.resolve({ id: 'mock' });
   const url = api('/api/me');
   const r = await fetch(url, { credentials:'include' });
   if(!r.ok){ try{ const txt = await r.text(); console.debug('sessionCheck body:', txt); }catch{}; throw new Error('Not authenticated'); }
@@ -50,8 +46,7 @@ async function sessionCheck(){
 
 async function loadSettings(){
   try{
-    if(DESIGN_MODE){ const data = mockProfile(); if(firstName) firstName.value=data.firstName||''; if(lastName) lastName.value=data.lastName||''; if(email) email.value=data.email||''; if(phone) phone.value=data.phone||''; if(street) street.value=data.address?.street||''; if(city) city.value=data.address?.city||''; if(state) state.value=data.address?.state||''; if(zip) zip.value=data.address?.zip||''; return; }
-    await sessionCheck();
+  await sessionCheck();
     const profileUrl = api('/api/user/profile');
     const r = await fetch(profileUrl, { credentials:'include' });
     if(!r.ok) throw new Error('Failed to load profile');
@@ -62,9 +57,23 @@ async function loadSettings(){
     if(phone) phone.value = data.phone || '';
     if(street) street.value = data.address?.street || '';
     if(city) city.value = data.address?.city || '';
-    if(state) state.value = data.address?.state || '';
+    if(state){
+      // Accept either two-letter abbrev or full state name from API; normalize to abbrev if possible
+      const s = (data.address?.state || '').toString().trim();
+      const abbrev = normalizeStateAbbrev(s);
+      state.value = abbrev || s || '';
+    }
     if(zip) zip.value = data.address?.zip || '';
-  }catch(err){ console.error(err); const container = document.createElement('div'); container.className='alert alert-danger'; container.innerHTML=`<div>Unable to load settings (you may be signed out).</div><div class="mt-2 d-flex gap-2"><button class="btn btn-sm btn-primary" id="__retrySettings">Retry</button><button class="btn btn-sm btn-outline-secondary" id="__enterDesign">Enter design mode</button><a class="btn btn-sm btn-link text-danger" href="../login.html">Sign in</a></div>`; if(alerts) alerts.innerHTML=''; if(alerts) alerts.appendChild(container); const retryBtn = document.getElementById('__retrySettings'); if(retryBtn) retryBtn.addEventListener('click', ()=>{ loadSettings(); }); const designBtn = document.getElementById('__enterDesign'); if(designBtn) designBtn.addEventListener('click', ()=>{ localStorage.setItem('DESIGN_MODE','1'); loadSettings(); }); }
+  }catch(err){
+    console.error(err);
+    const container = document.createElement('div');
+    container.className='alert alert-danger';
+    container.innerHTML=`<div>Unable to load settings (you may be signed out).</div><div class="mt-2 d-flex gap-2"><button class="btn btn-sm btn-primary" id="__retrySettings">Retry</button><a class="btn btn-sm btn-link text-danger" href="../login.html">Sign in</a></div>`;
+    if(alerts) alerts.innerHTML='';
+    if(alerts) alerts.appendChild(container);
+    const retryBtn = document.getElementById('__retrySettings');
+    if(retryBtn) retryBtn.addEventListener('click', ()=>{ loadSettings(); });
+  }
 }
 
 form.addEventListener('submit', async (e)=>{
@@ -73,3 +82,13 @@ form.addEventListener('submit', async (e)=>{
 cancelBtn.addEventListener('click',(e)=>{ e.preventDefault(); window.location.href = '../profile.html'; });
 
 window.addEventListener('DOMContentLoaded', ()=>{ loadSettings(); if(designToggle){ designToggle.checked = DESIGN_MODE; designToggle.addEventListener('change', (e)=>{ const on = !!e.target.checked; if(on) localStorage.setItem('DESIGN_MODE','1'); else localStorage.removeItem('DESIGN_MODE'); loadSettings(); }); } });
+
+// Helper: map common full state names to abbreviations (case-insensitive)
+function normalizeStateAbbrev(input){
+  if(!input) return '';
+  const map = {
+    'alabama':'AL','alaska':'AK','arizona':'AZ','arkansas':'AR','california':'CA','colorado':'CO','connecticut':'CT','delaware':'DE','florida':'FL','georgia':'GA','hawaii':'HI','idaho':'ID','illinois':'IL','indiana':'IN','iowa':'IA','kansas':'KS','kentucky':'KY','louisiana':'LA','maine':'ME','maryland':'MD','massachusetts':'MA','michigan':'MI','minnesota':'MN','mississippi':'MS','missouri':'MO','montana':'MT','nebraska':'NE','nevada':'NV','new hampshire':'NH','new jersey':'NJ','new mexico':'NM','new york':'NY','north carolina':'NC','north dakota':'ND','ohio':'OH','oklahoma':'OK','oregon':'OR','pennsylvania':'PA','rhode island':'RI','south carolina':'SC','south dakota':'SD','tennessee':'TN','texas':'TX','utah':'UT','vermont':'VT','virginia':'VA','washington':'WA','west virginia':'WV','wisconsin':'WI','wyoming':'WY'
+  };
+  const key = input.toString().toLowerCase();
+  return map[key] || null;
+}

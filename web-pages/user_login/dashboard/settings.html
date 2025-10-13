@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>App Settings</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+		<style>
+			:root{
+				--accent:#87ae73;
+				--accent-2:#5f7e52;
+				--card:#ffffff;
+				--bg:#f7e4d5;
+				--muted:#6c757d;
+			}
+
+			body { background:var(--bg); font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; }
+			.container { max-width:900px; margin-top:28px; }
+			.card { border-radius:12px; background:var(--card); }
+
+			.btn-primary { background-color: var(--accent); border-color: var(--accent); }
+			.btn-primary:hover, .btn-primary:focus { background-color: var(--accent-2); border-color: var(--accent-2); }
+			.btn-outline-primary { color: var(--accent); border-color: var(--accent); }
+			.btn-outline-primary:hover { background-color: var(--accent); color: #fff; }
+
+			body.dark-mode { background: #0f1720; color: #e6eef3; }
+			.card.dark-mode { background: #111827; color: #e6eef3; border-color: #1f2937; }
+			.toggle-label { font-weight: 600; }
+			.setting-row { display:flex; align-items:center; justify-content:space-between; }
+			.header-actions { display:flex; gap:8px; }
+		</style>
+	</head>
+	<body>
+		<div class="container py-4">
+			<div id="alerts"></div>
+			<div class="d-flex align-items-center justify-content-between mb-4">
+				<h2 class="mb-0">App settings</h2>
+				<a href="profile.html" class="btn btn-sm btn-outline-secondary">Back</a>
+			</div>
+
+			<div class="row g-3">
+				<div class="col-md-7">
+					<div class="card mb-3 p-3">
+						<h5 class="mb-3"><i class="fa-solid fa-palette me-2 text-muted"></i>Appearance</h5>
+						<div class="setting-row">
+							<div>
+								<div class="form-check form-switch">
+									<input class="form-check-input" type="checkbox" id="darkModeToggle">
+									<label class="form-check-label toggle-label ms-2" for="darkModeToggle">Dark mode</label>
+								</div>
+								<p class="text-muted small mt-2 mb-0">Switch the app between light and dark themes.</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="card mb-3 p-3">
+						<h5 class="mb-3"><i class="fa-solid fa-envelope me-2 text-muted"></i>Notifications</h5>
+						<div class="setting-row">
+							<div>
+								<div class="form-check form-switch">
+									<input class="form-check-input" type="checkbox" id="emailNotificationsToggle">
+									<label class="form-check-label toggle-label ms-2" for="emailNotificationsToggle">Email notifications</label>
+								</div>
+								<p class="text-muted small mt-2 mb-0">Receive emails for messages and lending activity.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-5">
+					<div class="card p-3 mb-3">
+						<h5 class="mb-3"><i class="fa-solid fa-gear me-2 text-muted"></i>Actions</h5>
+						<div class="d-flex flex-column">
+							<button id="saveSettingsBtn" class="btn btn-primary mb-2">Save changes</button>
+							<button id="cancelSettingsBtn" class="btn btn-outline-secondary">Cancel</button>
+						</div>
+						<p class="text-muted small mt-3">Settings are saved locally and will attempt to sync with the server when available.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Delete confirmation modal -->
+		<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Confirm account deletion</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<p>This will clear your local settings and attempt to delete your account on the server. This cannot be undone.</p>
+						<p class="text-muted small">If you just want to reset local preferences, toggle the options above instead.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button id="confirmDeleteBtn" type="button" class="btn btn-danger">Delete account</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="settings.js" defer></script>
+	</body>
+</html>

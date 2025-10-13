@@ -30,14 +30,9 @@
     <div class="card p-4">
         <div class="d-flex align-items-center mb-3">
           <h4 class="mb-0">Account settings</h4>
-          <div class="ms-3 d-flex align-items-center">
-            <div class="form-check form-switch me-2">
-              <input class="form-check-input" type="checkbox" id="designModeToggle">
-              <label class="form-check-label small text-muted" for="designModeToggle">Design mode</label>
-            </div>
-          </div>
+          <!-- design mode removed -->
           <div class="ms-auto">
-            <a href="../profile.html" class="btn btn-sm btn-outline-secondary">Back</a>
+            <a href="profile.html" class="btn btn-sm btn-outline-secondary">Back</a>
           </div>
         </div>
 
@@ -76,7 +71,59 @@
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">State</label>
-            <input type="text" id="state" class="form-control" placeholder="State">
+            <select id="state" class="form-select">
+              <option value="">Choose...</option>
+              <option>AL</option>
+              <option>AK</option>
+              <option>AZ</option>
+              <option>AR</option>
+              <option>CA</option>
+              <option>CO</option>
+              <option>CT</option>
+              <option>DE</option>
+              <option>FL</option>
+              <option>GA</option>
+              <option>HI</option>
+              <option>ID</option>
+              <option>IL</option>
+              <option>IN</option>
+              <option>IA</option>
+              <option>KS</option>
+              <option>KY</option>
+              <option>LA</option>
+              <option>ME</option>
+              <option>MD</option>
+              <option>MA</option>
+              <option>MI</option>
+              <option>MN</option>
+              <option>MS</option>
+              <option>MO</option>
+              <option>MT</option>
+              <option>NE</option>
+              <option>NV</option>
+              <option>NH</option>
+              <option>NJ</option>
+              <option>NM</option>
+              <option>NY</option>
+              <option>NC</option>
+              <option>ND</option>
+              <option>OH</option>
+              <option>OK</option>
+              <option>OR</option>
+              <option>PA</option>
+              <option>RI</option>
+              <option>SC</option>
+              <option>SD</option>
+              <option>TN</option>
+              <option>TX</option>
+              <option>UT</option>
+              <option>VT</option>
+              <option>VA</option>
+              <option>WA</option>
+              <option>WV</option>
+              <option>WI</option>
+              <option>WY</option>
+            </select>
           </div>
           <div class="col-md-3 mb-3">
             <label class="form-label">ZIP</label>
@@ -88,7 +135,7 @@
 
         <div class="d-flex gap-2">
           <button type="submit" id="saveBtn" class="btn btn-primary">Save</button>
-          <button type="button" id="cancelBtn" class="btn btn-outline-secondary">Cancel</button>
+          <a href="profile.html" class="btn btn-outline-secondary">Cancel</a>
         </div>
       </form>
 
