@@ -1,6 +1,55 @@
     /* ===============================
        Session & API configuration
-       =============================== */
+
+       BACKEND CONTRACTS / NOTES FOR SERVER TEAM
+
+       Endpoints used by this page (all requests send credentials: 'include'):
+
+       GET /api/me
+         - Purpose: quick auth check
+         - Response: 200 + JSON with basic user/session info OR 401 when not authenticated
+
+       GET /api/user/profile
+         - Purpose: load profile data
+         - Response JSON shape expected by UI (example):
+           {
+             "id": "user-id",
+             "bio": "...",
+             "photoUrl": "https://.../avatar.jpg",
+             // optional: backend may include precomputed loan stats here to avoid extra call
+             "loanStats": { "total": 12, "active": 2, "completed": 10 }
+           }
+
+       PUT /api/user/profile
+         - Purpose: update profile fields (currently only 'bio')
+         - Request body: { "bio": string }
+         - Response: 200 on success, 4xx on validation/auth
+
+       POST /api/user/profile/photo
+         - Purpose: upload profile photo
+         - Request: multipart/form-data with form field name 'photo' (file)
+         - Response JSON example: { "imageUrl": "https://.../new-avatar.jpg" }
+
+       DELETE /api/user/profile/photo
+         - Purpose: remove/reset profile photo
+         - Response: 200 on success
+
+       GET /api/user/loans  (optional endpoint)
+         - Purpose: return either an array of loan objects or a precomputed stats object.
+         - Accepted responses:
+           - Array of loans: [ { id, status, ... }, ... ]
+             client will derive counts from 'status' (see code heuristics for common values)
+           - Or stats object: { total: number, active: number, completed: number }
+
+       POST /api/logout
+         - Purpose: clear server-side session / auth cookie
+         - Response: 200 on success (client will redirect to login regardless)
+
+       Notes:
+       - This page uses cookie-based auth so all fetches include credentials.
+       - If CORS is configured on the backend, ensure Access-Control-Allow-Credentials: true
+         and allowed origin matches the front-end origin.
+    =============================== */
     const API = {
       me: '/api/me',
       getProfile: '/api/user/profile',
@@ -44,6 +93,16 @@
     const removeModal = new bootstrap.Modal(removeModalEl);
 
     const logoutLink = document.getElementById('logoutLink');
+
+// New stats elements / account actions
+const statTotal = document.getElementById('statTotal');
+const statActive = document.getElementById('statActive');
+const statCompleted = document.getElementById('statCompleted');
+const actionEditProfile = document.getElementById('actionEditProfile');
+const actionSettings = document.getElementById('actionSettings');
+const actionLogout = document.getElementById('actionLogout');
+const profileName = document.getElementById('profileName');
+const profileEmail = document.getElementById('profileEmail');
 
     const DEFAULT_AVATAR = "data:image/svg+xml;utf8," +
       "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'>" +
@@ -94,12 +153,53 @@
           return;
         }
         const data = await r.json();
-        bioText.textContent = data.bio || 'No bio yet. Click edit to add one.';
-        profileImg.src = data.photoUrl || DEFAULT_AVATAR;
+  bioText.textContent = data.bio || 'No bio yet. Click edit to add one.';
+  profileImg.src = data.photoUrl || DEFAULT_AVATAR;
+  // populate name/email if available (backend: include fields like 'name' and 'email')
+  if(profileName) profileName.textContent = data.name || (data.firstName && data.lastName ? `${data.firstName} ${data.lastName}` : 'Your Name');
+  if(profileEmail) profileEmail.textContent = data.email || '';
+        // If backend exposes loan stats in the profile payload use them
+        if(data.loanStats){
+          statTotal.textContent = data.loanStats.total ?? '0';
+          statActive.textContent = data.loanStats.active ?? '0';
+          statCompleted.textContent = data.loanStats.completed ?? '0';
+        }
       }catch(err){
         console.warn('Profile load failed:', err);
         bioText.textContent='No bio yet. Click edit to add one.';
         profileImg.src = DEFAULT_AVATAR;
+      }
+    }
+
+    /* ===============================
+       Load loan stats (separate endpoint fallback)
+       =============================== */
+    async function loadLoanStats(){
+      // Try a dedicated endpoint; server may not provide it yet so fail gracefully
+      try{
+        const r = await fetch('/api/user/loans', { credentials:'include' });
+        if(!r.ok) return; // ignore
+        const data = await r.json();
+        // Expect either an array of loans or a stats object
+        if(Array.isArray(data)){
+          const total = data.length;
+          const active = data.filter(l => {
+            // interpret common status fields
+            const s = (l.status || l.state || '').toString().toLowerCase();
+            return s === 'active' || s === 'ongoing' || s === 'borrowed' || s === 'in_progress' || s === 'in-progress';
+          }).length;
+          const completed = total - active;
+          statTotal.textContent = total;
+          statActive.textContent = active;
+          statCompleted.textContent = completed;
+        }else if(data && typeof data === 'object'){
+          statTotal.textContent = data.total ?? (data.count ?? '0');
+          statActive.textContent = data.active ?? data.inProgress ?? '0';
+          statCompleted.textContent = data.completed ?? '0';
+        }
+      }catch(err){
+        // ignore network errors; keep placeholders
+        console.debug('Loan stats unavailable:', err);
       }
     }
 
@@ -251,9 +351,36 @@
       window.location.href = '../login.html';
     });
 
+    // account action buttons
+    if(actionEditProfile){
+      actionEditProfile.addEventListener('click', (e)=>{
+        e.preventDefault();
+        // reuse bio editor
+        bioEditor.classList.remove('d-none');
+        bioInput.value = (bioText.textContent.startsWith('No bio yet')) ? '' : bioText.textContent;
+        bioInput.focus();
+      });
+    }
+    if(actionSettings){
+      actionSettings.addEventListener('click', (e)=>{
+        e.preventDefault();
+        // navigate to edit profile page
+        window.location.href = '../edit_profile.html';
+      });
+    }
+    if(actionLogout){
+      actionLogout.addEventListener('click', async (e)=>{
+        e.preventDefault();
+        try{ await fetch(API.logout, { method:'POST', credentials:'include' }); } catch {}
+        window.location.href = '../login.html';
+      });
+    }
+
     /* ===============================
        Init
        =============================== */
     (function init(){
       loadProfile();
+      // try separate loan stats endpoint after profile
+      loadLoanStats();
     })();
