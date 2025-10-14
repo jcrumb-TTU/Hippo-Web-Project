@@ -1,0 +1,22 @@
+/* Theme overrides for dashboard pages: map primary/danger to project's accent */
+:root{
+  --site-accent: #87ae73;
+  --site-accent-2: #5f7e52;
+}
+
+/* Bootstrap primary uses */
+/* Solid primary buttons */
+.btn-primary, .btn-primary:where(:not(.btn-outline)), .btn-primary:hover, .btn-primary:focus { background-color: var(--site-accent) !important; border-color: var(--site-accent) !important; }
+.btn-primary:hover, .btn-primary:focus { background-color: var(--site-accent-2) !important; border-color: var(--site-accent-2) !important; }
+
+/* Outline primary should display accent color and invert on hover to a solid accent */
+.btn-outline-primary { color: var(--site-accent) !important; border-color: var(--site-accent) !important; background-color: transparent !important; }
+.btn-outline-primary:hover, .btn-outline-primary:focus { background-color: var(--site-accent) !important; color: #fff !important; border-color: var(--site-accent) !important; }
+.btn-outline-primary:active, .btn-outline-primary.active { background-color: var(--site-accent-2) !important; border-color: var(--site-accent-2) !important; color: #fff !important; }
+
+/* Danger mapped to accent-outline so 'danger' actions use accent instead of red */
+.btn-danger, .text-danger { color: var(--site-accent) !important; border-color: var(--site-accent) !important; background: transparent !important; }
+.btn-danger { background: var(--site-accent) !important; border-color: var(--site-accent) !important; }
+
+/* small utility for accent text */
+.text-accent { color: var(--site-accent) !important; }

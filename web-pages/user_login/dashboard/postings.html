@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Postings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="theme-overrides.css" rel="stylesheet">
+    <style>
+      /* color tokens copied from profile page */
+      :root{
+        --accent:#87ae73;
+        --accent-2:#5f7e52;
+        --card:#ffffff;
+        --bg:#E7E4D5;
+        --muted:#6c757d;
+      }
+
+      body{ font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background:var(--bg); }
+      .container{ max-width:1100px; margin-top:28px; }
+      .asset-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap:18px; }
+
+      /* cards follow profile card styling */
+      .asset-card{ background:var(--card); border-radius:12px; overflow:hidden; transition: transform .18s cubic-bezier(.2,.9,.2,1), box-shadow .18s; box-shadow: 0 2px 10px rgba(0,0,0,0.06); cursor:pointer; }
+      .asset-card:hover{ transform: translateY(-6px) scale(1.03); box-shadow: 0 12px 28px rgba(16,24,40,0.14); }
+
+      .asset-thumb{ width:100%; height:150px; object-fit:cover; display:block; }
+      .asset-body{ padding:12px 14px; }
+      .asset-title{ font-weight:700; margin-bottom:6px; font-size:0.98rem; }
+      .asset-meta{ color:var(--muted); font-size:0.85rem; }
+
+      .asset-details{ padding:10px 14px; border-top:1px solid rgba(0,0,0,0.04); display:none; background:var(--card); }
+      .asset-card.expanded .asset-details{ display:block; }
+      .asset-card.expanded .asset-thumb{ filter:brightness(.95); }
+
+      .add-asset-card{ display:flex; align-items:center; justify-content:center; gap:10px; min-height:150px; text-align:center; color:var(--accent); border:2px dashed rgba(135,174,115,0.28); background:linear-gradient(180deg, rgba(135,174,115,0.03), rgba(135,174,115,0.01)); }
+      .small-muted{ color:var(--muted); font-size:0.85rem; }
+
+      /* focus state using accent */
+      .asset-card:focus{ outline:3px solid rgba(135,174,115,0.18); outline-offset:2px; }
+
+      /* button tokens from profile page to keep feel consistent */
+      .btn-primary { background-color: var(--accent); border-color: var(--accent); }
+      .btn-primary:hover, .btn-primary:focus { background-color: var(--accent-2); border-color: var(--accent-2); }
+      .btn-outline-primary { color: var(--accent); border-color: var(--accent); }
+      .btn-outline-primary:hover { background-color: var(--accent); color: #fff; }
+    </style>
+  </head>
+  <body>
+    <div class="container py-4">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="mb-0">Loaned Assets</h2>
+      </div>
+
+      <div class="asset-grid" id="assetGrid" aria-live="polite">
+        <!-- Asset cards will be rendered here by postings.js -->
+      </div>
+
+    </div>
+
+    <script src="postings.js" defer></script>
+  </body>
+</html>
