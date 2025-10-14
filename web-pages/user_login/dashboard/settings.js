@@ -25,16 +25,10 @@
     if(timeout) setTimeout(()=>{ const e = document.getElementById(id); if(e) e.remove(); }, timeout);
   }
 
-  function applyDarkMode(enabled){
-    if(enabled) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
-    // apply card styling for dark mode
-    document.querySelectorAll('.card').forEach(c=>{ if(enabled) c.classList.add('dark-mode'); else c.classList.remove('dark-mode'); });
-  }
-
-  async function persistSettings(darkMode, emailNotifications){
-    const obj = { darkMode: !!darkMode, emailNotifications: !!emailNotifications };
+  // Persist settings (only non-theme prefs). dark mode removed.
+  async function persistSettings(emailNotifications){
+    const obj = { emailNotifications: !!emailNotifications };
     saveLocalSettings(obj);
-    applyDarkMode(obj.darkMode);
     // attempt server save but don't block
     try{
       const r = await fetch('/api/user/settings', { method:'PUT', credentials:'include', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ settings: obj }) });
@@ -44,21 +38,18 @@
   }
 
   function init(){
-    const darkModeToggle = qs('darkModeToggle');
     const emailNotificationsToggle = qs('emailNotificationsToggle');
     const saveSettingsBtn = qs('saveSettingsBtn');
     const cancelSettingsBtn = qs('cancelSettingsBtn');
 
     const s = getSavedSettings();
-    if(darkModeToggle) darkModeToggle.checked = !!s.darkMode;
     if(emailNotificationsToggle) emailNotificationsToggle.checked = !!s.emailNotifications;
-    applyDarkMode(!!s.darkMode);
+  // No theme to apply - only load notification setting
 
     if(saveSettingsBtn) saveSettingsBtn.addEventListener('click', async (e)=>{
       e.preventDefault();
-      const dm = darkModeToggle ? darkModeToggle.checked : false;
       const en = emailNotificationsToggle ? emailNotificationsToggle.checked : false;
-      await persistSettings(dm, en);
+      await persistSettings(en);
       showAlert('Settings saved', 'success');
     });
 
