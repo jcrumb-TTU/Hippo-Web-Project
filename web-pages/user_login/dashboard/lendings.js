@@ -18,7 +18,7 @@
       el('div',{ class:'mb-2' }, [ el('strong',{},['Due: ']), el('div',{ class:'small-muted mt-1' }, [ item.due || '—' ]) ]),
       el('div',{ class:'mb-2' }, [ el('strong',{},['Phone: ']), el('div',{ class:'small-muted mt-1' }, [ item.phone || '—' ]) ]),
       el('div',{ class:'mb-2' }, [ el('strong',{},['Notes: ']), el('div',{ class:'small-muted mt-1' }, [ item.notes || '—' ]) ]),
-      el('div',{ class:'mt-2' }, [ el('button',{ class:'btn btn-sm btn-outline-primary return-btn', 'data-id':String(item.id) }, ['Mark returned']) ])
+      el('div',{ class:'mt-2' }, [ el('button',{ class:'btn btn-sm btn-outline-primary return-btn', 'data-id':String(item.id) }, ['Mark returned'], ) ])
     ]);
 
     card.appendChild(img); card.appendChild(body); card.appendChild(details);

@@ -25,8 +25,8 @@
     .container{ max-width:1100px; margin-top:28px; }
 
     /* content panel sits on the primary green; page background remains --bg */
-    .content-panel{ background:var(--primary); border-radius:12px; padding:18px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
-    .title-strip{ background:var(--primary-dark); color:#fff; padding:10px 18px; border-top-left-radius:12px; border-top-right-radius:12px; }
+    .content-panel{ background:var(--primary); border-radius:0 0 12px 12px; padding:18px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+  .title-strip{ background:var(--primary-dark); color:#fff; padding:10px 18px; border-top-left-radius:12px; border-top-right-radius:12px; }
 
   .asset-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap:18px; align-items: start; }
 
@@ -59,12 +59,12 @@
   </head>
   <body>
     <div class="container py-4">
-      <div class="content-panel">
-        <div class="title-strip d-flex align-items-center justify-content-between mb-3">
-          <h2 class="mb-0">Current Postings</h2>
-          <a href="../dashboard.html" class="btn btn-sm btn-outline-dark" aria-label="Back to dashboard">Back</a>
-        </div>
+      <div class="title-strip d-flex align-items-center justify-content-between mb-0">
+        <h2 class="mb-0">Current Postings</h2>
+        <a href="../dashboard.html" class="btn btn-sm btn-outline-dark" aria-label="Back to dashboard">Back</a>
+      </div>
 
+      <div class="content-panel mt-0">
         <div class="p-2">
           <div class="asset-grid" id="assetGrid" aria-live="polite">
             <!-- Asset cards will be rendered here by postings.js -->
