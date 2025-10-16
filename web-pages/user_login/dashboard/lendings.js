@@ -21,6 +21,26 @@
   // simple helper to remove card by id
   function removeCardById(id){ const el=document.querySelector(`.borrow-card[data-id="${id}"]`); if(el) el.remove(); }
 
+  function moveToReturned(id){
+    const elCard = document.querySelector(`.borrow-card[data-id="${id}"]`);
+    const returnedGrid = document.getElementById('returnedGrid');
+    if(!elCard || !returnedGrid) return;
+    // clone node and add returned meta
+    const clone = elCard.cloneNode(true);
+    clone.classList.add('returned-card');
+    const now = new Date();
+    const ts = now.toLocaleString();
+    const info = document.createElement('div');
+    info.className = 'borrow-meta small-muted';
+    info.textContent = `Returned on ${ts}`;
+    // remove actions from clone
+    const actions = clone.querySelector('.borrow-actions'); if(actions) actions.remove();
+    clone.querySelector('.borrow-body')?.appendChild(info);
+    returnedGrid.insertBefore(clone, returnedGrid.firstChild);
+    // remove original
+    elCard.remove();
+  }
+
   window.addEventListener('DOMContentLoaded', ()=>{
     const grid = document.getElementById('borrowGrid'); if(!grid) return;
     if(MOCK_BORROWED.length===0){ grid.innerHTML = '<div class="empty-state">You have no active borrowings right now.</div>'; return; }
@@ -38,6 +58,6 @@
     });
 
     const confirmBtn = document.getElementById('confirmReturnBtn');
-    if(confirmBtn){ confirmBtn.addEventListener('click', ()=>{ if(selectedId){ removeCardById(selectedId); selectedId = null; if(bsModal) bsModal.hide(); } }); }
+    if(confirmBtn){ confirmBtn.addEventListener('click', ()=>{ if(selectedId){ moveToReturned(selectedId); selectedId = null; if(bsModal) bsModal.hide(); } }); }
   });
 })();
