@@ -58,8 +58,12 @@
       padding: 24px;
     }
 
-    /* New layout container for redesigned profile */
-    .profile-layout { max-width: 1100px; margin: 28px auto; padding: 12px; }
+  /* New layout container for redesigned profile */
+  .profile-layout { max-width: 1100px; margin: 28px auto; padding: 12px; }
+
+  /* green panel for cards background */
+  .cards-bg { background: #c6dfb9; padding: 18px; border-radius: 12px; }
+  .cards-bg .profile-card, .cards-bg .info-card { background: var(--card); }
 
     /* Larger avatar in the redesigned left column */
     .preview-circle { width: 210px; height: 210px; margin: 0 auto 12px; border-radius: 50%; overflow: hidden; }
@@ -179,10 +183,13 @@
   <div class="profile-container">
     <div id="alerts"></div>
 
+    <!-- Title strip: My profile -->
+   
+
     <!-- Top legacy segment removed — redesigned layout below contains all features -->
 
-    <!-- Redesigned Profile layout (two-column) -->
-    <div class="container profile-layout">
+    <!-- Redesigned Profile layout (two-column) wrapped in green panel -->
+    <div class="container profile-layout cards-bg">
       <div class="row gx-4 gy-4">
         <!-- Left column: avatar, name, key actions (photo upload controls integrated) -->
         <div class="col-lg-4">
