@@ -3,81 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+  <title>Sign in</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <style>
+
     body {
-      background-color: #E7E4D5; /* page background */
+      background-color: #e7e4d5; /*background*/
     }
     .login-container {
-      max-width: 400px;
-      margin: 50px auto;
-      padding: 30px;
-      border-radius: 20px; /* more rounded */
-      background-color: #c6dfb9; /* light green container */
+      max-width: 420px;
+      width: 100%;
+      margin: auto;
+      padding: 50px 40px;
+      border-radius: 16px;
+      background-color: #e7e4d5; 
+    }
+    .mb-4 span {
+        position: absolute;
+        margin-left: 10px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+
+    }
+    .mb-3 {
+        position: relative;
+    }
+    .mb-3 .icon-left {
+        
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        
+        
+    }
+    .mb-4 .icon-right {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+    .mb-4 input {
+        padding-left: 30px;
+        /*height: 40px;*/
+    }
+    .mb-3 input {
+        padding-left: 30px;
     }
     .login-container h2 {
       text-align: center;
-      font-weight: 600;
-      margin-bottom: 5px;
-      color: #0a0a0a;
+      font-weight: 500;
+      
+      margin-bottom: 25px;
+      font-size: 20px;
+      color: #6E6E6E;
+    }
+    .login-container h1 {
+        text-align: center;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-bottom: 25px;
     }
     .login-container .sub-text {
       text-align: center;
-      margin-bottom: 20px;
+      margin-top: 20px;
       font-size: 0.9rem;
+      color: #6e6e6e;
     }
     .login-container .sub-text a {
       text-decoration: none;
+      color: #87ae73;
+      
+      
     }
-    .form-control {
-      border-radius: 8px;
-      background-color: #f0f8ff;
-    }
+    
     .btn-custom {
-      background-color: #87ae73;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      padding: 10px;
-      font-weight: 500;
+        background-color: #87ae73;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        padding: 12px 0;
+        margin-top: 20px;
+        font-weight: 600;
+        color: #ffffff;
+        box-shadow: 0 3px 4px #636363;
     }
     .btn-custom:hover {
-      background-color: #547444;
+      background-color: #729462;
+    }
+
+    /*GOOGLE BUTTON*/
+    .btn-google {
+        margin-top: 20px;
+        background-color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        padding: 12px 0;
+        font-weight: 600;
+        color: #000000;
+        box-shadow: 0 3px 4px #636363;
+    }
+    .google-icon {
+        position: absolute;
+        
+        
+        
+    }
+    /*END GOOGLE BUTTON*/
+    .btn-google:hover {
+        background-color: #bababa;
+    }
+    @media (min-width: 992px) {
+        .login-container {
+            max-width: 480px;
+            padding: 60px 50px;
+        }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="login-container">
-      <h2>Sign in</h2>
-      <div class="sub-text">
-        Don’t have an account? <a href="signup.html">Create one</a>
-      </div>
-      <form id="loginForm" novalidate>
-        <div class="mb-3">
-          <input type="email" class="form-control" id="email" name="email" placeholder="email" required>
-        </div>
-        <div class="mb-3">
-          <input type="password" class="form-control" id="password" name="password" placeholder="password" required>
-        </div>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="rememberMe">
-            <label class="form-check-label" for="rememberMe">
-              Remember me
-            </label>
-          </div>
-          <a href="#" style="font-size:0.9rem;">Forgot password?</a>
-        </div>
-        <div class="d-grid">
-          <button type="submit" class="btn btn-custom">Log in</button>
-        </div>
-      </form>
-    </div>
-  </div>
+    <div class="container vh-100 d-flex align-items-center">
+        <div class="row w-100">
+            <!--left image-->
+            <div class="col-12 col-md-6 d-flex flex-column justify-content-center align-items-center text-center mb-1 mb-md-0">
+                <img src="..images/login_icon.png" alt="Illustration of a hippo" />    <!--MAKE SURE TO MOVE IMAGES BACK AND SRC="../images/login_icon.png"-->
+            </div>
 
-  <script src="auth.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <!--right login container-->
+            <div class="col-md-6 d-flex justify-content-center align-items-center">
+                <div class="container">
+                    <div class="login-container">
+                        <h1>HippoExchange</h1>
+                        <h2>Sign in to your account</h2>
+
+                        <form id="loginForm" novalidate>
+                            <div class="mb-4 position-relative">
+                                <span>
+                                    <i class="fa-regular fa-envelope"></i>
+                                </span>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="email" required>
+                            </div>
+                            <div class="mb-4 position-relative">
+                                <span class="icon-left">
+                                    <i class="fa-solid fa-lock"></i>
+                                    
+                                </span>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="password" required>
+                                <span class="icon-right" id="togglePassword">
+                                    <i class="fa-regular fa-eye-slash"></i>
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-end align-items-center mb-3">
+                                <a href="#" style="font-size: 0.9rem; color: #87ae73;">Forgot password?</a>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-custom">Sign In</button>
+                            </div>
+                            <div class="d-grid">
+                                <div class="sub-text">
+                                    OR
+                                </div>
+                                <!--GOOGLE AUTH BUTTON-->
+                                <button type="button" class="btn btn-google d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fa-brands fa-google"></i>
+                                    <span>Sign in with Google</span>
+                                </button>
+                            </div>
+                            <div class="sub-text">
+                                Don’t have an account? <a href="signup.html">Sign Up!</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const passwordInput = document.querySelector('#password');
+        const icon = togglePassword.querySelector('i');
+
+        togglePassword.addEventListener('click', () => {
+            // Toggle input type between password and text
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+
+            // Toggle the eye / eye-slash icon
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+    </script>
+
+    <script src="auth.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
