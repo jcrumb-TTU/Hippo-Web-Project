@@ -6,31 +6,28 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="Add new equipment item with maintenance schedule">
     <title>Add an Item</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
         :root {
-            --color-bg-primary: #f7e4d5;
-            --color-bg-card: #c6dfb9;
-            --color-primary: #87ae73;
-            --color-primary-dark: #547444;
-            --color-secondary: #5C6B55;
-            --color-secondary-dark: #36433c;
-            --color-text-muted: #6c757d;
-            --color-border: #cdd5df;
+            --accent: #87ae73;
+            --accent-2: #5f7e52;
+            --card: #ffffff;
+            --bg: #E7E4D5;
+            --muted: #6c757d;
             --color-success: #28a745;
             --color-warning: #ffc107;
             --color-danger: #dc3545;
-            --color-info: #17a2b8;
         }
 
         body {
-            background-color: var(--color-bg-primary);
+            background-color: var(--bg);
             min-height: 100vh;
         }
 
         .item-card {
-            background-color: var(--color-bg-card);
+            background-color: var(--card);
             border-radius: 8px;
             width: 75%;
             max-width: 1000px;
@@ -41,7 +38,7 @@
         }
 
         .item-header-bar {
-            background-color: var(--color-primary);
+            background-color: var(--accent);
             color: white;
             text-align: center;
             padding: 15px;
@@ -69,13 +66,13 @@
 
         .progress-label {
             font-weight: 600;
-            color: var(--color-secondary);
+            color: var(--muted);
             font-size: 0.9rem;
         }
 
         .progress-percentage {
             font-weight: 700;
-            color: var(--color-primary);
+            color: var(--accent);
             font-size: 1.1rem;
         }
 
@@ -87,7 +84,7 @@
         }
 
         .progress-bar {
-            background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%);
             transition: width 0.5s ease;
         }
 
@@ -103,7 +100,7 @@
             align-items: center;
             gap: 6px;
             font-size: 0.85rem;
-            color: var(--color-text-muted);
+            color: var(--muted);
             transition: color 0.3s;
         }
 
@@ -115,7 +112,7 @@
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            border: 2px solid var(--color-border);
+            border: 2px solid #cdd5df;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -166,134 +163,11 @@
         }
 
         .validation-summary-list li:hover {
-            color: var(--color-secondary);
+            color: var(--muted);
             text-decoration: underline;
         }
 
-        /* Draft Banner */
-        .draft-banner {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-            color: white;
-            padding: 16px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            animation: slideIn 0.3s ease;
-        }
 
-        .draft-banner.show {
-            display: flex;
-        }
-
-        .draft-banner-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .draft-banner-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-draft {
-            padding: 6px 16px;
-            border-radius: 6px;
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-
-        .btn-draft-primary {
-            background: white;
-            color: #17a2b8;
-        }
-
-        .btn-draft-primary:hover {
-            background: #f8f9fa;
-            transform: translateY(-1px);
-        }
-
-        .btn-draft-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        .btn-draft-secondary:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Auto-save Indicator */
-        .autosave-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            padding: 10px 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: none;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .autosave-indicator.show {
-            display: flex;
-        }
-
-        .autosave-spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid var(--color-border);
-            border-top-color: var(--color-primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        /* Network Status */
-        .network-status {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            display: none;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            z-index: 1001;
-        }
-
-        .network-status.show {
-            display: flex;
-        }
-
-        .network-status.offline {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .network-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--color-success);
-            animation: pulse 2s infinite;
-        }
-
-        .network-status.offline .network-dot {
-            background: var(--color-danger);
-        }
 
         /* Field Validation */
         .form-control, .form-select {
@@ -304,7 +178,7 @@
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             position: relative;
         }
 
@@ -330,7 +204,8 @@
 
         .field-feedback {
             display: none;
-            margin-top: 6px;
+            margin-top: 4px;
+            margin-bottom: 0;
             font-size: 0.875rem;
             animation: slideIn 0.2s ease;
         }
@@ -349,7 +224,7 @@
 
         .char-count {
             font-size: 0.875rem;
-            color: var(--color-text-muted);
+            color: var(--muted);
             text-align: right;
             margin-top: 5px;
             transition: all 0.3s;
@@ -366,13 +241,13 @@
         }
 
         .section-divider {
-            border-top: 2px solid var(--color-primary);
+            border-top: 2px solid var(--accent);
             margin: 30px 0 20px 0;
             padding-top: 20px;
         }
 
         .section-title {
-            color: var(--color-secondary);
+            color: var(--muted);
             font-size: 1.2rem;
             font-weight: 600;
             margin-bottom: 15px;
@@ -384,7 +259,7 @@
         .section-completion {
             margin-left: auto;
             font-size: 0.85rem;
-            color: var(--color-text-muted);
+            color: var(--muted);
             display: flex;
             align-items: center;
             gap: 6px;
@@ -405,13 +280,13 @@
         .image-drop {
             background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
             border-radius: 12px;
-            border: 2px dashed var(--color-border);
+            border: 2px dashed #cdd5df;
             height: 180px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: var(--color-text-muted);
+            color: var(--muted);
             cursor: pointer;
             margin-bottom: 20px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -436,14 +311,14 @@
         }
 
         .image-drop:hover {
-            border-color: var(--color-primary);
+            border-color: var(--accent);
             background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(135, 174, 115, 0.15);
         }
 
         .image-drop.drag-over {
-            border-color: var(--color-primary);
+            border-color: var(--accent);
             background: linear-gradient(135deg, #d4edda 0%, #e9f5e9 100%);
             border-width: 3px;
             border-style: solid;
@@ -478,13 +353,13 @@
         .image-drop-text {
             font-size: 1rem;
             font-weight: 500;
-            color: var(--color-secondary);
+            color: var(--muted);
             margin-bottom: 6px;
         }
 
         .image-drop-subtext {
             font-size: 0.875rem;
-            color: var(--color-text-muted);
+            color: var(--muted);
         }
 
         .image-counter {
@@ -492,16 +367,16 @@
             align-items: center;
             gap: 8px;
             font-size: 0.875rem;
-            color: var(--color-secondary);
+            color: var(--muted);
             margin-bottom: 16px;
             padding: 8px 12px;
             background: #f8f9fa;
             border-radius: 6px;
-            border-left: 3px solid var(--color-primary);
+            border-left: 3px solid var(--accent);
         }
 
         .image-counter-badge {
-            background: var(--color-primary);
+            background: var(--accent);
             color: white;
             padding: 2px 8px;
             border-radius: 12px;
@@ -636,7 +511,7 @@
         }
 
         .form-label {
-            color: var(--color-secondary);
+            color: var(--muted);
             margin-bottom: 8px;
         }
 
@@ -645,7 +520,7 @@
             left: 12px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--color-secondary);
+            color: var(--muted);
             font-weight: 600;
             font-size: 1rem;
             pointer-events: none;
@@ -653,7 +528,7 @@
         }
 
         .btn-cancel {
-            background-color: var(--color-secondary);
+            background-color: var(--muted);
             color: white;
             border: none;
             width: 120px;
@@ -663,7 +538,7 @@
         }
 
         .btn-submit {
-            background-color: var(--color-primary);
+            background-color: var(--accent);
             color: white;
             border: none;
             min-width: 120px;
@@ -674,11 +549,11 @@
         }
 
         .btn-cancel:hover:not(:disabled) {
-            background-color: var(--color-secondary-dark);
+            background-color: var(--accent-2);
         }
 
         .btn-submit:hover:not(:disabled) {
-            background-color: var(--color-primary-dark);
+            background-color: var(--accent-2);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(135, 174, 115, 0.3);
         }
@@ -689,7 +564,7 @@
         }
 
         .btn-tag-add {
-            background-color: var(--color-primary);
+            background-color: var(--accent);
             color: white;
             border: none;
             height: 38px;
@@ -700,11 +575,11 @@
         }
 
         .btn-tag-add:hover {
-            background-color: var(--color-primary-dark);
+            background-color: var(--accent-2);
         }
 
         .maintenance-tag {
-            background-color: var(--color-primary);
+            background-color: var(--accent);
             color: white;
             padding: 8px 14px;
             border-radius: 20px;
@@ -739,7 +614,7 @@
             padding: 10px;
             background: #f8f9fa;
             border-radius: 6px;
-            border: 1px solid var(--color-border);
+            border: 1px solid #cdd5df;
         }
 
         .loading-spinner {
@@ -837,27 +712,6 @@
             }
         }
 
-        .keyboard-shortcuts-hint {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            font-size: 0.8rem;
-            color: var(--color-text-muted);
-            z-index: 999;
-        }
-
-        .kbd {
-            background: #f8f9fa;
-            border: 1px solid var(--color-border);
-            border-radius: 3px;
-            padding: 2px 6px;
-            font-family: monospace;
-            font-size: 0.85em;
-        }
 
         @media (max-width: 768px) {
             .item-card {
@@ -909,15 +763,6 @@
                 grid-template-columns: repeat(2, 1fr);
             }
 
-            .keyboard-shortcuts-hint {
-                display: none;
-            }
-
-            .autosave-indicator {
-                bottom: 10px;
-                right: 10px;
-                font-size: 0.8rem;
-            }
         }
 
         @media (max-width: 480px) {
@@ -929,34 +774,155 @@
                 grid-template-columns: 1fr;
             }
 
-            .draft-banner {
-                flex-direction: column;
-                gap: 12px;
+        }
+
+        /* Multi-Task Structure Styles */
+        .task-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .task-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .task-card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        .task-card-title i {
+            color: var(--accent);
+        }
+
+        .task-card-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-remove-task {
+            background: var(--color-danger);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-remove-task:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .btn-collapse-task {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 4px;
+            transition: transform 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .btn-collapse-task.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .task-card-body {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .task-card-body.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn-add-task {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-add-task:hover {
+            background-color: var(--accent-2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(135, 174, 115, 0.3);
+        }
+
+        .btn-add-task i {
+            font-size: 1.1rem;
+        }
+
+        .tasks-container {
+            min-height: 50px;
+        }
+
+        .no-tasks-message {
+            text-align: center;
+            color: var(--muted);
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #cdd5df;
+        }
+
+        @media (max-width: 768px) {
+            .task-card {
+                padding: 16px;
             }
 
-            .draft-banner-actions {
-                width: 100%;
+            .task-card-title {
+                font-size: 1rem;
             }
 
-            .btn-draft {
-                flex: 1;
+            .btn-remove-task {
+                padding: 4px 8px;
+                font-size: 0.8rem;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Network Status Indicator -->
-    <div class="network-status" id="networkStatus">
-        <div class="network-dot"></div>
-        <span id="networkStatusText">Online</span>
-    </div>
-
-    <!-- Auto-save Indicator -->
-    <div class="autosave-indicator" id="autosaveIndicator">
-        <div class="autosave-spinner"></div>
-        <span id="autosaveText">Saving draft...</span>
-    </div>
 
     <!-- Success Animation -->
     <div class="success-animation" id="successAnimation">
@@ -966,35 +932,13 @@
             </svg>
         </div>
         <h4 style="color: var(--color-success); margin: 0;">Success!</h4>
-        <p style="color: var(--color-text-muted); margin: 0;">Item added successfully</p>
+        <p style="color: var(--muted); margin: 0;">Item added successfully</p>
     </div>
 
-    <!-- Keyboard Shortcuts Hint -->
-    <div class="keyboard-shortcuts-hint">
-        <kbd class="kbd">Ctrl+S</kbd> Save Draft | <kbd class="kbd">Esc</kbd> Cancel
-    </div>
 
     <div class="item-card">
         <div class="item-header-bar">Add an Item</div>
 
-        <!-- Draft Resume Banner -->
-        <div class="draft-banner" id="draftBanner">
-            <div class="draft-banner-content">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-                <div>
-                    <strong>Draft Found</strong>
-                    <div style="font-size: 0.85rem; opacity: 0.9;">Would you like to resume your previous work?</div>
-                </div>
-            </div>
-            <div class="draft-banner-actions">
-                <button class="btn-draft btn-draft-primary" id="resumeDraftBtn">Resume</button>
-                <button class="btn-draft btn-draft-secondary" id="discardDraftBtn">Discard</button>
-            </div>
-        </div>
 
         <!-- Validation Summary -->
         <div class="validation-summary" id="validationSummary">
@@ -1023,21 +967,17 @@
                     <div class="field-check-icon"></div>
                     <span>Images</span>
                 </div>
+                <div class="field-check-item" data-field="itemName">
+                    <div class="field-check-icon"></div>
+                    <span>Item Name</span>
+                </div>
                 <div class="field-check-item" data-field="description">
                     <div class="field-check-icon"></div>
                     <span>Description</span>
                 </div>
-                <div class="field-check-item" data-field="category">
-                    <div class="field-check-icon"></div>
-                    <span>Category</span>
-                </div>
-                <div class="field-check-item" data-field="price">
-                    <div class="field-check-icon"></div>
-                    <span>Price</span>
-                </div>
                 <div class="field-check-item" data-field="frequency">
                     <div class="field-check-icon"></div>
-                    <span>Frequency</span>
+                    <span>Tasks</span>
                 </div>
             </div>
         </div>
@@ -1047,11 +987,7 @@
             <!-- Image Upload Section -->
             <div class="image-upload-section">
                 <label for="itemImages" class="form-label fw-semibold d-flex align-items-center gap-2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                        <polyline points="21 15 16 10 5 21"></polyline>
-                    </svg>
+                    <i class="far fa-images"></i>
                     Item Images
                 </label>
 
@@ -1067,11 +1003,7 @@
 
                 <div class="image-drop" id="dropZone">
                     <div class="image-drop-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
+                        <i class="fas fa-camera" style="font-size: 3rem; color: var(--accent);"></i>
                     </div>
                     <div class="image-drop-text">Click to upload or drag and drop</div>
                     <div class="image-drop-subtext">JPG, PNG or WebP - Maximum 5 images</div>
@@ -1098,9 +1030,32 @@
                 <div class="field-feedback invalid" id="imagesFeedback">Please upload at least one image.</div>
             </div>
 
+            <!-- Item Name -->
+            <div class="form-group">
+                <label for="itemName" class="form-label fw-semibold d-flex align-items-center gap-2">
+                    <i class="fas fa-tag"></i>
+                    Item Name
+                </label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="itemName"
+                    name="itemName"
+                    placeholder="Enter item name"
+                    required
+                    maxlength="100"
+                    aria-label="Item name"
+                    aria-describedby="itemNameFeedback"
+                >
+                <div class="field-feedback invalid" id="itemNameFeedback">Please enter an item name (max 100 characters).</div>
+            </div>
+
             <!-- Item Description -->
             <div class="form-group">
-                <label for="itemDescription" class="form-label fw-semibold">Description</label>
+                <label for="itemDescription" class="form-label fw-semibold d-flex align-items-center gap-2">
+                    <i class="far fa-file-lines"></i>
+                    Description
+                </label>
                 <textarea
                     class="form-control"
                     id="itemDescription"
@@ -1115,48 +1070,10 @@
                 <div class="field-feedback invalid" id="descriptionFeedback">Please enter a description (max 200 characters).</div>
             </div>
 
-            <!-- Category -->
-            <div class="form-group">
-                <label for="itemCategory" class="form-label fw-semibold">Category</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="itemCategory"
-                    name="category"
-                    placeholder="e.g., Heavy Equipment, Tools, Vehicles"
-                    required
-                    maxlength="50"
-                    aria-label="Item category"
-                    aria-describedby="categoryFeedback"
-                >
-                <div class="field-feedback invalid" id="categoryFeedback">Please enter a category.</div>
-            </div>
-
-            <!-- Price -->
-            <div class="form-group">
-                <label for="itemPrice" class="form-label fw-semibold">Price</label>
-                <div class="position-relative">
-                    <span class="price-symbol">$</span>
-                    <input
-                        type="number"
-                        class="form-control ps-4"
-                        id="itemPrice"
-                        name="price"
-                        placeholder="0.00"
-                        min="0"
-                        max="1000000"
-                        step="0.01"
-                        required
-                        aria-label="Item price in dollars"
-                        aria-describedby="priceFeedback"
-                    >
-                </div>
-                <div class="field-feedback invalid" id="priceFeedback">Please enter a valid price.</div>
-            </div>
-
             <!-- Preventative Maintenance Section -->
             <div class="section-divider">
                 <h6 class="section-title">
+                    <i class="fas fa-wrench"></i>
                     Preventative Maintenance Schedule
                     <span class="section-completion" id="maintenanceCompletion">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1164,30 +1081,79 @@
                     </span>
                 </h6>
 
-                <!-- Maintenance Tags -->
-                <div class="form-group">
-                    <label for="maintenanceTagInput" class="form-label fw-semibold">Maintenance Tasks</label>
-                    <div class="d-flex gap-2 mb-2">
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="maintenanceTagInput"
-                            placeholder="Enter a task (1-2 words) and press Add. Examples: Oil change, Tire rotation, Filter clean"
-                            maxlength="30"
-                            aria-label="Maintenance task tag"
-                        >
-                        <button type="button" class="btn btn-tag-add" id="addTagBtn" aria-label="Add maintenance tag">
-                            Add
-                        </button>
+                <!-- Add Task Button -->
+                <button type="button" class="btn-add-task" id="addTaskBtn">
+                    <i class="fas fa-plus"></i>
+                    Add Maintenance Task
+                </button>
+
+                <!-- Tasks Container -->
+                <div class="tasks-container" id="tasksContainer">
+                    <div class="no-tasks-message" id="noTasksMessage">
+                        <i class="fas fa-clipboard-list" style="font-size: 2rem; color: var(--muted); margin-bottom: 10px;"></i>
+                        <p style="margin: 0;">No maintenance tasks added yet. Click "Add Maintenance Task" to get started.</p>
                     </div>
-                    <div id="maintenanceTags" class="tag-container d-flex flex-wrap gap-2" role="list" aria-label="Added maintenance tasks"></div>
-                    <small class="text-muted">Add common maintenance tasks for this equipment</small>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <button type="button" class="btn btn-cancel" id="cancelBtn">
+                    <i class="fas fa-arrow-left"></i>
+                    Cancel
+                </button>
+                <button class="btn btn-submit" type="submit" id="submitBtn">
+                    <span id="submitText">
+                        Submit
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                    <span id="submitSpinner" class="loading-spinner d-none"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Task Card Template -->
+    <script id="taskCardTemplate" type="text/template">
+        <div class="task-card" data-task-id="{TASK_ID}">
+            <div class="task-card-header" onclick="toggleTaskCard(this)">
+                <div class="task-card-title">
+                    <i class="fas fa-tasks"></i>
+                    <span>Task #{TASK_NUMBER}</span>
+                </div>
+                <div class="task-card-actions">
+                    <button type="button" class="btn-remove-task" onclick="event.stopPropagation(); removeTask('{TASK_ID}')">
+                        <i class="fas fa-trash"></i>
+                        Remove
+                    </button>
+                    <button type="button" class="btn-collapse-task">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="task-card-body">
+                <!-- Task Description -->
+                <div class="form-group">
+                    <label for="taskDescription_{TASK_ID}" class="form-label fw-semibold">Task Description</label>
+                    <input
+                        type="text"
+                        class="form-control task-description"
+                        id="taskDescription_{TASK_ID}"
+                        name="tasks[{TASK_ID}][description]"
+                        placeholder="e.g., Oil change, Tire rotation, Filter clean"
+                        maxlength="256"
+                        required
+                        aria-label="Task description"
+                    >
+                    <small class="text-muted">Brief description of the maintenance task (max 256 characters)</small>
                 </div>
 
                 <!-- Frequency -->
                 <div class="form-group">
-                    <label for="maintenanceFrequency" class="form-label fw-semibold">Maintenance Frequency</label>
-                    <select class="form-select" id="maintenanceFrequency" name="frequency" required aria-describedby="frequencyFeedback">
+                    <label for="taskFrequency_{TASK_ID}" class="form-label fw-semibold">Frequency</label>
+                    <select class="form-select task-frequency" id="taskFrequency_{TASK_ID}" name="tasks[{TASK_ID}][frequency]" required>
                         <option value="">Select frequency</option>
                         <option value="hourly">Hourly</option>
                         <option value="daily">Daily</option>
@@ -1195,54 +1161,166 @@
                         <option value="monthly">Monthly</option>
                         <option value="yearly">Yearly</option>
                     </select>
-                    <div class="field-feedback invalid" id="frequencyFeedback">Please select a maintenance frequency.</div>
                 </div>
 
                 <!-- Required Materials -->
                 <div class="form-group">
-                    <label for="requiredMaterials" class="form-label fw-semibold">Required Materials</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="requiredMaterials"
-                        name="requiredMaterials"
-                        placeholder="e.g., Oil, filters, cleaning solution (comma-separated)"
-                        maxlength="200"
-                        aria-label="Required maintenance materials"
-                    >
-                    <small class="text-muted">List materials needed for maintenance</small>
+                    <label for="taskMaterials_{TASK_ID}" class="form-label fw-semibold">Required Materials</label>
+                    <textarea
+                        class="form-control task-materials"
+                        id="taskMaterials_{TASK_ID}"
+                        name="tasks[{TASK_ID}][materials]"
+                        placeholder="e.g., Oil filter, 5W-30 motor oil, cleaning rags"
+                        rows="2"
+                        maxlength="500"
+                        aria-label="Required materials"
+                    ></textarea>
+                    <small class="text-muted">List materials needed for this task</small>
                 </div>
 
                 <!-- Required Tools -->
                 <div class="form-group">
-                    <label for="requiredTools" class="form-label fw-semibold">Required Tools</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="requiredTools"
-                        name="requiredTools"
-                        placeholder="e.g., Wrench set, screwdrivers, pressure gauge (comma-separated)"
-                        maxlength="200"
-                        aria-label="Required maintenance tools"
-                    >
-                    <small class="text-muted">List tools needed for maintenance</small>
+                    <label for="taskTools_{TASK_ID}" class="form-label fw-semibold">Required Tools</label>
+                    <textarea
+                        class="form-control task-tools"
+                        id="taskTools_{TASK_ID}"
+                        name="tasks[{TASK_ID}][tools]"
+                        placeholder="e.g., Socket wrench set, oil drain pan, funnel"
+                        rows="2"
+                        maxlength="500"
+                        aria-label="Required tools"
+                    ></textarea>
+                    <small class="text-muted">List tools needed for this task</small>
                 </div>
             </div>
+        </div>
+    </script>
 
-            <!-- Form Actions -->
-            <div class="d-flex justify-content-between align-items-center mt-4">
-                <button type="button" class="btn btn-cancel" id="cancelBtn">
-                    Cancel
-                </button>
-                <button class="btn btn-submit" type="submit" id="submitBtn">
-                    <span id="submitText">Submit</span>
-                    <span id="submitSpinner" class="loading-spinner d-none"></span>
-                </button>
-            </div>
-        </form>
-    </div>
+    <script>
+        // Multi-task management
+        let tasks = [];
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        // Renumber all tasks sequentially
+        function renumberTasks() {
+            const allTaskCards = document.querySelectorAll('.task-card');
+            allTaskCards.forEach((card, index) => {
+                const taskNumber = index + 1;
+                const titleSpan = card.querySelector('.task-card-title span');
+                if (titleSpan) {
+                    titleSpan.textContent = `Task #${taskNumber}`;
+                }
+            });
+        }
+
+        // Add new task
+        document.getElementById('addTaskBtn').addEventListener('click', function() {
+            const taskId = 'task_' + Date.now();
+            tasks.push(taskId);
+
+            // Get template and replace placeholders
+            const template = document.getElementById('taskCardTemplate').innerHTML;
+            const taskHtml = template
+                .replace(/{TASK_ID}/g, taskId)
+                .replace(/{TASK_NUMBER}/g, tasks.length);
+
+            // Hide no tasks message
+            document.getElementById('noTasksMessage').style.display = 'none';
+
+            // Add task card
+            const tasksContainer = document.getElementById('tasksContainer');
+            tasksContainer.insertAdjacentHTML('beforeend', taskHtml);
+
+            // Scroll to new task
+            const newTask = document.querySelector(`[data-task-id="${taskId}"]`);
+            newTask.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Update progress
+            updateProgress();
+        });
+
+        // Remove task
+        function removeTask(taskId) {
+            if (confirm('Are you sure you want to remove this task?')) {
+                const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+                taskCard.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    taskCard.remove();
+                    tasks = tasks.filter(id => id !== taskId);
+
+                    // Renumber remaining tasks
+                    renumberTasks();
+
+                    // Show no tasks message if empty
+                    if (tasks.length === 0) {
+                        document.getElementById('noTasksMessage').style.display = 'block';
+                    }
+
+                    // Update progress
+                    updateProgress();
+                }, 300);
+            }
+        }
+
+        // Toggle task card collapse
+        function toggleTaskCard(header) {
+            const card = header.closest('.task-card');
+            const body = card.querySelector('.task-card-body');
+            const collapseBtn = card.querySelector('.btn-collapse-task');
+
+            body.classList.toggle('collapsed');
+            collapseBtn.classList.toggle('collapsed');
+        }
+
+        // Update progress to check for at least one complete task
+        function updateProgress() {
+            const allTasks = document.querySelectorAll('.task-card');
+            let hasValidTask = false;
+
+            allTasks.forEach(taskCard => {
+                const description = taskCard.querySelector('.task-description').value.trim();
+                const frequency = taskCard.querySelector('.task-frequency').value;
+
+                if (description && frequency) {
+                    hasValidTask = true;
+                }
+            });
+
+            // Update frequency field check in progress bar
+            const frequencyCheck = document.querySelector('[data-field="frequency"]');
+            if (frequencyCheck) {
+                if (hasValidTask) {
+                    frequencyCheck.classList.add('completed');
+                } else {
+                    frequencyCheck.classList.remove('completed');
+                }
+            }
+        }
+
+        // Add fadeOut animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+                to {
+                    opacity: 0;
+                    transform: scale(0.95);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Listen for input changes on task fields
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('task-description') ||
+                e.target.classList.contains('task-frequency')) {
+                updateProgress();
+            }
+        });
+    </script>
+
     <script src="add_item.js"></script>
 </body>
 </html>
