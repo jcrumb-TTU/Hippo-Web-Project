@@ -1,0 +1,22 @@
+- name: Remote Dependencies
+  hosts: staging
+  tasks: 
+  - name: Install APT Dependencies
+    ansible.builtin.apt:
+      pkg:
+        - nginx
+        - git
+      state: present
+  - name: Checking if dotnet is installed
+    ansible.builtin.stat:
+      path: "/usr/share/dotnet/"
+    register: dotnet_dir
+  - name: Download and install dotnet if necessary...
+    when: dotnet_dir.stat.exists is false
+    ansible.builtin.import_tasks:
+      file: "dotnet.yaml"
+  - name: Ensure dotnet is in the path
+    ansible.builtin.lineinfile:
+      create: true
+      line: 'export PATH="$PATH:~/.dotnet/"'
+      path: "~/.bashrc"

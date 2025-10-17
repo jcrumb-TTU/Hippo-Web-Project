@@ -1,0 +1,94 @@
+- name: Deploy Hippo Exchange Files to Server
+  hosts: staging
+  tasks:
+  - name: Make temporary directory on remote.
+    ansible.builtin.tempfile:
+      state: directory
+    register: temp_dir
+  - name: Install Hippo Exchange to Server
+    block:
+    - name: Clone Hippo Exchange Git Repository to Server.
+      block:
+        - name: Pull the repository from remote.
+          ansible.builtin.git:
+            repo: 'https://github.com/jcrumb-TTU/Hippo-Web-Project.git'
+            dest: "{{temp_dir.path + srcs.toplevel|quote}}"
+            recursive: false
+          register: git_result
+    
+    
+    - name: Install systemd units.
+      block:
+        - name: Install Systemd Service for the Hippo Backend
+          ansible.builtin.include_role:
+            name: unit
+          vars:
+            title: "HippoExBackend"
+            description: "Acts as a middle-man that retrieves information when an authorized user requests it."
+            exec: "{{ dests.HippoAPI + '/Hippo-Exchange'  }}"
+            user: "APIHippo"
+      - name: Reload SystemD Units
+        become: true
+        ansible.builtin.systemd_service:
+          daemon-reload: true
+        
+    - name: Configure NGINX
+      become: true
+      block:
+        - name: Install Main NGINX Configuration File
+          ansible.builtin.command:
+            argv:
+              - "mv"
+              - "{{ temp_dir.path + srcs.nginx + '/nginx.conf'|quote }}"
+              - "{{ dests.nginx|quote }}"
+        - name: Install Sites-Available File
+          ansible.builtin.command:
+            argv:
+              - "mv"
+              - "{{ temp_dir.path + srcs.nginx + '/sites-available/default'|quote }}"
+              - "{{ dests.nginx + '/sites-available/' |quote }}"
+    
+        - name: Ensure link to sites-available is present in sites-enabled
+          ansible.builtin.file:
+            state: link
+            src: "{{dests.nginx + '/sites-available/default'|quote}}"
+            path: "{{dests.nginx + '/sites-enabled/default'|quote}}"
+    
+    - name: Build and Install Hippo Backend
+      block:
+        - name: Build Hippo Backend
+          ansible.builtin.command:
+            argv:
+              - "{{dests.dotnet + '/dotnet'|quote}}"
+              - "publish"
+            chdir: "{{temp_dir.path + srcs.HippoAPI|quote}}"
+        - name: Install Hippo Backend
+          become: true
+          ansible.builtin.command:
+            argv:
+              - "mv"
+              - "{{ temp_dir.path + srcs.HippoAPIPub|quote }}"
+              - "{{ dests.HippoAPI|quote }}"
+        - name: Set Backend Directory Permissions
+          become: true
+          ansible.builtin.file:
+            path: "{{ dests.HippoAPI|quote }}"
+            owner: "APIHippo"
+            mode: "u+rwX,go+rX" 
+            state: directory
+            recurse: true
+    
+    - name: "Setup /srv/"
+      become: true
+      block:
+        - name: "Move Hippo Exchange html files"
+          ansible.builtin.command:
+            argv:
+              - mv
+              - "{{temp_dir.path + srcs.html|quote}}"
+              - "{{dests.html|quote}}" 
+    always:
+    - name: "Remove Temporary Directory"
+      ansible.builtin.file:
+        state: absent
+        path: "{{temp_dir.path}}"  

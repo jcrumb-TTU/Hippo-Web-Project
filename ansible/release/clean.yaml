@@ -5,7 +5,7 @@
 # /usr/share/swagger-validator: The swagger-validator badge directory. Will be removed before each run.
 # /srv/: HTML Files served by the webserver. Emptied before each run.
 - name: Clear Old Install.
-  hosts: testing
+  hosts: staging
   tasks:
     - name: Stop webserver
       block:
@@ -19,24 +19,14 @@
         - name: "Print warning."
           ansible.builtin.debug: 
             msg: 'NOTE{{":"}} Nginx did not stop.'
-    - name: Stop validator badge
-      block:
-        - name: Stop Swagger Validator if running
-          ansible.builtin.systemd_service:
-            name: Swagger-Validator
-            state: stopped
-            enabled: false
-      rescue:
-        - name: "Print warning."
-          ansible.builtin.debug: 
-            msg: 'NOTE{{":"}} Swagger-Validator did not stop.'
     - name: Stop Hippo Backend
       block:
         - name: Stop Backend if running.
           ansible.builtin.systemd_service:
-            name: Hippo-Backend
+            name: HippoExBackend
             state: stopped
             enabled: false
+          become: true
       rescue:
         - name: "Print warning."
           ansible.builtin.debug: 

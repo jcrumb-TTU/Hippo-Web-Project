@@ -1,0 +1,28 @@
+# srcs: The paths of resources relative to toplevel, which is in the tmpdir. Everything after toplevel is relative to the repository.
+srcs:
+  toplevel: "/Hippo-Web-Project-Deployment"
+  tarball: "{{srcs.toplevel}}.tar.gz"
+  html: "{{srcs.toplevel}}/srv/html"
+  HippoAPI: "{{srcs.toplevel}}/Hippo-Exchange"
+  HippoAPIPub: "{{srcs.HippoAPI}}/bin/Release/net8.0/publish/"
+  patches: "{{srcs.toplevel}}/submodules/module-patches"
+  swagger_ui: "{{srcs.toplevel}}/submodules/swagger-ui"
+  swagger_spec: "{{srcs.toplevel}}/srv/dev"
+  swagger_validator: "{{srcs.toplevel}}/submodules/swagger-validator"
+  nginx: "{{srcs.toplevel}}/config/nginx"
+  dotnet: "~/.dotnet"
+
+# dests: The paths resources are installed to on the system.
+dests:
+  dotnet: "/usr/share/dotnet"
+  HippoAPI: "/usr/local/share/HippoAPI"
+  nginx: "/etc/nginx/"
+  html: "/srv/html"
+  swagger_validator: "/usr/local/share/swagger-validator"
+  swagger_spec: "/srv/dev"
+  swagger_ui: "/srv/dev/swagger"
+
+# Dotnet install information.
+dotnet_url: 'https://dot.net/v1/dotnet-install.sh'
+dotnet_path: "~/.dotnet"
+

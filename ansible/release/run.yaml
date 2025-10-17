@@ -1,0 +1,16 @@
+- name: Start services on backend.
+  hosts: staging
+  tasks:
+    - name: Start and enable Nginx
+      ansible.builtin.systemd_service:
+        name: nginx
+        state: started
+        enabled: true
+      become: true
+    - name: Start and enable Nginx
+      ansible.builtin.systemd_service:
+        name: HippoExBackend
+        state: started
+        enabled: true
+      become: true
+

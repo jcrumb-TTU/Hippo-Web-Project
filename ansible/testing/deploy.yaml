@@ -8,13 +8,15 @@
     - name: Create tarball of repository directory.
       ansible.builtin.raw: tar -caf "{{ tar_path|quote }}" -C "{{ local_repo|quote }}" "."
 
-- name: Copy files from local machine to VM.
+- name: Deploy Hippo Exchange to VM.
   hosts: testing
   tasks:
-    - name: Make temporary directory on remote.
-      ansible.builtin.tempfile:
-        state: directory
-      register: temp_dir
+  - name: Make temporary directory on remote.
+    ansible.builtin.tempfile:
+      state: directory
+    register: temp_dir
+  - name: Install Hippo Exchange to Server
+    block:
     - name: Copy the tarball.
       ansible.builtin.copy:
         src: "{{ hostvars['localhost']['tar_path'] }}"
@@ -30,150 +32,139 @@
           - "{{ local_deploy.dest|quote }}"
           - "--one-top-level"
       register: repo_extract
-
-- name: Install systemd units.
-  hosts: testing
-  tasks:
-    - name: Install Systemd Service for the Hippo Backend
-      ansible.builtin.include_role:
-        name: unit
-      vars:
-        title: HippoExBackend
-        description: "Acts as a middle-man that retrieves information when an authorized user requests it."
-        exec: "{{ dests.HippoAPI + '/Hippo-Exchange'  }}"
-        user: "APIHippo"
-    - name: Install Systemd Service for the Swagger Validator Badge.
-      ansible.builtin.include_role:
-        name: unit
-      vars:
-        title: SwaggerValidatorBadge
-        description: Displays whether or not the API Spec file has errors in the swagger ui.
-        argv:
-          - "mvn"
-          - "-Dmaven.repo.local=/var/cache/swagger_validator"
-          - "package"
-          - "jetty:run"
-        dir: "{{ dests.swagger_validator }}"
-        user: "SwaggerHippo"
-    - name: Reload SystemD Units
+    - name: Install systemd units.
+      block:
+        - name: Install Systemd Service for the Hippo Backend
+          ansible.builtin.include_role:
+            name: unit
+          vars:
+            title: "HippoExBackend"
+            description: "Acts as a middle-man that retrieves information when an authorized user requests it."
+            exec: "{{ dests.HippoAPI + '/Hippo-Exchange'  }}"
+            user: "APIHippo"
+        - name: Install Systemd Service for the Swagger Validator Badge.
+          ansible.builtin.include_role:
+            name: unit
+          vars:
+            title: SwaggerValidatorBadge
+            description: Displays whether or not the API Spec file has errors in the swagger ui.
+            argv:
+              - "mvn"
+              - "-Dmaven.repo.local=/var/cache/swagger_validator"
+              - "package"
+              - "jetty:run"
+            dir: "{{ dests.swagger_validator }}"
+            user: "SwaggerHippo"
+        - name: Reload SystemD Units
+          become: true
+          ansible.builtin.systemd_service:
+            daemon-reload: true
+        
+    - name: Configure NGINX
       become: true
-      ansible.builtin.systemd_service:
-        daemon-reload: true
+      block:
+        - name: Install Main NGINX Configuration File
+          ansible.builtin.command:
+            argv:
+              - "mv"
+              - "{{ temp_dir.path + srcs.nginx + '/nginx.conf'|quote }}"
+              - "{{ dests.nginx|quote }}"
+        - name: Install Sites-Available File
+          ansible.builtin.command:
+            argv:
+              - "mv"
+              - "{{ temp_dir.path + srcs.nginx + '/sites-available/default'|quote }}"
+              - "{{ dests.nginx + '/sites-available/' |quote }}"
     
-- name: Configure NGINX
-  hosts: testing
-  become: true
-  tasks:
-    - name: Install Main NGINX Configuration File
-      ansible.builtin.command:
-        argv:
-          - "mv"
-          - "{{ temp_dir.path + srcs.nginx + '/nginx.conf'|quote }}"
-          - "{{ dests.nginx|quote }}"
-    - name: Install Sites-Available File
-      ansible.builtin.command:
-        argv:
-          - "mv"
-          - "{{ temp_dir.path + srcs.nginx + '/sites-available/default'|quote }}"
-          - "{{ dests.nginx + '/sites-available/' |quote }}"
+        - name: Ensure link to sites-available is present in sites-enabled
+          ansible.builtin.file:
+            state: link
+            src: "{{dests.nginx + '/sites-available/default'|quote}}"
+            path: "{{dests.nginx + '/sites-enabled/default'|quote}}"
+    
+    - name: "Patch Swagger Repositories"
+      block:
+        - name: "Patch Swagger-UI repository"
+          ansible.builtin.command:
+            argv:
+              - git
+              - apply
+              - "{{ temp_dir.path + srcs.patches + '/swagger-ui.patch'|quote }}"
+            chdir: "{{ temp_dir.path + srcs.swagger_ui |quote }}"
+          register: patch_ui
+        - name: "Patch swagger-validator repository"
+          ansible.builtin.command:
+            argv:
+              - git
+              - apply
+              - "{{ temp_dir.path + srcs.patches + '/swagger-validator.patch'|quote }}"
+            chdir: "{{ temp_dir.path + srcs.swagger_validator|quote  }}"
+          register: patch_validator
+    
+    - name: Build and Install Hippo Backend
+      block:
+        - name: Build Hippo Backend
+          ansible.builtin.command:
+            argv:
+              - "{{dests.dotnet + '/dotnet'|quote}}"
+              - "publish"
+            chdir: "{{temp_dir.path + srcs.HippoAPI|quote}}"
+        - name: Install Hippo Backend
+          become: true
+          ansible.builtin.command:
+            argv:
+              - "mv"
+              - "{{ temp_dir.path + srcs.HippoAPIPub|quote }}"
+              - "{{ dests.HippoAPI|quote }}"
+        - name: Set Backend Directory Permissions
+          become: true
+          ansible.builtin.file:
+            path: "{{ dests.HippoAPI|quote }}"
+            owner: "APIHippo"
+            mode: "u+rwX,go+rX" 
+            state: directory
+            recurse: true
 
-    - name: Ensure link to sites-available is present in sites-enabled
-      ansible.builtin.file:
-        state: link
-        src: "{{dests.nginx + '/sites-available/default'|quote}}"
-        path: "{{dests.nginx + '/sites-enabled/default'|quote}}"
-
-
-- name: "Patch Swagger Repositories"
-  hosts: testing
-  tasks:
-    - name: "Patch Swagger-UI repository"
-      ansible.builtin.command:
-        argv:
-          - git
-          - apply
-          - "{{ temp_dir.path + srcs.patches + '/swagger-ui.patch'|quote }}"
-        chdir: "{{ temp_dir.path + srcs.swagger_ui |quote }}"
-      register: patch_ui
-    - name: "Patch swagger-validator repository"
-      ansible.builtin.command:
-        argv:
-          - git
-          - apply
-          - "{{ temp_dir.path + srcs.patches + '/swagger-validator.patch'|quote }}"
-        chdir: "{{ temp_dir.path + srcs.swagger_validator|quote  }}"
-      register: patch_validator
-
-- name: Build and Install Hippo Backend
-  hosts: testing
-  tasks:
-    - name: Build Hippo Backend
-      ansible.builtin.command:
-        argv:
-          - "{{dests.dotnet + '/dotnet'|quote}}"
-          - "publish"
-        chdir: "{{temp_dir.path + srcs.HippoAPI|quote}}"
-    - name: Install Hippo Backend
+    - name: "Install Swagger-Validator"
       become: true
-      ansible.builtin.command:
-        argv:
-          - "mv"
-          - "{{ temp_dir.path + srcs.HippoAPIPub|quote }}"
-          - "{{ dests.HippoAPI|quote }}"
-    - name: Set Backend Directory Permissions
+      block:
+        - name: "Install Swagger-Validator Repository"
+          ansible.builtin.command:
+            argv:
+              - mv
+              - "{{ temp_dir.path + srcs.swagger_validator|quote }}"
+              - "{{ dests.swagger_validator|quote }}"
+        - name: "Make mvn cache directory"
+          ansible.builtin.file:
+            path: "/var/cache/swagger_validator"
+            owner: "SwaggerHippo"
+            mode: "u+rwX,go+rX"
+            state: directory
+          register: validator_cache
+    
+    - name: "Setup /srv/"
       become: true
-      ansible.builtin.file:
-        path: "{{ dests.HippoAPI|quote }}"
-        owner: "APIHippo"
-        mode: "u+rwX,go+rX" 
-        state: directory
-        recurse: true
-
-- name: "Install Swagger-Validator"
-  hosts: testing
-  become: true
-  tasks:
-    - name: "Install Swagger-Validator Repository"
-      ansible.builtin.command:
-        argv:
-          - mv
-          - "{{ temp_dir.path + srcs.swagger_validator|quote }}"
-          - "{{ dests.swagger_validator|quote }}"
-    - name: "Make mvn cache directory"
-      ansible.builtin.file:
-        path: "/var/cache/swagger_validator"
-        owner: "SwaggerHippo"
-        mode: "u+rwX,go+rX"
-        state: directory
-      register: validator_cache
-
-- name: "Setup /srv/"
-  hosts: testing
-  become: true
-  tasks:
-    - name: "Move Hippo Exchange html files"
-      ansible.builtin.command:
-        argv:
-          - mv
-          - "{{temp_dir.path + srcs.html|quote}}"
-          - "{{dests.html|quote}}" 
-    - name: "Move the swagger API Specification"
-      ansible.builtin.command:
-        argv:
-          - mv
-          - "{{temp_dir.path + srcs.swagger_spec|quote}}"
-          - "{{dests.swagger_spec|quote}}" 
-    - name: "Install Swagger-UI Repository"
-      ansible.builtin.command:
-        argv:
-          - mv
-          - "{{ temp_dir.path + srcs.swagger_ui + '/dist/'|quote }}"
-          - "{{ dests.swagger_ui|quote }}"
-
-- name: "Remove Temporary Directory"
-  hosts: testing
-  tasks:
-    - name: "Remove the temporary directory"
+      block:
+        - name: "Move Hippo Exchange html files"
+          ansible.builtin.command:
+            argv:
+              - mv
+              - "{{temp_dir.path + srcs.html|quote}}"
+              - "{{dests.html|quote}}" 
+        - name: "Move the swagger API Specification"
+          ansible.builtin.command:
+            argv:
+              - mv
+              - "{{temp_dir.path + srcs.swagger_spec|quote}}"
+              - "{{dests.swagger_spec|quote}}" 
+        - name: "Install Swagger-UI Repository"
+          ansible.builtin.command:
+            argv:
+              - mv
+              - "{{ temp_dir.path + srcs.swagger_ui + '/dist/'|quote }}"
+              - "{{ dests.swagger_ui|quote }}"
+    always:
+    - name: "Remove Temporary Directory"
       ansible.builtin.file:
         state: absent
-        path: "{{temp_dir.path}}"
+        path: "{{temp_dir.path}}"  

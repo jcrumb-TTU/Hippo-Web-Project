@@ -1,15 +1,11 @@
-- name: Clean previous instance from VM.
+- name: Clean previous version
   ansible.builtin.import_playbook: clean.yaml
   
 - name: Ensure dependencies are installed.
   ansible.builtin.import_playbook: dependencies.yaml
 
-- name: Print Variables
-  ansible.builtin.import_playbook: debug.yaml
-
 - name: Deploy the files to the server.
   ansible.builtin.import_playbook: deploy.yaml
 
-- name: Start services on server.
+- name: Start the webserver's services
   ansible.builtin.import_playbook: run.yaml
-  
