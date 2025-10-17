@@ -153,6 +153,27 @@
 
     .bio-actions { gap: 8px; }
 
+    .topbar {
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      height: 60px;                /* fixed height */
+      display: flex;
+      align-items: center;         /* vertical centering */
+    }
+
+    .topbar .container {
+      height: 100%;
+      display: flex;
+      align-items: center;         /* ensures logo/menu are centered vertically */
+    }
+
+    /* Optional: ensure logo and menu button scale correctly */
+    .topbar img {
+      height: 32px;                /* keeps it proportional inside 48px bar */
+      width: auto;
+    }
+
+
     .preview-circle {
       width: 180px;
       height: 180px;
@@ -173,7 +194,7 @@
 
 <body>
   <!-- Top bar -->
-  <div class="container-fluid topbar py-2">
+  <div class="container-fluid topbar">
     <div class="container d-flex align-items-center">
       <button type="button" class="logo logo-btn" aria-label="Logo button" style="background:transparent;border:0;padding:0;">
         <img src="../../images/login_icon.png" alt="HippoExchange logo" style="height:40px;">
