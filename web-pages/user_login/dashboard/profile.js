@@ -117,6 +117,13 @@ const profileEmail = document.getElementById('profileEmail');
        Helper UI functions
        =============================== */
     function showAlert(message, type='success', timeout=4000){
+      // For critical errors and warnings use the floating toast (same style as add_item.js)
+      if(type === 'danger' || type === 'warning'){
+        // Map 'warning' to a yellow toast, 'danger' remains red
+        showToast(message, type === 'danger' ? 'danger' : 'warning');
+        return;
+      }
+
       const id = 'a' + Date.now();
       const html = `
         <div id="${id}" class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -134,10 +141,110 @@ const profileEmail = document.getElementById('profileEmail');
       }
     }
 
+    // Floating toast helper (copied pattern from add_item.js Utils.showToast)
+    function showToast(message, type = 'success'){
+      // Ensure a centralized container exists to stack toasts so they don't overlap
+      let container = document.getElementById('floating-toasts');
+      if(!container){
+        container = document.createElement('div');
+        container.id = 'floating-toasts';
+        container.style.cssText = `
+          position: fixed;
+          top: 12px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          align-items: center;
+          z-index: 9999;
+          pointer-events: none; /* let clicks pass through except on the toasts themselves */
+        `;
+        document.body.appendChild(container);
+      }
+
+      const toast = document.createElement('div');
+      toast.className = `alert alert-${type} shadow-lg`;
+      toast.style.cssText = `
+            min-width: 320px;
+            border-radius: 8px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideDown 0.28s ease;
+            font-weight: 500;
+            pointer-events: auto; /* allow clicks on the toast */
+        `;
+
+      const icons = {
+        success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+        warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>',
+        info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+        danger: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
+      };
+
+      const iconHtml = icons[type] || icons.info;
+      toast.innerHTML = `${iconHtml}<span>${message}</span>`;
+
+      if (!document.getElementById('toast-animations')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animations';
+        style.textContent = `
+                @keyframes slideDown {
+                    from {
+                        opacity: 0;
+                        transform: translate(-50%, -100%);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translate(-50%, 0);
+                    }
+                }
+                @keyframes slideUp {
+                    from {
+                        opacity: 1;
+                        transform: translate(-5 0%, 0);
+                    }
+                    to {
+                        opacity: 0;
+                        transform: translate(-50%, -100%);
+                    }
+                }
+            `;
+        document.head.appendChild(style);
+      }
+
+      // Insert the toast at the end of the container so newer toasts appear below older ones
+      container.appendChild(toast);
+
+      // Auto-remove after timeout, animate upwards when removing
+      const removeAfter = 4200;
+      setTimeout(() => {
+        toast.style.animation = 'slideUp 0.28s ease';
+        setTimeout(() => toast.remove(), 280);
+      }, removeAfter);
+    }
+
     function showFileError(text){
+      // update the small inline fileError element
       fileError.textContent = text;
       fileError.style.display = 'block';
       setTimeout(()=> fileError.style.display='none', 3500);
+
+      // show a prominent alert matching add_item style
+      const alertEl = document.getElementById('profileImageAlert');
+      const alertText = document.getElementById('profileImageAlertText');
+      if(alertEl && alertText){
+        alertText.textContent = text;
+        alertEl.classList.remove('d-none');
+        alertEl.style.display = 'block';
+        // auto-hide after a few seconds
+        setTimeout(()=>{ if(alertEl){ alertEl.classList.add('d-none'); alertEl.style.display='none'; } }, 4000);
+      }
+
+      // also show floating toast (warning) consistent with add_item behaviour
+      try{ showToast(text, 'warning'); }catch(e){}
     }
 
     /* ===============================
@@ -166,6 +273,8 @@ const profileEmail = document.getElementById('profileEmail');
         }
       }catch(err){
         console.warn('Profile load failed:', err);
+        // Surface a visible error toast so the user sees network problems (consistent with add_item.js)
+        try{ showAlert('Network error loading profile.', 'danger', 6000); }catch(e){}
         bioText.textContent='No bio yet. Click edit to add one.';
         profileImg.src = DEFAULT_AVATAR;
       }
@@ -198,8 +307,9 @@ const profileEmail = document.getElementById('profileEmail');
           statCompleted.textContent = data.completed ?? '0';
         }
       }catch(err){
-        // ignore network errors; keep placeholders
+        // Notify user that loan stats couldn't be loaded (non-blocking)
         console.debug('Loan stats unavailable:', err);
+        try{ showAlert('Loan stats unavailable.', 'warning', 4000); }catch(e){}
       }
     }
 

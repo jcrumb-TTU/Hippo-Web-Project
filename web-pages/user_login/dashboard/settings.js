@@ -15,6 +15,40 @@
   function showAlert(msg, type='success', timeout=4000){
     const alerts = qs('alerts');
     if(!alerts) return;
+    // Use floating toasts for danger and warning to match other pages
+    if(type === 'danger' || type === 'warning'){
+      try{ 
+        // ensure a container exists and show toast
+        let container = document.getElementById('floating-toasts');
+        if(!container){
+          container = document.createElement('div');
+          container.id = 'floating-toasts';
+          container.style.cssText = `position: fixed; top: 12px; left: 50%; transform: translateX(-50%); display:flex; flex-direction:column; gap:8px; align-items:center; z-index:9999; pointer-events:none;`;
+          document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} shadow-lg`;
+        toast.style.cssText = `min-width:320px; border-radius:8px; padding:12px 18px; display:flex; align-items:center; gap:10px; animation: slideDown 0.28s ease; font-weight:500; pointer-events:auto;`;
+        const icons = {
+          success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+          warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>',
+          info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+          danger: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
+        };
+        toast.innerHTML = `${icons[type] || icons.info}<span>${msg}</span>`;
+        if (!document.getElementById('toast-animations')){
+          const style = document.createElement('style');
+          style.id = 'toast-animations';
+          style.textContent = `@keyframes slideDown{from{opacity:0;transform:translateY(-12px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}@keyframes slideUp{from{opacity:1;transform:translateY(0) scale(1);}to{opacity:0;transform:translateY(-8px) scale(.98);}}`;
+          document.head.appendChild(style);
+        }
+        container.appendChild(toast);
+        const removeAfter = timeout && typeof timeout === 'number' ? timeout + 200 : 4200;
+        setTimeout(()=>{ toast.style.animation = 'slideUp 0.28s ease'; setTimeout(()=>toast.remove(),280); }, removeAfter);
+      }catch(e){ /* fall back to inline alert below */ }
+      return;
+    }
+
     const id = 'a' + Date.now();
     const el = document.createElement('div');
     el.id = id;

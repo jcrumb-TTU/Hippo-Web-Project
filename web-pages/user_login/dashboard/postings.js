@@ -23,7 +23,7 @@
       el('div',{ class:'mb-2' }, [ el('strong',{},['Description: ']), el('div',{ class:'small-muted mt-1' }, [ item.description || '—' ]) ]),
       el('div',{ class:'mb-2' }, [ el('strong',{},['Preventative maintenance']), el('div',{ class:'small-muted mt-1' }, [ `Frequency: ${maint.frequency || 'N/A'}` ]) ]),
       el('div',{ class:'mb-2' }, [ el('ul',{}, maintList) ]),
-      el('div',{ class:'mt-2' }, [ el('button',{ class:'btn btn-sm btn-outline-primary', onclick:`window.location.href='add_item.html'` }, ['Edit this asset']) ])
+      el('div',{ class:'mt-2' }, [ el('button',{ class:'btn btn-sm btn-outline-primary', onclick:`window.location.href='add_item.html?assetId=${item.id}'` }, ['Edit this asset']) ])
     ]);
 
     card.appendChild(img); card.appendChild(body); card.appendChild(details);

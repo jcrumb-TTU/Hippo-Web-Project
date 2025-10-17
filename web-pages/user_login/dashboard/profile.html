@@ -226,6 +226,14 @@
 
               <div class="file-error text-danger" id="fileError" style="display:none">Only PNG, JPG or GIF allowed</div>
               <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg,image/gif" style="display:none"/>
+              <div id="profileImageAlert" class="alert alert-warning mt-3 d-none" role="alert" aria-live="polite" style="display:none">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:8px;vertical-align:middle;">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span id="profileImageAlertText">There was a problem with your image upload.</span>
+              </div>
             </div>
 
             <h5 id="profileName">Your Name</h5>
