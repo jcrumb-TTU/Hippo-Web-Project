@@ -8,7 +8,12 @@ const AppState = {
     selectedFiles: new DataTransfer(),
     tasks: [],
     isSubmitting: false,
-    validationErrors: new Map()
+    validationErrors: new Map(),
+    // edit-mode fields
+    isEdit: false,
+    assetId: null,
+    existingImages: [], // { id, url }
+    removedImageIds: new Set()
 };
 
 // Debounce utility
@@ -569,14 +574,26 @@ async function handleSubmit(event) {
             formData.append(`image_${index}`, file);
         });
 
-        const response = await fetch(`${API_BASE}/api/items`, {
-            method: 'POST',
-            body: formData,
-            credentials: USE_COOKIES ? 'include' : 'same-origin',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
+        let response;
+        if(AppState.isEdit && AppState.assetId){
+            // include list of existing image ids to keep (those not removed)
+            const keep = AppState.existingImages.filter(i=> !AppState.removedImageIds.has(i.id)).map(i=>i.id);
+            formData.append('existingImages', JSON.stringify(keep));
+            response = await fetch(`${API_BASE}/api/items/${encodeURIComponent(AppState.assetId)}`, {
+                method: 'PUT',
+                body: formData,
+                credentials: USE_COOKIES ? 'include' : 'same-origin'
+            });
+        }else{
+            response = await fetch(`${API_BASE}/api/items`, {
+                method: 'POST',
+                body: formData,
+                credentials: USE_COOKIES ? 'include' : 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+        }
 
         if (!response.ok) {
             if (response.status === 401) {
@@ -682,4 +699,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Focus first field for accessibility
     elements.dropZone.setAttribute('tabindex', '0');
+
+    // Detect edit mode via query param ?assetId=123
+    try{
+        const params = new URLSearchParams(window.location.search);
+        const aid = params.get('assetId');
+        if(aid){
+            AppState.isEdit = true;
+            AppState.assetId = aid;
+            // fetch item for editing
+            fetch(`${API_BASE}/api/items/${encodeURIComponent(aid)}`, { credentials: USE_COOKIES ? 'include' : 'same-origin' })
+            .then(r=>{ if(!r.ok) throw new Error('Item not found'); return r.json(); })
+            .then(data=>{
+                elements.itemName.value = data.title || data.itemName || '';
+                elements.itemDescription.value = data.description || '';
+                // populate maintenance tasks if available
+                if(Array.isArray(data.maintenanceTasks) && data.maintenanceTasks.length){
+                    const taskContainer = document.getElementById('tasksContainer');
+                    if(taskContainer) taskContainer.innerHTML = '';
+                    data.maintenanceTasks.forEach((t, idx)=>{
+                        // reuse existing task UI if available (lightweight)
+                        const card = document.createElement('div');
+                        card.className = 'task-card';
+                        card.setAttribute('data-task-id', `prefill_${idx}`);
+                        card.innerHTML = `<div class="mb-2"><input class="form-control task-description" id="taskDescription_prefill_${idx}" value="${Utils.sanitizeHTML(t.description||'')}"></div><div><select class="form-select task-frequency" id="taskFrequency_prefill_${idx}"><option value="">Select frequency</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div>`;
+                        if(taskContainer) taskContainer.appendChild(card);
+                        const freqEl = document.getElementById(`taskFrequency_prefill_${idx}`);
+                        if(freqEl) freqEl.value = t.frequency || '';
+                    });
+                }
+                // existing images
+                if(Array.isArray(data.images) && data.images.length){
+                    AppState.existingImages = data.images.map((u, i)=>({ id: u.id ?? `img_${i}`, url: u.url || u }));
+                    AppState.existingImages.forEach((img, idx)=>{
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'preview-item existing';
+                        wrapper.setAttribute('data-existing-id', img.id);
+                        const badge = document.createElement('div'); badge.className='preview-item-badge'; badge.textContent = `#${idx+1}`;
+                        const imgel = document.createElement('img'); imgel.src = img.url; imgel.alt = `Existing ${idx+1}`; imgel.loading='lazy';
+                        const btn = document.createElement('button'); btn.type='button'; btn.className='remove-btn'; btn.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+                        btn.addEventListener('click', ()=>{ AppState.removedImageIds.add(img.id); wrapper.style.display='none'; });
+                        wrapper.appendChild(badge); wrapper.appendChild(imgel); wrapper.appendChild(btn);
+                        elements.imagePreview.appendChild(wrapper);
+                    });
+                }
+                // update submit button label
+                if(AppState.isEdit){ if(elements.submitText) elements.submitText.textContent = 'Save changes'; document.title = 'Edit item'; }
+            })
+            .catch(err=>{ console.error('Failed loading item for edit', err); Utils.showError('Failed to load item for editing'); });
+        }
+    }catch(e){ console.debug('Edit detect failed', e); }
 });
