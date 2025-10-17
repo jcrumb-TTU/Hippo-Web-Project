@@ -27,10 +27,11 @@
             description: "Acts as a middle-man that retrieves information when an authorized user requests it."
             exec: "{{ dests.HippoAPI + '/Hippo-Exchange'  }}"
             user: "APIHippo"
-      - name: Reload SystemD Units
-        become: true
-        ansible.builtin.systemd_service:
-          daemon-reload: true
+
+        - name: Reload SystemD Units
+          become: true
+          ansible.builtin.systemd_service:
+            daemon-reload: true
         
     - name: Configure NGINX
       become: true
@@ -41,18 +42,18 @@
               - "mv"
               - "{{ temp_dir.path + srcs.nginx + '/nginx.conf'|quote }}"
               - "{{ dests.nginx|quote }}"
-        - name: Install Sites-Available File
+        - name: Install Release Sites-Available File
           ansible.builtin.command:
             argv:
               - "mv"
-              - "{{ temp_dir.path + srcs.nginx + '/sites-available/default'|quote }}"
-              - "{{ dests.nginx + '/sites-available/' |quote }}"
+              - "{{ temp_dir.path + srcs.nginx + '/sites-available/release'|quote }}"
+              - "{{ dests.nginx + '/sites-available/'|quote }}"
     
         - name: Ensure link to sites-available is present in sites-enabled
           ansible.builtin.file:
             state: link
-            src: "{{dests.nginx + '/sites-available/default'|quote}}"
-            path: "{{dests.nginx + '/sites-enabled/default'|quote}}"
+            src: "{{dests.nginx + '/sites-available/release'|quote}}"
+            path: "{{dests.nginx + '/sites-enabled/release'|quote}}"
     
     - name: Build and Install Hippo Backend
       block:

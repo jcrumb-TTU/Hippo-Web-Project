@@ -1,0 +1,6 @@
+- name: Print a string.
+  hosts: locals
+  tasks:
+    - name: Print the string
+      ansible.builtin.debug:
+        msg: "#{mark}VALIDATOR_SERVER"

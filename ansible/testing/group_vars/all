@@ -26,3 +26,18 @@ dests:
 dotnet_url: 'https://dot.net/v1/dotnet-install.sh'
 dotnet_path: "~/.dotnet"
 
+validator_server: |
+    upstream swagger_validator{
+        server localhost:8080;
+    }
+swagger_routing: |
+    location /swagger/{
+        access_log /var/log/nginx/swagger_alias.log;
+        root "/home/public/vboxuser/Hippo-Web-Project/srv/dev/";
+    }
+    location /swagger/validator{
+        add_header Referrer-Policy "strict-origin-when-cross-origin";
+        access_log /var/log/nginx/swagger_alias.log;
+        proxy_pass http://swagger_validator/validator;
+    }
+

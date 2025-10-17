@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #c8e1f5; /* darker light-blue background */
+    }
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 15px;
+    }
+    .profile-pic {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 500;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .info-card {
+      background-color: #ffffff;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    
+    .logo-btn {
+        background: transparent;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+    }
+    .logo-btn img {
+        height: 40px;     /* adjust to fit your navbar */
+        width: auto;
+        display: block;
+    }
+
+    .edit-btn {
+      background-color: #21215c;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 20px;
+      color: #fff;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .edit-btn:hover {
+      background-color: #0c8f97;
+    }
+    .logo {
+      background-color: #495057;
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar with logo + top-right dropdown -->
+  <div class="container-fluid bg-white py-2">
+    <div class="container d-flex align-items-center">
+      <button type="button" class="logo logo-btn" aria-label="Logo button">
+        <img src="../../images/hippo_logo.png" alt="HippoExchange logo">
+      </button>
+
+      <!-- Dropdown aligned to top-right -->
+      <div class="dropdown ms-auto">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Menu
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#" id="logoutLink">Log out</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard content -->
+  <div class="dashboard-container">
+    <div class="row mb-4">
+      <!-- Profile picture -->
+      <div class="col-md-3 d-flex justify-content-center">
+        <div class="profile-pic">pfp</div>
+      </div>
+      <!-- Profile details & edit button (hidden for now) -->
+      <div class="col-md-9">
+        <div class="info-card mb-2">profile details</div>
+        <!-- Hidden: remove d-none to show it again -->
+        <button class="edit-btn d-none">edit</button>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Current listings -->
+      <div class="col-md-6">
+        <div class="info-card">current listings</div>
+      </div>
+      <!-- Current rents -->
+      <div class="col-md-6">
+        <div class="info-card">current rents</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // JWT-style logout helper
+    document.getElementById('logoutLink')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Clear likely token locations
+      localStorage.removeItem('auth_token');
+      sessionStorage.removeItem('auth_token');
+
+      // If you also store refresh tokens or other keys, clear them here:
+      // localStorage.removeItem('refresh_token');
+
+      // Redirect to login page
+      window.location.href = '../login.html';
+    });
+  </script>
+</body>
+</html>

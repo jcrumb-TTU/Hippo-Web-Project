@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landing Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      /* Match signup/login page background */
+      background-color: #e8f0ff;
+      font-family: Arial, sans-serif;
+      color: #1a1a1a;
+    }
+
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      /* Vertical spacing similar to the mock */
+      padding: 80px 15px 120px;
+      gap: 60px; /* gap between text block and image */
+    }
+
+    .hero-text {
+      flex: 1 1 420px;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 24px; /* spacing between heading and paragraph */
+    }
+
+    .hero-text h1 {
+      font-size: 2.4rem;
+      font-weight: 600;
+      margin: 0; /* gap controls spacing */
+    }
+
+    .hero-text p {
+      font-size: 1.15rem;
+      margin: 0; /* gap controls spacing */
+    }
+
+    .cta-btn {
+      background-color: #3CCDDD;        /* teal like existing style */
+      border: none;
+      color: #132339;                    /* dark text for contrast */
+      font-weight: 700;
+      padding: 14px 30px;
+      border-radius: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      text-decoration: none;
+      display: inline-block;
+      /* extra space from paragraph as in the mock */
+      margin-top: 56px;
+    }
+
+    .cta-btn:hover {
+      filter: brightness(0.95);
+    }
+
+    .returning {
+      margin-top: 10px;  /* subtle space under the button */
+      font-size: 0.98rem;
+      color: #33527D;
+    }
+    .returning a {
+      color: #003782;
+      text-decoration: underline;
+    }
+    .returning a:hover {
+      text-decoration-thickness: 2px;
+    }
+
+    .hero-image {
+      flex: 1 1 420px;
+      max-width: 560px;
+      height: 420px;                /* taller like the mock */
+      background-color: #b9e6f5;    /* placeholder bg behind image */
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;             /* rounds the image corners */
+    }
+
+    .hero-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;            /* fill area similar to mock */
+    }
+  </style>
+</head>
+<body>
+
+  <section class="hero">
+    <!-- Left side text -->
+    <div class="hero-text">
+      <h1>Hippo Exchange</h1>
+      <p>Your one-stop solution for all your exchange needs</p>
+
+      <a href="user_login/signup.html" class="cta-btn">Join Now!</a>
+      <p class="returning">
+        Returning user? <a href="user_login/login.html">Log in</a>
+      </p>
+    </div>
+
+    <!-- Right side image using an <img> tag (Option B) -->
+    <div class="hero-image" aria-label="Landing illustration">
+      <img src="images/hippo_img.png" alt="Illustration of a hippo wearing a top hat, monocle, and bow tie." />
+    </div>
+  </section>
+
+</body>
+</html>

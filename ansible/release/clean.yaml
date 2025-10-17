@@ -6,6 +6,7 @@
 # /srv/: HTML Files served by the webserver. Emptied before each run.
 - name: Clear Old Install.
   hosts: staging
+  become: true
   tasks:
     - name: Stop webserver
       block:
@@ -14,7 +15,6 @@
             name: nginx
             state: stopped
             enabled: false
-          become: true
       rescue:
         - name: "Print warning."
           ansible.builtin.debug: 
@@ -26,7 +26,6 @@
             name: HippoExBackend
             state: stopped
             enabled: false
-          become: true
       rescue:
         - name: "Print warning."
           ansible.builtin.debug: 
@@ -34,12 +33,10 @@
     - name: "Remove webpage files from /srv/."
       block:
         - name: "Remove html subdirectory."
-          become: true
           ansible.builtin.file:
             state: absent
             path: "/srv/html"
         - name: "Remove dev subdirectory"
-          become: true
           ansible.builtin.file:
             state: absent
             path: "/srv/dev"
@@ -50,12 +47,10 @@
     - name: "Remove API files from /usr/local/share."
       block:
         - name: "Remove HippoAPI."
-          become: true
           ansible.builtin.file:
             state: absent
             path: "{{dests.HippoAPI|quote}}"
         - name: "Remove Swagger-Validator."           
-          become: true
           ansible.builtin.file:
             state: absent
             path: "{{dests.swagger_validator|quote}}"
@@ -63,24 +58,46 @@
         - name: "Print warning"
           ansible.builtin.debug:
             msg: "WARNING: Failed to remove folder(s) from /usr/local/share."
-    - name: "Remove old NGINX config."
+    - name: "Delete and recreate sites-available directory."
       block:
-        - name: "Remove site from sites-available."
-          become: true
+        - name: "Remove sites-available"
           ansible.builtin.file:
             state: absent
-            path: "{{ dests.nginx + '/sites_available/hippo-exchange.conf'|quote  }}"
-        - name: "Remove site from sites-enabled."
-          become: true
+            path: "{{ dests.nginx + '/sites-available/'|quote }}"
+        - name: "Re-create sites-available"
           ansible.builtin.file:
-            state: absent
-            path: "{{ dests.nginx + '/sites_enabled/hippo-exchange.conf'|quote}}"
-        - name: "Remove Main NGINX Configuration File."
-          become: true
-          ansible.builtin.file:
-            state: absent
-            path: "{{ dests.nginx + '/nginx.conf'|quote  }}"
+            state: directory
+            path: "{{ dests.nginx + '/sites-available/'|quote }}"
       rescue:
         - name: "Print warning"
           ansible.builtin.debug:
-            msg: "WARNING: Failed to remove folder(s) from {{dests.nginx}}."
+            msg: "WARNING: Failed to remove/create sites-available from {{dests.nginx}}."
+    - name: "Delete and recreate sites-enabled directory."
+      block:
+        - name: "Remove sites-enabled"
+          ansible.builtin.file:
+            state: absent
+            path: "{{ dests.nginx + '/sites-enabled/'|quote }}"
+        - name: "Re-create sites-enabled"
+          ansible.builtin.file:
+            state: directory
+            path: "{{ dests.nginx + '/sites-enabled/'|quote }}"
+      rescue:
+        - name: "Print warning"
+          ansible.builtin.debug:
+            msg: "WARNING: Failed to remove/create sites-enabled from {{dests.nginx}}."
+    - name: "Remove Main NGINX Configuration File."
+      ansible.builtin.file:
+        state: absent
+        path: "{{ dests.nginx + '/nginx.conf'|quote  }}"
+    - name: "Clear Nginx Cache"
+      block:
+      - name: "Remove ansible cache directory"
+        ansible.builtin.file:
+          state: absent
+          path: "/var/cache/nginx"
+      - name: "Re-create ansible cache directory"
+        ansible.builtin.file:
+          state: directory
+          path: "/var/cache/nginx"
+

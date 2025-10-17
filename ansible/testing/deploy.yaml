@@ -69,18 +69,18 @@
               - "mv"
               - "{{ temp_dir.path + srcs.nginx + '/nginx.conf'|quote }}"
               - "{{ dests.nginx|quote }}"
-        - name: Install Sites-Available File
+        - name: Install Testing Sites-Available File
           ansible.builtin.command:
             argv:
               - "mv"
-              - "{{ temp_dir.path + srcs.nginx + '/sites-available/default'|quote }}"
+              - "{{ temp_dir.path + srcs.nginx + '/sites-available/testing'|quote }}"
               - "{{ dests.nginx + '/sites-available/' |quote }}"
     
         - name: Ensure link to sites-available is present in sites-enabled
           ansible.builtin.file:
             state: link
-            src: "{{dests.nginx + '/sites-available/default'|quote}}"
-            path: "{{dests.nginx + '/sites-enabled/default'|quote}}"
+            src: "{{dests.nginx + '/sites-available/testing'|quote}}"
+            path: "{{dests.nginx + '/sites-enabled/testing'|quote}}"
     
     - name: "Patch Swagger Repositories"
       block:
