@@ -22,123 +22,135 @@
     .btn-primary:hover, .btn-primary:focus { background-color: var(--accent-2); border-color: var(--accent-2); }
     .btn-outline-primary { color: var(--accent); border-color: var(--accent); }
     .btn-outline-primary:hover { background-color: var(--accent); color: #fff; }
+
+    /* layout tokens from profile.html */
+    .topbar { background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+    .profile-container { max-width: 1100px; margin: 28px auto; padding: 24px; }
+    .profile-layout { max-width: 900px; margin: 0 auto; padding: 12px; }
+    .cards-bg { background: #c6dfb9; padding: 18px; border-radius: 0 0 12px 12px; }
+    .title-strip{ background:#87ae73; color:#fff; padding:10px 14px; border-top-left-radius:12px; border-top-right-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+    .back-btn { border-color: #87ae73 !important; color: #87ae73 !important; font-weight: 500; }
+    .back-btn:hover{ background-color:#87ae73 !important; color:#fff !important; }
   </style>
 </head>
 <body>
-  <div class="container">
+  <!-- topbar removed to match profile layout without white header -->
+
+  <div class="profile-container">
     <div id="alerts"></div>
-    <div class="card p-4">
-        <div class="d-flex align-items-center mb-3">
-          <h4 class="mb-0">Account settings</h4>
-          <!-- design mode removed -->
-          <div class="ms-auto">
-            <a href="profile.html" class="btn btn-sm btn-outline-secondary">Back</a>
-          </div>
-        </div>
 
-      <form id="settingsForm">
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label class="form-label">First name</label>
-            <input type="text" id="firstName" class="form-control" placeholder="First name">
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Last name</label>
-            <input type="text" id="lastName" class="form-control" placeholder="Last name">
-          </div>
-        </div>
+    <div class="container profile-layout">
+      <div class="title-strip d-flex align-items-center justify-content-between mb-0">
+        <h2 class="mb-0">Account Settings</h2>
+        <a href="profile.html" class="btn btn-sm btn-outline-dark back-btn" aria-label="Back to profile">Back</a>
+      </div>
 
-        <div class="mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" id="email" class="form-control" readonly>
-        </div>
+      <div class="cards-bg mt-0">
+        <div class="card p-4">
+          <form id="settingsForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">First name</label>
+                <input type="text" id="firstName" class="form-control" placeholder="First name">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Last name</label>
+                <input type="text" id="lastName" class="form-control" placeholder="Last name">
+              </div>
+            </div>
 
-        <div class="mb-3">
-          <label class="form-label">Phone</label>
-          <input type="tel" id="phone" class="form-control" placeholder="Optional">
-        </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" id="email" class="form-control" readonly>
+            </div>
 
-        <hr />
-        <h6 class="mb-3">Address</h6>
-        <div class="mb-3">
-          <label class="form-label">Street address</label>
-          <input type="text" id="street" class="form-control" placeholder="123 Main St">
-        </div>
-        <div class="row">
-          <div class="col-md-5 mb-3">
-            <label class="form-label">City</label>
-            <input type="text" id="city" class="form-control" placeholder="City">
-          </div>
-          <div class="col-md-4 mb-3">
-            <label class="form-label">State</label>
-            <select id="state" class="form-select">
-              <option value="">Choose...</option>
-              <option>AL</option>
-              <option>AK</option>
-              <option>AZ</option>
-              <option>AR</option>
-              <option>CA</option>
-              <option>CO</option>
-              <option>CT</option>
-              <option>DE</option>
-              <option>FL</option>
-              <option>GA</option>
-              <option>HI</option>
-              <option>ID</option>
-              <option>IL</option>
-              <option>IN</option>
-              <option>IA</option>
-              <option>KS</option>
-              <option>KY</option>
-              <option>LA</option>
-              <option>ME</option>
-              <option>MD</option>
-              <option>MA</option>
-              <option>MI</option>
-              <option>MN</option>
-              <option>MS</option>
-              <option>MO</option>
-              <option>MT</option>
-              <option>NE</option>
-              <option>NV</option>
-              <option>NH</option>
-              <option>NJ</option>
-              <option>NM</option>
-              <option>NY</option>
-              <option>NC</option>
-              <option>ND</option>
-              <option>OH</option>
-              <option>OK</option>
-              <option>OR</option>
-              <option>PA</option>
-              <option>RI</option>
-              <option>SC</option>
-              <option>SD</option>
-              <option>TN</option>
-              <option>TX</option>
-              <option>UT</option>
-              <option>VT</option>
-              <option>VA</option>
-              <option>WA</option>
-              <option>WV</option>
-              <option>WI</option>
-              <option>WY</option>
-            </select>
-          </div>
-          <div class="col-md-3 mb-3">
-            <label class="form-label">ZIP</label>
-            <input type="text" id="zip" class="form-control" placeholder="ZIP code">
-          </div>
-        </div>
+            <div class="mb-3">
+              <label class="form-label">Phone</label>
+              <input type="tel" id="phone" class="form-control" placeholder="Optional">
+            </div>
 
-        <!-- Email notifications removed per request -->
+            <hr />
+            <h6 class="mb-3">Address</h6>
+            <div class="mb-3">
+              <label class="form-label">Street address</label>
+              <input type="text" id="street" class="form-control" placeholder="123 Main St">
+            </div>
+            <div class="row">
+              <div class="col-md-5 mb-3">
+                <label class="form-label">City</label>
+                <input type="text" id="city" class="form-control" placeholder="City">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">State</label>
+                <select id="state" class="form-select">
+                  <option value="">Choose...</option>
+                  <option>AL</option>
+                  <option>AK</option>
+                  <option>AZ</option>
+                  <option>AR</option>
+                  <option>CA</option>
+                  <option>CO</option>
+                  <option>CT</option>
+                  <option>DE</option>
+                  <option>FL</option>
+                  <option>GA</option>
+                  <option>HI</option>
+                  <option>ID</option>
+                  <option>IL</option>
+                  <option>IN</option>
+                  <option>IA</option>
+                  <option>KS</option>
+                  <option>KY</option>
+                  <option>LA</option>
+                  <option>ME</option>
+                  <option>MD</option>
+                  <option>MA</option>
+                  <option>MI</option>
+                  <option>MN</option>
+                  <option>MS</option>
+                  <option>MO</option>
+                  <option>MT</option>
+                  <option>NE</option>
+                  <option>NV</option>
+                  <option>NH</option>
+                  <option>NJ</option>
+                  <option>NM</option>
+                  <option>NY</option>
+                  <option>NC</option>
+                  <option>ND</option>
+                  <option>OH</option>
+                  <option>OK</option>
+                  <option>OR</option>
+                  <option>PA</option>
+                  <option>RI</option>
+                  <option>SC</option>
+                  <option>SD</option>
+                  <option>TN</option>
+                  <option>TX</option>
+                  <option>UT</option>
+                  <option>VT</option>
+                  <option>VA</option>
+                  <option>WA</option>
+                  <option>WV</option>
+                  <option>WI</option>
+                  <option>WY</option>
+                </select>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label">ZIP</label>
+                <input type="text" id="zip" class="form-control" placeholder="ZIP code">
+              </div>
+            </div>
 
-        <div class="d-flex gap-2">
-          <button type="submit" id="saveBtn" class="btn btn-primary">Save</button>
-          <a href="profile.html" class="btn btn-outline-secondary">Cancel</a>
+            <!-- Email notifications removed per request -->
+
+            <div class="d-flex gap-2">
+              <button type="submit" id="saveBtn" class="btn btn-primary">Save</button>
+              <a href="profile.html" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </form>
         </div>
-      </form>
-
+      </div>
     </div>
   </div>
 

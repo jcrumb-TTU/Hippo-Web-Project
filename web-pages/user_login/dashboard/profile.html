@@ -19,6 +19,7 @@
       --bg:#E7E4D5;
       --muted:#6c757d;
     }
+
     body {
       background-color: var(--bg);
       min-height: 100vh;
@@ -45,7 +46,19 @@
       color: #fff;
     }
 
-    .topbar{
+    /* ✅ Custom green Back button */
+    .back-btn {
+      border-color: #87ae73 !important;
+      color: #87ae73 !important;
+      font-weight: 500;
+    }
+
+    .back-btn:hover {
+      background-color: #87ae73 !important;
+      color: #fff !important;
+    }
+
+    .topbar {
       background: #fff;
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
@@ -59,6 +72,11 @@
     /* New layout container for redesigned profile */
     .profile-layout { max-width: 1100px; margin: 28px auto; padding: 12px; }
 
+  /* green panel for cards background */
+  .cards-bg { background: #c6dfb9; padding: 18px; border-radius: 0 0 12px 12px; }
+  .title-strip{ background:#87ae73; color:#fff; padding:10px 14px; border-top-left-radius:12px; border-top-right-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+    .cards-bg .profile-card, .cards-bg .info-card { background: var(--card); }
+
     /* Larger avatar in the redesigned left column */
     .preview-circle { width: 210px; height: 210px; margin: 0 auto 12px; border-radius: 50%; overflow: hidden; }
     .preview-circle img { width:100%; height:100%; object-fit:cover; display:block; }
@@ -66,8 +84,6 @@
     .profile-card.text-center { border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
     .info-card { padding: 18px; }
-
-    /* reverted sizing tweaks per user request */
 
     .profile-card {
       background: var(--card);
@@ -154,6 +170,7 @@
     }
   </style>
 </head>
+
 <body>
   <!-- Top bar -->
   <div class="container-fluid topbar py-2">
@@ -170,6 +187,7 @@
           <li><a class="dropdown-item" href="#" id="logoutLink">Log out</a></li>
         </ul>
       </div>
+      </div>
     </div>
   </div>
 
@@ -177,20 +195,23 @@
   <div class="profile-container">
     <div id="alerts"></div>
 
-    <!-- Top legacy segment removed — redesigned layout below contains all features -->
-
     <!-- Redesigned Profile layout (two-column) -->
     <div class="container profile-layout">
-      <div class="row gx-4 gy-4">
-        <!-- Left column: avatar, name, key actions (photo upload controls integrated) -->
+      <div class="title-strip d-flex align-items-center justify-content-between mb-0">
+        <h2 class="mb-0">My Profile</h2>
+        <a href="../dashboard.html" class="btn btn-sm btn-outline-dark" aria-label="Back to dashboard">Back</a>
+      </div>
+
+      <div class="cards-bg mt-0">
+        <div class="row gx-4 gy-4">
+        <!-- Left column -->
         <div class="col-lg-4">
           <div class="profile-card text-center p-4">
             <div style="position:relative; display:inline-block;">
               <div class="preview-circle mb-3">
-                <!-- reuse existing id/profileImg for scripts -->
                 <img id="profileImg" class="profile-img" alt="Profile picture" src="" />
               </div>
-              <!-- circular edit button overlay (lower-left) -->
+
               <div class="profile-edit" style="left:12px; bottom:12px;">
                 <div class="dropdown">
                   <button class="btn" type="button" id="profileEditBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Edit profile photo">
@@ -202,28 +223,28 @@
                   </ul>
                 </div>
               </div>
+
               <div class="file-error text-danger" id="fileError" style="display:none">Only PNG, JPG or GIF allowed</div>
               <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg,image/gif" style="display:none"/>
             </div>
+
             <h5 id="profileName">Your Name</h5>
             <div class="text-muted small mb-2" id="profileEmail">you@example.com</div>
 
             <div class="d-grid gap-2 mt-3">
-              <a href="edit_profile.html" class="btn btn-outline-primary">Edit profile</a>
-              <a href="settings.html" class="btn btn-outline-primary">Settings</a>
-              <button id="actionLogout" class="btn btn-outline-primary">Log out</button>
+              <a href="edit_profile.html" class="btn btn-outline-primary"><i class="fa-solid fa-file-pen"></i> Edit profile</a>
+              <a href="settings.html" class="btn btn-outline-primary"><i class="fa-solid fa-gear"></i> Settings</a>
+              <button id="actionLogout" class="btn btn-outline-primary"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</button>
             </div>
-
-            <!-- single overlay edit control remains above the avatar -->
           </div>
         </div>
 
-        <!-- Right column: stats, bio, listings/rents -->
+        <!-- Right column -->
         <div class="col-lg-8">
           <div class="row g-3">
             <div class="col-12">
               <div class="info-card text-center">
-                <h6 class="mb-4">Lending activities</h6>
+                <h6 class="mb-4">Lending Activities</h6>
                 <div class="d-flex justify-content-center gap-5" style="padding-left: 24px;">
                   <div class="text-center">
                     <div class="h3"><i class="fa-solid fa-box-open"></i></div>
@@ -247,7 +268,7 @@
             <div class="col-12">
               <div class="info-card">
                 <div class="d-flex justify-content-between align-items-start">
-                  <h5 class="mb-0">Profile details</h5>
+                  <h5 class="mb-0">Profile Details</h5>
                   <div>
                     <button class="btn btn-sm btn-outline-secondary" id="editBioBtn" title="Edit bio">
                       <i class="fa-solid fa-pencil"></i> Edit
@@ -268,16 +289,17 @@
 
             <div class="col-md-6">
               <div class="info-card">
-                <h6 class="mb-2">Current listings</h6>
+                <h6 class="mb-2">Current Postings</h6>
                 <div class="text-muted small">Your items available to borrow.</div>
-                <div class="mt-3"><a href="../../add_item.html" class="btn btn-sm btn-outline-primary">Manage listings</a></div>
+                <div class="mt-3"><a href="../../add_item.html" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-list-check"></i> Manage listings</a></div>
               </div>
             </div>
+
             <div class="col-md-6">
               <div class="info-card">
-                <h6 class="mb-2">Current rents</h6>
+                <h6 class="mb-2">Current Lendings</h6>
                 <div class="text-muted small">Items you are currently borrowing.</div>
-                <div class="mt-3"><a href="/rents.html" class="btn btn-sm btn-outline-primary">View rents</a></div>
+                <div class="mt-3"><a href="/rents.html" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-right-left"></i> View rents</a></div>
               </div>
             </div>
 
@@ -285,7 +307,6 @@
         </div>
       </div>
     </div>
-    <!-- duplicate listings/rents removed (one set present inside redesigned layout) -->
   </div>
 
   <!-- Preview modal -->
@@ -314,7 +335,7 @@
         <div class="modal-body">
           <h6>Remove profile photo?</h6>
           <p class="mb-3 small text-muted">This will reset your avatar to the default image.</p>
-            <div class="d-flex justify-content-end gap-2">
+          <div class="d-flex justify-content-end gap-2">
             <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">No</button>
             <button class="btn btn-outline-primary btn-sm" id="confirmRemoveBtn">Sure — remove</button>
           </div>
@@ -325,5 +346,6 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
   <script src="profile.js" defer></script>
+</body>
+</html>

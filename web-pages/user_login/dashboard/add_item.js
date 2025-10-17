@@ -2,22 +2,13 @@
 const API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:5257';
 const USE_COOKIES = true;
 
-// LocalStorage keys
-const STORAGE_KEYS = {
-    DRAFT: 'add_item_draft',
-    DRAFT_TIMESTAMP: 'add_item_draft_timestamp',
-    DRAFT_IMAGES: 'add_item_draft_images'
-};
 
 // Application state
 const AppState = {
     selectedFiles: new DataTransfer(),
-    maintenanceTags: new Set(),
+    tasks: [],
     isSubmitting: false,
-    hasUnsavedChanges: false,
-    autosaveInterval: null,
-    validationErrors: new Map(),
-    lastAutosave: null
+    validationErrors: new Map()
 };
 
 // Debounce utility
@@ -131,14 +122,9 @@ const elements = {
     imageCounter: document.getElementById('imageCounter'),
     imageCounterText: document.getElementById('imageCounterText'),
     imageCounterBadge: document.getElementById('imageCounterBadge'),
+    itemName: document.getElementById('itemName'),
     itemDescription: document.getElementById('itemDescription'),
     itemDescCount: document.getElementById('itemDescCount'),
-    itemCategory: document.getElementById('itemCategory'),
-    itemPrice: document.getElementById('itemPrice'),
-    maintenanceFrequency: document.getElementById('maintenanceFrequency'),
-    maintenanceTagInput: document.getElementById('maintenanceTagInput'),
-    addTagBtn: document.getElementById('addTagBtn'),
-    maintenanceTagsContainer: document.getElementById('maintenanceTags'),
     cancelBtn: document.getElementById('cancelBtn'),
     submitBtn: document.getElementById('submitBtn'),
     submitText: document.getElementById('submitText'),
@@ -147,157 +133,12 @@ const elements = {
     progressPercentage: document.getElementById('progressPercentage'),
     validationSummary: document.getElementById('validationSummary'),
     validationList: document.getElementById('validationList'),
-    draftBanner: document.getElementById('draftBanner'),
-    resumeDraftBtn: document.getElementById('resumeDraftBtn'),
-    discardDraftBtn: document.getElementById('discardDraftBtn'),
-    autosaveIndicator: document.getElementById('autosaveIndicator'),
-    autosaveText: document.getElementById('autosaveText'),
-    networkStatus: document.getElementById('networkStatus'),
-    networkStatusText: document.getElementById('networkStatusText'),
     successAnimation: document.getElementById('successAnimation'),
     imagesFeedback: document.getElementById('imagesFeedback'),
-    descriptionFeedback: document.getElementById('descriptionFeedback'),
-    categoryFeedback: document.getElementById('categoryFeedback'),
-    priceFeedback: document.getElementById('priceFeedback'),
-    frequencyFeedback: document.getElementById('frequencyFeedback')
+    itemNameFeedback: document.getElementById('itemNameFeedback'),
+    descriptionFeedback: document.getElementById('descriptionFeedback')
 };
 
-// Network Status Monitor
-class NetworkMonitor {
-    static init() {
-        window.addEventListener('online', () => this.updateStatus(true));
-        window.addEventListener('offline', () => this.updateStatus(false));
-        this.updateStatus(navigator.onLine);
-    }
-
-    static updateStatus(isOnline) {
-        if (!isOnline) {
-            elements.networkStatus.classList.add('show', 'offline');
-            elements.networkStatusText.textContent = 'Offline';
-            Utils.showToast('You are offline. Changes will be saved locally.', 'warning');
-        } else {
-            elements.networkStatus.classList.remove('offline');
-            elements.networkStatusText.textContent = 'Online';
-            if (elements.networkStatus.classList.contains('show')) {
-                Utils.showToast('Back online!', 'success');
-                setTimeout(() => {
-                    elements.networkStatus.classList.remove('show');
-                }, 3000);
-            }
-        }
-    }
-}
-
-// Draft Management
-class DraftManager {
-    static checkForDraft() {
-        const draftData = localStorage.getItem(STORAGE_KEYS.DRAFT);
-        const draftTimestamp = localStorage.getItem(STORAGE_KEYS.DRAFT_TIMESTAMP);
-
-        if (draftData && draftTimestamp) {
-            const timestamp = new Date(parseInt(draftTimestamp));
-            const now = new Date();
-            const hoursDiff = (now - timestamp) / (1000 * 60 * 60);
-
-            // Only show draft if it's less than 7 days old
-            if (hoursDiff < 168) {
-                elements.draftBanner.classList.add('show');
-            } else {
-                this.clearDraft();
-            }
-        }
-    }
-
-    static saveDraft() {
-        try {
-            const formData = {
-                description: elements.itemDescription.value,
-                category: elements.itemCategory.value,
-                price: elements.itemPrice.value,
-                frequency: elements.maintenanceFrequency.value,
-                requiredMaterials: document.getElementById('requiredMaterials').value,
-                requiredTools: document.getElementById('requiredTools').value,
-                maintenanceTags: Array.from(AppState.maintenanceTags)
-            };
-
-            localStorage.setItem(STORAGE_KEYS.DRAFT, JSON.stringify(formData));
-            localStorage.setItem(STORAGE_KEYS.DRAFT_TIMESTAMP, Date.now().toString());
-
-            AppState.lastAutosave = new Date();
-            this.showAutosaveIndicator('Draft saved');
-        } catch (error) {
-            console.error('Error saving draft:', error);
-        }
-    }
-
-    static loadDraft() {
-        try {
-            const draftData = localStorage.getItem(STORAGE_KEYS.DRAFT);
-            if (!draftData) return;
-
-            const data = JSON.parse(draftData);
-
-            elements.itemDescription.value = data.description || '';
-            elements.itemCategory.value = data.category || '';
-            elements.itemPrice.value = data.price || '';
-            elements.maintenanceFrequency.value = data.frequency || '';
-            document.getElementById('requiredMaterials').value = data.requiredMaterials || '';
-            document.getElementById('requiredTools').value = data.requiredTools || '';
-
-            if (data.maintenanceTags && Array.isArray(data.maintenanceTags)) {
-                AppState.maintenanceTags = new Set(data.maintenanceTags);
-                TagHandler.render();
-            }
-
-            // Update character counters
-            elements.itemDescCount.textContent = `${elements.itemDescription.value.length} / 200`;
-
-            // Hide banner
-            elements.draftBanner.classList.remove('show');
-
-            // Validate all fields
-            ValidationManager.validateAllFields();
-            ProgressTracker.update();
-
-            Utils.showToast('Draft restored successfully', 'success');
-        } catch (error) {
-            console.error('Error loading draft:', error);
-            Utils.showToast('Error loading draft', 'danger');
-        }
-    }
-
-    static clearDraft() {
-        localStorage.removeItem(STORAGE_KEYS.DRAFT);
-        localStorage.removeItem(STORAGE_KEYS.DRAFT_TIMESTAMP);
-        localStorage.removeItem(STORAGE_KEYS.DRAFT_IMAGES);
-        elements.draftBanner.classList.remove('show');
-    }
-
-    static showAutosaveIndicator(message = 'Saving draft...') {
-        elements.autosaveText.textContent = message;
-        elements.autosaveIndicator.classList.add('show');
-
-        setTimeout(() => {
-            elements.autosaveIndicator.classList.remove('show');
-        }, 2000);
-    }
-
-    static startAutosave() {
-        // Auto-save every 30 seconds
-        AppState.autosaveInterval = setInterval(() => {
-            if (AppState.hasUnsavedChanges && !AppState.isSubmitting) {
-                this.saveDraft();
-            }
-        }, 30000);
-    }
-
-    static stopAutosave() {
-        if (AppState.autosaveInterval) {
-            clearInterval(AppState.autosaveInterval);
-            AppState.autosaveInterval = null;
-        }
-    }
-}
 
 // Validation Manager
 class ValidationManager {
@@ -311,6 +152,11 @@ class ValidationManager {
                 message = isValid ? 'Images uploaded' : 'Please upload at least one image';
                 break;
 
+            case 'itemName':
+                isValid = value.trim().length > 0 && value.length <= 100;
+                message = isValid ? 'Item name is valid' : 'Please enter an item name (max 100 characters)';
+                break;
+
             case 'description':
                 isValid = value.trim().length > 0 && value.length <= 200;
                 if (!isValid) {
@@ -322,20 +168,18 @@ class ValidationManager {
                 }
                 break;
 
-            case 'category':
-                isValid = value.trim().length > 0 && value.length <= 50;
-                message = isValid ? 'Category is valid' : 'Please enter a category';
-                break;
-
-            case 'price':
-                const price = parseFloat(value);
-                isValid = !isNaN(price) && price >= 0 && price <= 1000000;
-                message = isValid ? 'Price is valid' : 'Please enter a valid price (0 - 1,000,000)';
-                break;
-
             case 'frequency':
-                isValid = value !== '';
-                message = isValid ? 'Frequency selected' : 'Please select a maintenance frequency';
+                // Check if at least one task has both description and frequency
+                const allTasks = document.querySelectorAll('.task-card');
+                isValid = false;
+                allTasks.forEach(taskCard => {
+                    const desc = taskCard.querySelector('.task-description')?.value.trim();
+                    const freq = taskCard.querySelector('.task-frequency')?.value;
+                    if (desc && freq) {
+                        isValid = true;
+                    }
+                });
+                message = isValid ? 'At least one task is complete' : 'Please add at least one complete maintenance task';
                 break;
 
             default:
@@ -374,10 +218,9 @@ class ValidationManager {
     static validateAllFields() {
         const validations = [
             { field: null, value: AppState.selectedFiles.files.length, name: 'images' },
+            { field: elements.itemName, value: elements.itemName.value, name: 'itemName' },
             { field: elements.itemDescription, value: elements.itemDescription.value, name: 'description' },
-            { field: elements.itemCategory, value: elements.itemCategory.value, name: 'category' },
-            { field: elements.itemPrice, value: elements.itemPrice.value, name: 'price' },
-            { field: elements.maintenanceFrequency, value: elements.maintenanceFrequency.value, name: 'frequency' }
+            { field: null, value: null, name: 'frequency' }
         ];
 
         validations.forEach(({ field, value, name }) => {
@@ -397,10 +240,9 @@ class ValidationManager {
                 li.addEventListener('click', () => {
                     const fieldMap = {
                         'images': elements.dropZone,
+                        'itemName': elements.itemName,
                         'description': elements.itemDescription,
-                        'category': elements.itemCategory,
-                        'price': elements.itemPrice,
-                        'frequency': elements.maintenanceFrequency
+                        'frequency': document.getElementById('addTaskBtn')
                     };
                     const targetField = fieldMap[fieldName];
                     if (targetField) {
@@ -419,12 +261,21 @@ class ValidationManager {
 // Progress Tracker
 class ProgressTracker {
     static update() {
+        // Check if at least one task is complete
+        let hasCompleteTask = false;
+        document.querySelectorAll('.task-card').forEach(taskCard => {
+            const desc = taskCard.querySelector('.task-description')?.value.trim();
+            const freq = taskCard.querySelector('.task-frequency')?.value;
+            if (desc && freq) {
+                hasCompleteTask = true;
+            }
+        });
+
         const requiredFields = [
             { name: 'images', isComplete: AppState.selectedFiles.files.length > 0 },
+            { name: 'itemName', isComplete: elements.itemName.value.trim().length > 0 },
             { name: 'description', isComplete: elements.itemDescription.value.trim().length > 0 },
-            { name: 'category', isComplete: elements.itemCategory.value.trim().length > 0 },
-            { name: 'price', isComplete: elements.itemPrice.value.trim().length > 0 },
-            { name: 'frequency', isComplete: elements.maintenanceFrequency.value !== '' }
+            { name: 'frequency', isComplete: hasCompleteTask }
         ];
 
         const completedCount = requiredFields.filter(f => f.isComplete).length;
@@ -562,7 +413,6 @@ class ImageHandler {
         elements.imageInput.files = newDt.files;
         this.renderPreviews();
 
-        AppState.hasUnsavedChanges = true;
         Utils.showToast('Image removed', 'info');
     }
 
@@ -586,15 +436,27 @@ class ImageHandler {
             return;
         }
 
-        AppState.selectedFiles = new DataTransfer();
+        // Check if adding these files would exceed the limit
+        const currentCount = AppState.selectedFiles.files.length;
+        const totalCount = currentCount + validFiles.length;
+
+        if (totalCount > this.MAX_IMAGES) {
+            const canAdd = this.MAX_IMAGES - currentCount;
+            if (canAdd <= 0) {
+                Utils.showToast(`Maximum ${this.MAX_IMAGES} images allowed. Please remove some images first.`, 'warning');
+                return;
+            }
+            Utils.showToast(`Only adding ${canAdd} image(s). Maximum ${this.MAX_IMAGES} images allowed.`, 'warning');
+            validFiles.splice(canAdd); // Keep only the files that fit
+        }
+
+        // Add new files to existing files
         validFiles.forEach(file => {
             AppState.selectedFiles.items.add(file);
         });
 
         elements.imageInput.files = AppState.selectedFiles.files;
         this.renderPreviews();
-
-        AppState.hasUnsavedChanges = true;
 
         if (validFiles.length > 0) {
             const message = validFiles.length === 1
@@ -605,70 +467,27 @@ class ImageHandler {
     }
 }
 
-// Maintenance tags handling
-class TagHandler {
-    static add() {
-        const tagText = elements.maintenanceTagInput.value.trim();
+// Task data collection helper
+class TaskDataCollector {
+    static getAllTasks() {
+        const tasksData = [];
+        document.querySelectorAll('.task-card').forEach(taskCard => {
+            const taskId = taskCard.getAttribute('data-task-id');
+            const description = document.getElementById(`taskDescription_${taskId}`)?.value.trim();
+            const frequency = document.getElementById(`taskFrequency_${taskId}`)?.value;
+            const materials = document.getElementById(`taskMaterials_${taskId}`)?.value.trim();
+            const tools = document.getElementById(`taskTools_${taskId}`)?.value.trim();
 
-        if (!tagText) return;
-
-        if (!Utils.validateWordCount(tagText, 2)) {
-            Utils.showError('Please enter only 1-2 words for the tag.');
-            return;
-        }
-
-        const normalizedTag = tagText.toLowerCase();
-
-        if (AppState.maintenanceTags.has(normalizedTag)) {
-            Utils.showError('This tag has already been added.');
-            return;
-        }
-
-        AppState.maintenanceTags.add(normalizedTag);
-        this.render();
-        elements.maintenanceTagInput.value = '';
-        elements.maintenanceTagInput.focus();
-
-        AppState.hasUnsavedChanges = true;
-        Utils.showToast('Tag added', 'success');
-    }
-
-    static remove(tagText) {
-        AppState.maintenanceTags.delete(tagText);
-        this.render();
-        AppState.hasUnsavedChanges = true;
-    }
-
-    static render() {
-        elements.maintenanceTagsContainer.innerHTML = '';
-
-        if (AppState.maintenanceTags.size === 0) {
-            const placeholder = document.createElement('small');
-            placeholder.className = 'text-muted';
-            placeholder.textContent = 'No maintenance tasks added yet';
-            elements.maintenanceTagsContainer.appendChild(placeholder);
-            return;
-        }
-
-        AppState.maintenanceTags.forEach(tag => {
-            const tagElement = document.createElement('div');
-            tagElement.classList.add('maintenance-tag');
-            tagElement.setAttribute('role', 'listitem');
-
-            const span = document.createElement('span');
-            span.textContent = tag;
-
-            const btn = document.createElement('button');
-            btn.innerHTML = '&times;';
-            btn.classList.add('remove-tag');
-            btn.type = 'button';
-            btn.setAttribute('aria-label', `Remove ${tag} tag`);
-            btn.addEventListener('click', () => this.remove(tag));
-
-            tagElement.appendChild(span);
-            tagElement.appendChild(btn);
-            elements.maintenanceTagsContainer.appendChild(tagElement);
+            if (description && frequency) {
+                tasksData.push({
+                    description,
+                    frequency,
+                    materials,
+                    tools
+                });
+            }
         });
+        return tasksData;
     }
 }
 
@@ -692,22 +511,14 @@ function setupCharCounter(textarea, counter, max) {
 }
 
 // Debounced validation for real-time feedback
+const debouncedValidateItemName = debounce((value) => {
+    ValidationManager.validateField(elements.itemName, value, 'itemName');
+    ProgressTracker.update();
+}, 500);
+
 const debouncedValidateDescription = debounce((value) => {
     ValidationManager.validateField(elements.itemDescription, value, 'description');
     ProgressTracker.update();
-    AppState.hasUnsavedChanges = true;
-}, 500);
-
-const debouncedValidateCategory = debounce((value) => {
-    ValidationManager.validateField(elements.itemCategory, value, 'category');
-    ProgressTracker.update();
-    AppState.hasUnsavedChanges = true;
-}, 500);
-
-const debouncedValidatePrice = debounce((value) => {
-    ValidationManager.validateField(elements.itemPrice, value, 'price');
-    ProgressTracker.update();
-    AppState.hasUnsavedChanges = true;
 }, 500);
 
 // Form submission with success animation
@@ -743,10 +554,17 @@ async function handleSubmit(event) {
     elements.submitSpinner.classList.remove('d-none');
 
     try {
-        const formData = new FormData(elements.form);
+        const formData = new FormData();
 
-        formData.append('maintenanceTags', JSON.stringify(Array.from(AppState.maintenanceTags)));
+        // Add basic item info
+        formData.append('itemName', elements.itemName.value);
+        formData.append('description', elements.itemDescription.value);
 
+        // Add all maintenance tasks as JSON
+        const tasksData = TaskDataCollector.getAllTasks();
+        formData.append('maintenanceTasks', JSON.stringify(tasksData));
+
+        // Add images
         Array.from(AppState.selectedFiles.files).forEach((file, index) => {
             formData.append(`image_${index}`, file);
         });
@@ -776,11 +594,6 @@ async function handleSubmit(event) {
         const result = await response.json();
         console.log('Item created successfully:', result);
 
-        // Clear draft
-        DraftManager.clearDraft();
-        DraftManager.stopAutosave();
-        AppState.hasUnsavedChanges = false;
-
         // Show success animation
         elements.successAnimation.classList.add('show');
 
@@ -800,50 +613,18 @@ async function handleSubmit(event) {
     }
 }
 
-// Cancel handler with unsaved changes warning
+// Cancel handler
 function handleCancel() {
-    if (AppState.hasUnsavedChanges) {
-        const shouldCancel = confirm('You have unsaved changes. Do you want to save a draft before leaving?');
-        if (shouldCancel) {
-            DraftManager.saveDraft();
-            window.location.href = 'dashboard.html';
-        }
-    } else {
-        window.location.href = 'dashboard.html';
-    }
+    window.location.href = 'dashboard.html';
 }
 
 // Keyboard shortcuts
 function setupKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
-        // Ctrl+S or Cmd+S to save draft
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
-            DraftManager.saveDraft();
-            Utils.showToast('Draft saved manually', 'success');
-        }
-
         // Escape to cancel
         if (e.key === 'Escape') {
             e.preventDefault();
             handleCancel();
-        }
-
-        // Enter on tag input
-        if (e.target === elements.maintenanceTagInput && e.key === 'Enter') {
-            e.preventDefault();
-            TagHandler.add();
-        }
-    });
-}
-
-// Prevent navigation with unsaved changes
-function setupBeforeUnload() {
-    window.addEventListener('beforeunload', (e) => {
-        if (AppState.hasUnsavedChanges && !AppState.isSubmitting) {
-            e.preventDefault();
-            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-            return e.returnValue;
         }
     });
 }
@@ -883,63 +664,19 @@ function initEventListeners() {
     setupCharCounter(elements.itemDescription, elements.itemDescCount, 200);
 
     // Real-time validation with debouncing
+    elements.itemName.addEventListener('input', (e) => {
+        debouncedValidateItemName(e.target.value);
+    });
+
     elements.itemDescription.addEventListener('input', (e) => {
         debouncedValidateDescription(e.target.value);
     });
-
-    elements.itemCategory.addEventListener('input', (e) => {
-        debouncedValidateCategory(e.target.value);
-    });
-
-    elements.itemPrice.addEventListener('input', (e) => {
-        debouncedValidatePrice(e.target.value);
-    });
-
-    elements.maintenanceFrequency.addEventListener('change', (e) => {
-        ValidationManager.validateField(e.target, e.target.value, 'frequency');
-        ProgressTracker.update();
-        AppState.hasUnsavedChanges = true;
-    });
-
-    // Maintenance tags
-    elements.addTagBtn.addEventListener('click', () => TagHandler.add());
-
-    elements.maintenanceTagInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            TagHandler.add();
-        }
-    });
-
-    // Draft management
-    elements.resumeDraftBtn.addEventListener('click', () => {
-        DraftManager.loadDraft();
-    });
-
-    elements.discardDraftBtn.addEventListener('click', () => {
-        if (confirm('Are you sure you want to discard the saved draft?')) {
-            DraftManager.clearDraft();
-            Utils.showToast('Draft discarded', 'info');
-        }
-    });
-
-    // Track form changes
-    elements.form.addEventListener('input', () => {
-        AppState.hasUnsavedChanges = true;
-    });
-
-    // Initialize tag container
-    TagHandler.render();
 }
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all systems
-    NetworkMonitor.init();
-    DraftManager.checkForDraft();
-    DraftManager.startAutosave();
     setupKeyboardShortcuts();
-    setupBeforeUnload();
     initEventListeners();
     ProgressTracker.update();
 
