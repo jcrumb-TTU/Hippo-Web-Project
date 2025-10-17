@@ -570,7 +570,7 @@
 
       setTimeout(() => {
         elements.successAnimation.classList.remove('show');
-        window.location.href = 'dashboard.html';
+        window.location.href = '../dashboard.html';
       }, 2000);
 
     } catch (error) {
@@ -587,7 +587,7 @@
   /* ==================== EVENT HANDLERS ==================== */
 
   function handleCancel() {
-    window.location.href = 'dashboard.html';
+    window.location.href = '../dashboard.html';
   }
 
   /* ==================== INITIALIZATION ==================== */
