@@ -616,7 +616,8 @@ async function handleSubmit(event) {
 
         setTimeout(() => {
             elements.successAnimation.classList.remove('show');
-            window.location.href = 'dashboard.html';
+            // After creating/updating an item, go to postings so the new item is visible
+            window.location.href = 'postings.html';
         }, 2000);
 
     } catch (error) {
