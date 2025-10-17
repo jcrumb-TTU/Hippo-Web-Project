@@ -11,8 +11,9 @@ const API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:5257';
 const USE_COOKIES = true;
 
 // Redirect targets (relative to user_login folder)
-const PATH_AFTER_SIGNUP = 'dashboard/dashboard.html';
-const PATH_AFTER_LOGIN = 'dashboard/dashboard.html';
+// After successful login or signup, send users to the main dashboard page
+const PATH_AFTER_SIGNUP = 'dashboard.html';
+const PATH_AFTER_LOGIN = 'dashboard.html';
 
 // Optional: path to send the user to if an auth check fails on a protected page
 const LOGIN_PAGE_REL = 'login.html';

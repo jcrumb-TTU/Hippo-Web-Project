@@ -85,9 +85,11 @@
       const en = emailNotificationsToggle ? emailNotificationsToggle.checked : false;
       await persistSettings(en);
       showAlert('Settings saved', 'success');
+      // redirect back to profile after a short delay so the user sees the toast
+      setTimeout(()=>{ window.location.href = '../profile.html'; }, 600);
     });
 
-    if(cancelSettingsBtn) cancelSettingsBtn.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href = 'profile.html'; });
+    if(cancelSettingsBtn) cancelSettingsBtn.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href = '../profile.html'; });
   }
 
   window.addEventListener('DOMContentLoaded', init);

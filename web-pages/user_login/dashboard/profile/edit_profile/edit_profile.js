@@ -140,7 +140,32 @@ async function loadSettings(){
 }
 
 form.addEventListener('submit', async (e)=>{
-  e.preventDefault(); saveBtn.disabled=true; try{ const payload={ firstName:firstName?.value?.trim()||null, lastName:lastName?.value?.trim()||null, name: `${firstName?.value||''} ${lastName?.value||''}`.trim(), phone: phone.value.trim()||null, address:{ street:street.value.trim()||null, city:city.value.trim()||null, state:state.value.trim()||null, zip:zip.value.trim()||null } }; if(DESIGN_MODE){ await new Promise(r=>setTimeout(r,350)); showAlert('Settings saved (design mode)','success'); } else { const settingsUrl = api('/api/user/settings'); const r = await fetch(settingsUrl,{ method:'PUT', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)}); if(!r.ok) throw new Error('Save failed'); showAlert('Settings saved','success'); } }catch(err){ console.error(err); showAlert('Failed to save settings','danger',6000);} finally{ saveBtn.disabled=false; } });
+  e.preventDefault();
+  if(saveBtn) saveBtn.disabled = true;
+  try{
+    const payload = {
+      firstName: firstName?.value?.trim() || null,
+      lastName: lastName?.value?.trim() || null,
+      name: `${firstName?.value || ''} ${lastName?.value || ''}`.trim(),
+      phone: phone.value.trim() || null,
+      address: { street: street.value.trim() || null, city: city.value.trim() || null, state: state.value.trim() || null, zip: zip.value.trim() || null }
+    };
+
+    if(typeof DESIGN_MODE !== 'undefined' && DESIGN_MODE){
+      await new Promise(r=>setTimeout(r,350));
+      showAlert('Settings saved (design mode)','success');
+      setTimeout(()=>{ window.location.href = '../profile.html'; }, 600);
+      return;
+    }
+
+    const settingsUrl = api('/api/user/settings');
+    const r = await fetch(settingsUrl, { method:'PUT', credentials:'include', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
+    if(!r.ok){ if(r.status === 401){ window.location.href = '../login.html'; return; } throw new Error('Save failed'); }
+    showAlert('Settings saved','success');
+    // redirect back to profile so user returns to their profile view
+    setTimeout(()=>{ window.location.href = '../profile.html'; }, 600);
+  }catch(err){ console.error(err); showAlert('Failed to save settings','danger',6000); }finally{ if(saveBtn) saveBtn.disabled = false; }
+});
 
 cancelBtn.addEventListener('click',(e)=>{ e.preventDefault(); window.location.href = '../profile.html'; });
 
