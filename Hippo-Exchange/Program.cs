@@ -290,7 +290,7 @@ app.MapDelete("/api/user/profile/photo", async (HttpContext ctx, IUserService us
 .Produces(200)
 .Produces(401);
 
-// Item Endpoints
+// ---------------- Item Endpoints ----------------
 // POST /api/items: Adds a new item for the active user.
 app.MapPost("/api/items", async (ItemCreateRequest item, HttpContext ctx, IUserService users, IItemService items) =>
 {

@@ -7,6 +7,8 @@ public interface IItemService
 {
     Task<string> CreateAsync(string ownerUserId, string name, string? description, Dictionary<string, string>? properties);
     Task<List<Item>> GetForOwnerAsync(string ownerUserId);
+    // Get an Item based on the item id.
+    Task<Item?> GetById(string id);
     Task<Item?> GetByIdForOwnerAsync(string id, string ownerUserId);
     Task<bool> UpdateAsync(string id, string ownerUserId, string? name, string? description, Dictionary<string, string>? properties);
     Task<bool> DeleteAsync(string id, string ownerUserId);
@@ -58,7 +60,11 @@ public sealed class ItemService : IItemService
         return await _items.Find(i => i.Id == id && i.OwnerUserId == ownerUserId)
                           .FirstOrDefaultAsync();
     }
-
+    public async Task<Item?> GetById(string id)
+    {
+        return await _items.Find(i => i.Id == id)
+                          .FirstOrDefaultAsync();
+    }
     public async Task<bool> UpdateAsync(string id, string ownerUserId, string? name, string? description, Dictionary<string, string>? properties)
     {
         var updateDefs = new List<UpdateDefinition<Item>>();

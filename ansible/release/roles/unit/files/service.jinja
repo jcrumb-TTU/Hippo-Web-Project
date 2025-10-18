@@ -15,6 +15,9 @@ Group={{group|quote}}
 {% if dir is defined %}
 WorkingDirectory={{dir|quote}}
 {% endif %}
+{% for v in env %}
+Environment={{v|quote}}
+{% endfor %}
 {% if exec is undefined %}
 ExecStart={{argv|map('quote')|join(' ')}}
 {% else %}

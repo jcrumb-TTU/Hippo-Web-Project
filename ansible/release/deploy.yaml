@@ -27,6 +27,7 @@
             description: "Acts as a middle-man that retrieves information when an authorized user requests it."
             exec: "{{ dests.HippoAPI + '/Hippo-Exchange'  }}"
             user: "APIHippo"
+            env: ["ASPNETCORE_URLS=http://localhost:5257"]
 
         - name: Reload SystemD Units
           become: true
