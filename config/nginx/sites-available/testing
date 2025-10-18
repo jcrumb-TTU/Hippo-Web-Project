@@ -34,7 +34,11 @@ server {
 	index index.html index.htm index.nginx-debian.html;
 
 	server_name _;
-	# Swagger UI Routing
+	# Developer Tools Routing
+	location /dev/{
+		root "/srv/";
+	}
+	# Swagger UI Shortcut
     location /swagger/{
         access_log /var/log/nginx/swagger_alias.log;
         root "/srv/dev/";
@@ -45,6 +49,12 @@ server {
         access_log /var/log/nginx/swagger_alias.log;
         proxy_pass http://swagger_validator/validator;
     }
+	# API Proxy Pass
+	location /api/ {
+		add_header Referrer-Policy "strict-origin-when-cross-origin";
+		proxy_pass http://backend/api/;
+		access_log /var/log/nginx/register.log;
+	}
 	location / {
 		# First attempt to serve request as file, then
 		# as directory, then fall back to displaying a 404.

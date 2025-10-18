@@ -1,6 +1,6 @@
 // API base URL (override by setting localStorage.API_BASE in the console)
 // Example: localStorage.setItem('API_BASE', 'http://localhost:5257')
-const API_BASE = localStorage.getItem('API_BASE') || '/'; //Using '/' here tells the browser to look at the current url.
+const API_BASE = localStorage.getItem('API_BASE') || ''; //Using '' with a request object here tells the browser to start at the current base url.
 
 // If your API authenticates with cookies (Set-Cookie on login), set this to true.
 // Then ensure CORS on the API allows credentials and specific origins.
@@ -12,7 +12,8 @@ const PATH_AFTER_SIGNUP = 'login.html';
 const PATH_AFTER_LOGIN = 'dashboard/dashboard.html';
 
 async function postJson(path, payload, opts = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
+	const req = new Request(`${API_BASE}${path}`);
+	const res = await fetch(req, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
