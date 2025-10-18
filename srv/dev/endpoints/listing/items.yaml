@@ -11,7 +11,8 @@
       description: "The item's details being sent to the server. NOTE: Content type is not final and can be changed on request."
       required: true
       content:
-        mulitpart/form-data: # Not final, can be changed if necessary.
+        #mulitpart/form-data: # Not final, can be changed if necessary.
+        application/json:
           schema:
             type: object
             properties:

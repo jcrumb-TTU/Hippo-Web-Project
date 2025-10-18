@@ -36,8 +36,13 @@ builder.Services.AddCors(o =>
 {
     o.AddPolicy("Default", p =>
         p.WithOrigins(
+			// Testing only, remove in release.
             "http://127.0.0.1:5500",
-            "http://localhost:5500"
+            "http://localhost:5500",
+			// Local desktop at home used to test things on a different device. Please don't remove until release.
+            "http://10.77.6.1:46108",
+			// Release
+            "https://www.hippo-exchange.com:443"
         )
         .AllowAnyHeader()
         .AllowAnyMethod()
@@ -290,6 +295,7 @@ app.MapDelete("/api/user/profile/photo", async (HttpContext ctx, IUserService us
 app.MapPost("/api/items", async (ItemCreateRequest item, HttpContext ctx, IUserService users, IItemService items) =>
 {
     JsonSerializerOptions opts = new(JsonSerializerDefaults.Web);
+	Console.WriteLine(item);
     var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
     if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
     if (string.IsNullOrEmpty(item.Name)) return Results.Json(new {name = "Item Name Missing"}, opts, "application/json", 400);

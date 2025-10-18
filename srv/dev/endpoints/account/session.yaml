@@ -9,6 +9,14 @@ login:
       description: The user's credentials.
       required: true
       content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              password:
+                type: string
         multipart/form-data:
           schema:
             type: object
