@@ -18,10 +18,6 @@ register:
               lname:
                 type: string
                 description: The user's last name.
-              bday:
-                type: string
-                format: date
-                description: The user's date of birth (YYYY-MM-DD).
               email:  
                 type: string
                 description: The user's email address.

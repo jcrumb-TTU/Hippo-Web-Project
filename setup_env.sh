@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#NOTE THIS SCRIPT IS DEPRECATED, AND PROBABLY WON'T WORK!
 {
 REPO_NAME="Hippo-Web-Project"
 REPO_OWNER="jcrumb-TTU"

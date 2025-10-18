@@ -1,4 +1,4 @@
-
+using System.Text.Json;
 using Hippo_Exchange.Contracts;
 using Hippo_Exchange.Models;
 using Hippo_Exchange.Services;
@@ -24,10 +24,12 @@ var mongoDbName =
 // Mongo services
 builder.Services.AddSingleton<IMongoClient>(_ => new MongoClient(mongoConnection));
 builder.Services.AddScoped(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(mongoDbName));
-builder.Services.AddScoped<IMongoCollection<Users>>(sp =>
-    sp.GetRequiredService<IMongoDatabase>().GetCollection<Users>("users"));
 
+builder.Services.AddScoped<IMongoCollection<Users>>(sp => sp.GetRequiredService<IMongoDatabase>().GetCollection<Users>("users"));
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<IMongoCollection<Item>>(sp => sp.GetRequiredService<IMongoDatabase>().GetCollection<Item>("items"));
+builder.Services.AddScoped<IItemService, ItemService>();
 
 // CORS (adjust origins as needed)
 builder.Services.AddCors(o =>
@@ -282,5 +284,22 @@ app.MapDelete("/api/user/profile/photo", async (HttpContext ctx, IUserService us
 .WithSummary("Remove profile photo")
 .Produces(200)
 .Produces(401);
+
+// Item Endpoints
+// POST /api/items: Adds a new item for the active user.
+app.MapPost("/api/items", async (ItemCreateRequest item, HttpContext ctx, IUserService users, IItemService items) =>
+{
+    JsonSerializerOptions opts = new(JsonSerializerDefaults.Web);
+    var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+    if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
+    if (string.IsNullOrEmpty(item.Name)) return Results.Json(new {name = "Item Name Missing"}, opts, "application/json", 400);
+	//Task<string> CreateAsync(string ownerUserId, string name, string? description, Dictionary<string, string>? properties);
+    ItemCreateResponse res = new(await items.CreateAsync(userId, item.Name, item.Description, item.Properties));
+    return Results.Json(res, opts, "application/json", 201);
+}).RequireAuthorization()
+    .WithSummary("Upload a new Item")
+    .Produces(201) // Item created
+    .Produces(400) // Bad form info
+    .Produces(401); // Unauthorized
 
 app.Run();

@@ -6,6 +6,10 @@ public sealed record ItemCreateRequest(
     Dictionary<string, string>? Properties
 );
 
+public sealed record ItemCreateResponse(
+    string id
+);
+
 public sealed record ItemUpdateRequest(
     string? Name,
     string? Description,

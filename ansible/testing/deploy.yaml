@@ -41,6 +41,7 @@
             title: "HippoExBackend"
             description: "Acts as a middle-man that retrieves information when an authorized user requests it."
             exec: "{{ dests.HippoAPI + '/Hippo-Exchange'  }}"
+            env: ["ASPNETCORE_URLS=http://localhost:5257"]
             user: "APIHippo"
         - name: Install Systemd Service for the Swagger Validator Badge.
           ansible.builtin.include_role:

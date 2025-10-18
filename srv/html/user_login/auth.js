@@ -1,6 +1,6 @@
 // API base URL (override by setting localStorage.API_BASE in the console)
 // Example: localStorage.setItem('API_BASE', 'http://localhost:5257')
-const API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:5257';
+const API_BASE = localStorage.getItem('API_BASE') || '/'; //Using '/' here tells the browser to look at the current url.
 
 // If your API authenticates with cookies (Set-Cookie on login), set this to true.
 // Then ensure CORS on the API allows credentials and specific origins.
