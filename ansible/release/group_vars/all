@@ -1,15 +1,16 @@
 # srcs: The paths of resources relative to toplevel, which is in the tmpdir. Everything after toplevel is relative to the repository.
+repo_toplevel: "/Hippo-Web-Project-Deployment"
 srcs:
-  toplevel: "/Hippo-Web-Project-Deployment"
-  tarball: "{{srcs.toplevel}}.tar.gz"
-  html: "{{srcs.toplevel}}/srv/html"
-  HippoAPI: "{{srcs.toplevel}}/Hippo-Exchange"
-  HippoAPIPub: "{{srcs.HippoAPI}}/bin/Release/net8.0/publish/"
-  patches: "{{srcs.toplevel}}/submodules/module-patches"
-  swagger_ui: "{{srcs.toplevel}}/submodules/swagger-ui"
-  swagger_spec: "{{srcs.toplevel}}/srv/dev"
-  swagger_validator: "{{srcs.toplevel}}/submodules/swagger-validator"
-  nginx: "{{srcs.toplevel}}/config/nginx"
+  toplevel: "{{repo_toplevel}}"
+  tarball: "{{repo_toplevel}}.tar.gz"
+  html: "{{repo_toplevel}}/srv/html"
+  HippoAPI: "{{repo_toplevel}}/Hippo-Exchange"
+  HippoAPIPub: "{{repo_toplevel}}/Hippo-Exchange/bin/Release/net8.0/publish/"
+  patches: "{{repo_toplevel}}/submodules/module-patches"
+  swagger_ui: "{{repo_toplevel}}/submodules/swagger-ui"
+  swagger_spec: "{{repo_toplevel}}/srv/dev"
+  swagger_validator: "{{repo_toplevel}}/submodules/swagger-validator"
+  nginx: "{{repo_toplevel}}/config/nginx"
   dotnet: "~/.dotnet"
 
 # dests: The paths resources are installed to on the system.
