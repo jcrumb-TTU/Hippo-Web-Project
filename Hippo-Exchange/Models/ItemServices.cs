@@ -10,8 +10,9 @@ public interface IItemService
     // Get an Item based on the item id.
     Task<Item?> GetById(string id);
     Task<Item?> GetByIdForOwnerAsync(string id, string ownerUserId);
-    Task<bool> UpdateAsync(string id, string ownerUserId, string? name, string? description, Dictionary<string, string>? properties);
-    Task<bool> DeleteAsync(string id, string ownerUserId);
+    // Return status with an integer.
+    Task<int> UpdateAsync(string id, string? ownerUserId, string? name, string? description, Dictionary<string, string>? properties);
+    Task<int> DeleteAsync(string id, string ownerUserId);
 }
 
 public sealed class ItemService : IItemService
@@ -65,27 +66,38 @@ public sealed class ItemService : IItemService
         return await _items.Find(i => i.Id == id)
                           .FirstOrDefaultAsync();
     }
-    public async Task<bool> UpdateAsync(string id, string ownerUserId, string? name, string? description, Dictionary<string, string>? properties)
+    public async Task<int> UpdateAsync
+	(string id, string? ownerUserId, string? name, string? description, Dictionary<string, string>? properties)
     {
+	// Immediatly return BadRequest if id is empty.
+	//if(string.IsNullOrWhiteSpace(id)) return 400;
+	// Return unauthorized if ownerUserId is empty.
+	//if(string.IsNullOrWhiteSpace(ownerUserId)) return 401;
         var updateDefs = new List<UpdateDefinition<Item>>();
         if (!string.IsNullOrWhiteSpace(name)) updateDefs.Add(Builders<Item>.Update.Set(i => i.Name, name));
         if (description is not null) updateDefs.Add(Builders<Item>.Update.Set(i => i.Description, description));
         if (properties is not null) updateDefs.Add(Builders<Item>.Update.Set(i => i.Properties, properties));
         updateDefs.Add(Builders<Item>.Update.Set(i => i.UpdatedAtUtc, DateTime.UtcNow));
-
         if (updateDefs.Count == 1) // only UpdatedAtUtc
-            return false;
-
-        var result = await _items.UpdateOneAsync(
+            return 200; //No updates made.
+	// Get the mongo client instance and start a session.
+	var result = await _items.UpdateOneAsync(
             Builders<Item>.Filter.Where(i => i.Id == id && i.OwnerUserId == ownerUserId),
             Builders<Item>.Update.Combine(updateDefs));
-
-        return result.MatchedCount > 0 && result.ModifiedCount > 0;
+	if(result.MatchedCount > 0 && result.ModifiedCount > 0)
+	    return 201;
+        else if (result.MatchedCount > 0)
+	    return 200;
+	else
+	    return 404;
     }
 
-    public async Task<bool> DeleteAsync(string id, string ownerUserId)
+    public async Task<int> DeleteAsync(string id, string ownerUserId)
     {
         var result = await _items.DeleteOneAsync(i => i.Id == id && i.OwnerUserId == ownerUserId);
-        return result.DeletedCount > 0;
+        if (result.DeletedCount > 0)
+	    return 200;
+	else
+	    return 400;
     }
 }

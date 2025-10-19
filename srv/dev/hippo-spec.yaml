@@ -8,6 +8,8 @@ servers:
   # Relative to whatever host the swagger instance is running on.
   - url: /api/
     description: Requests will be sent to the url of this swagger instance.
+  - url: http://localhost:5257/api/
+    description: Requests will be sent to the local machine.
 
 components:
   securitySchemes:

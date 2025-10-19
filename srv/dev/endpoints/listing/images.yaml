@@ -13,7 +13,7 @@
         name: id
         description: "The identifier of the item the images or for."
         schema:
-          type: integer
+          type: string
           required: true
     requestBody:
       content:
@@ -44,7 +44,7 @@
         name: id
         description: "The identifier of the item the images or for."
         schema:
-          type: integer
+          type: string
           required: true
       - in: path
         name: index
@@ -67,7 +67,7 @@
         name: id
         description: "The identifier of the item the images or for."
         schema:
-          type: integer
+          type: string
           required: true
       - in: path
         name: index
@@ -89,7 +89,7 @@
         name: id
         description: "The identifier of the item the images or for."
         schema:
-          type: integer
+          type: string
           required: true
       - in: path
         name: index
@@ -114,7 +114,7 @@
         name: id
         description: "The identifier of the item the images or for."
         schema:
-          type: integer
+          type: string
           required: true
     requestBody:
       content:
