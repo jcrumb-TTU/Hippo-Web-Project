@@ -13,7 +13,7 @@ namespace Hippo_Exchange.Services;
 public class AccountEndpoints{
     public static Microsoft.AspNetCore.Builder.WebApplication map(Microsoft.AspNetCore.Builder.WebApplication app){
     // ---------------- Registration ----------------
-    app.MapPost("/api/register", async (RegisterRequest req, IUserService users) =>
+    app.MapPost("/register", async (RegisterRequest req, IUserService users) =>
         {
             var problems = new Dictionary<string, string[]>();
             if (string.IsNullOrWhiteSpace(req.FirstName)) problems["FirstName"] = new[] { "First name required." };
@@ -56,7 +56,7 @@ public class AccountEndpoints{
         .Produces(409);
         
         // ---------------- Login ----------------
-        app.MapPost("/api/login", async (LoginRequest req, IUserService users, HttpContext ctx) =>
+        app.MapPost("/login", async (LoginRequest req, IUserService users, HttpContext ctx) =>
         {
             var normalizedEmail = (req.Email ?? "").Trim().ToLowerInvariant();
             var user = await users.GetByEmailAsync(normalizedEmail);
@@ -86,7 +86,7 @@ public class AccountEndpoints{
         .Produces(401);
         
         // ---------------- Logout ----------------
-        app.MapPost("/api/logout", async (HttpContext ctx) =>
+        app.MapPost("/logout", async (HttpContext ctx) =>
         {
             await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Results.Ok(new { message = "Logged out" });
@@ -96,7 +96,7 @@ public class AccountEndpoints{
         .Produces(200);
         
         // ---------------- Session Check ----------------
-        app.MapGet("/api/me", (HttpContext ctx) =>
+        app.MapGet("/me", (HttpContext ctx) =>
         {
             if (!(ctx.User.Identity?.IsAuthenticated ?? false))
                 return Results.Unauthorized();

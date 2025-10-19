@@ -74,16 +74,12 @@
         schema:
           type: string
         required: true
-      - in: header
-        name: force
-        description: "Update the item anyways despite it being loaned out. The user with the item will be notified in this case."
-        schema:
-          type: bool
-        required: true
     requestBody:
       $ref: "#/~1items/post/requestBody" # References the form body from the post methond in /items.
     # Responses: 201 - item updated, 400 - Some detail was invalid, so the item was not modified, 401 - Session expired - login in again, 403 - Not authorized to remove, 404: Item not found.
     responses:
+      "200":
+        description: "The item update request made no changes (i.e. An identical item definition was provided)."
       "201":
         description: "The item was updated successfully."
       "400":

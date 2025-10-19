@@ -8,6 +8,7 @@ using MongoDB.Driver;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IMongoCollection<Item>>(sp => sp.GetRequiredService<IMongoDatabase>().GetCollection<Item>("items"));
 builder.Services.AddScoped<IItemService, ItemService>();
+
 
 // CORS (adjust origins as needed)
 builder.Services.AddCors(o =>
@@ -80,14 +82,18 @@ builder.Services
             }
         };
     });
-
-builder.Services.AddAuthorization();
+    builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("ItemOwner", policy =>
+    {
+        policy.Requirements.Add(new OwnershipRequirement());
+    });
+builder.Services.AddScoped<IAuthorizationHandler, OwnershipHandler>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
+app.UsePathBase("/api");
 app.UseCors("Default");
 
 if (app.Environment.IsDevelopment())

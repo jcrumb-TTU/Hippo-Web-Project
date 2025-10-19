@@ -3,18 +3,6 @@ using MongoDB.Driver;
 
 namespace Hippo_Exchange.Services;
 
-public interface IItemService
-{
-    Task<string> CreateAsync(string ownerUserId, string name, string? description, Dictionary<string, string>? properties);
-    Task<List<Item>> GetForOwnerAsync(string ownerUserId);
-    // Get an Item based on the item id.
-    Task<Item?> GetById(string id);
-    Task<Item?> GetByIdForOwnerAsync(string id, string ownerUserId);
-    // Return status with an integer.
-    Task<int> UpdateAsync(string id, string? ownerUserId, string? name, string? description, Dictionary<string, string>? properties);
-    Task<int> DeleteAsync(string id, string ownerUserId);
-}
-
 public sealed class ItemService : IItemService
 {
     private readonly IMongoCollection<Item> _items;
@@ -70,9 +58,9 @@ public sealed class ItemService : IItemService
 	(string id, string? ownerUserId, string? name, string? description, Dictionary<string, string>? properties)
     {
 	// Immediatly return BadRequest if id is empty.
-	//if(string.IsNullOrWhiteSpace(id)) return 400;
+	if(string.IsNullOrWhiteSpace(id)) return 400;
 	// Return unauthorized if ownerUserId is empty.
-	//if(string.IsNullOrWhiteSpace(ownerUserId)) return 401;
+	if(string.IsNullOrWhiteSpace(ownerUserId)) return 401;
         var updateDefs = new List<UpdateDefinition<Item>>();
         if (!string.IsNullOrWhiteSpace(name)) updateDefs.Add(Builders<Item>.Update.Set(i => i.Name, name));
         if (description is not null) updateDefs.Add(Builders<Item>.Update.Set(i => i.Description, description));
@@ -84,12 +72,9 @@ public sealed class ItemService : IItemService
 	var result = await _items.UpdateOneAsync(
             Builders<Item>.Filter.Where(i => i.Id == id && i.OwnerUserId == ownerUserId),
             Builders<Item>.Update.Combine(updateDefs));
-	if(result.MatchedCount > 0 && result.ModifiedCount > 0)
-	    return 201;
-        else if (result.MatchedCount > 0)
-	    return 200;
-	else
-	    return 404;
+	if(result.MatchedCount > 0 && result.ModifiedCount > 0) return 201;
+        else if (result.MatchedCount > 0) return 200;
+	else return 404;
     }
 
     public async Task<int> DeleteAsync(string id, string ownerUserId)
