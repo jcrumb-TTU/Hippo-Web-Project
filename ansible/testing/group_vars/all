@@ -2,7 +2,7 @@
 srcs:
   toplevel: "/Hippo-Web-Project-Deployment"
   tarball: "{{srcs.toplevel}}.tar.gz"
-  html: "{{srcs.toplevel}}/srv/html"
+  html: "{{srcs.toplevel}}/web-pages"
   HippoAPI: "{{srcs.toplevel}}/Hippo-Exchange"
   HippoAPIPub: "{{srcs.HippoAPI}}/bin/Release/net8.0/publish/"
   patches: "{{srcs.toplevel}}/submodules/module-patches"

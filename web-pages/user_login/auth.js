@@ -1,6 +1,6 @@
 // API base URL (override by setting localStorage.API_BASE in the console)
 // Example: localStorage.setItem('API_BASE', 'http://localhost:5257')
-const API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:5257';
+const API_BASE = localStorage.getItem('API_BASE') || '';
 
 /*
   BACKEND MODE:
@@ -20,7 +20,8 @@ const LOGIN_PAGE_REL = 'login.html';
 
 /* ----------- Core fetch helpers ----------- */
 async function postJson(path, payload, opts = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const req = new Request(`${API_BASE}${path}`);
+  const res = await fetch(req, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
