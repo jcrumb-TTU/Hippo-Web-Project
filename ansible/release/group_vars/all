@@ -3,7 +3,7 @@ repo_toplevel: "/Hippo-Web-Project-Deployment"
 srcs:
   toplevel: "{{repo_toplevel}}"
   tarball: "{{repo_toplevel}}.tar.gz"
-  html: "{{repo_toplevel}}/srv/html"
+  html: "{{repo_toplevel}}/web-pages"
   HippoAPI: "{{repo_toplevel}}/Hippo-Exchange"
   HippoAPIPub: "{{repo_toplevel}}/Hippo-Exchange/bin/Release/net8.0/publish/"
   patches: "{{repo_toplevel}}/submodules/module-patches"
