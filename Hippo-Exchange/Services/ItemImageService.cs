@@ -47,7 +47,7 @@ public sealed class ItemImageService : IItemImageService{
 	if(string.IsNullOrWhiteSpace(item_id) || string.IsNullOrWhiteSpace(new_imgid)) return 401;
 	ItemImageSet? imgs = await GetByItemId(item_id);
 	if(imgs is null) return 404;
-	if(imgs.Order.Count >= pos) return 401;
+	if(imgs.Order.Count <= pos) return 400;
 	int index = imgs.Order[pos];
 	//imgs.Images[index] = new_imgid;
 	var result = await _images.UpdateOneAsync(
@@ -59,11 +59,11 @@ public sealed class ItemImageService : IItemImageService{
 	if(string.IsNullOrWhiteSpace(item_id)) return 401;
 	ItemImageSet? imgs = await GetByItemId(item_id);
 	if(imgs is null) return 404;
-	if(imgs.Order.Count >= pos) return 401;
+	if(imgs.Order.Count <= pos) return 400;
 	int index = imgs.Order[pos];
 	imgs.Images.RemoveAt(index);
 	imgs.Order.RemoveAt(pos);
-	imgs.Order.ForEach(p => {if (p >= index) pos--;});
+	imgs.Order.ForEach(p => {if (p >= index) p = --p;});
 	await _images.ReplaceOneAsync(i => i.Id == item_id, imgs);
 	return 201;
     }
@@ -73,7 +73,9 @@ public sealed class ItemImageService : IItemImageService{
 	if(imgs is null) return "";
 	// Pos is invalid: return null.
 	if(pos >= imgs.Order.Count) return null;
-	return imgs.Images[imgs.Order[pos]];
+	int index = imgs.Order[pos];
+	if(index >= imgs.Images.Count) Console.WriteLine($"index {index} was greater than count {imgs.Images.Count}");
+	return imgs.Images[index];
     }
     public async Task<ItemImageSet?> GetByItemId(string id)
     {

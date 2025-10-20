@@ -108,8 +108,7 @@ public class ItemEndpoints{
         .Produces(400)
         .Produces(401);
 		// Item Images
-	app.MapPut("/items/{id}/images/{index}", async (string id, int index, HttpContext ctx, IItemImageService images) =>
-        {
+	app.MapPut("/items/{id}/images/{index}", async (string id, int index, HttpContext ctx, IItemImageService images) => {
 	    Console.WriteLine("Checking user id...");
             var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
@@ -125,6 +124,7 @@ public class ItemEndpoints{
 	    var file = form.Files.FirstOrDefault();
 	    Console.WriteLine("Finished file upload?");
             if (file == null) return Results.BadRequest(new { message = "No file uploaded." });
+	    Console.WriteLine("File recieved.");
             var allowed = new[] { "image/png", "image/jpeg", "image/jpg", "image/gif" };
             var normalizedType = file.ContentType == "image/jpg" ? "image/jpeg" : file.ContentType;
             if (!allowed.Contains(normalizedType)) return Results.BadRequest(new { message = "Unsupported file type." });
