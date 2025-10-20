@@ -6,7 +6,8 @@ using System.Security.Claims;
 
 using Microsoft.AspNetCore.Authorization;
 namespace Hippo_Exchange.Services;
-
+// Authorization Requirement for ownership. Has no attributes
+public class OwnershipRequirement : IAuthorizationRequirement {}
 // All endpoints are /api/items/{id}...
 public sealed class OwnershipHandler : AuthorizationHandler<OwnershipRequirement>{
     private readonly IItemService _items;
@@ -48,7 +49,15 @@ public sealed class OwnershipHandler : AuthorizationHandler<OwnershipRequirement
 	// Get the item @ ItemID.
 	Item? i = await _items.GetById(ItemID);
 	// Check if we own the item.
-	if (i is null) context.Fail();
+	if (i is null) {
+	    context.Fail();
+	    // Overwrite the 403 response with a 404 response if not found.
+	    ctx.Response.OnStarting(() =>
+	    {
+		ctx.Response.StatusCode = 404;
+		return Task.CompletedTask;
+	    });
+	}
 	else if (i.OwnerUserId == UserID) context.Succeed(r);
 	else context.Fail();
 	return Task.CompletedTask;

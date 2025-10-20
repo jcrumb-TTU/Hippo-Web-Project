@@ -76,13 +76,13 @@ public sealed class ItemService : IItemService
         else if (result.MatchedCount > 0) return 200;
 	else return 404;
     }
-
-    public async Task<int> DeleteAsync(string id, string ownerUserId)
+    public async Task<int> DeleteAsync(string id, string? ownerUserId)
     {
+	if(string.IsNullOrWhiteSpace(ownerUserId)) return 400;
         var result = await _items.DeleteOneAsync(i => i.Id == id && i.OwnerUserId == ownerUserId);
         if (result.DeletedCount > 0)
 	    return 200;
 	else
-	    return 400;
+	    return 404;
     }
 }

@@ -13,7 +13,7 @@ namespace Hippo_Exchange.Endpoints;
 public class ProfileEndpoints{
     public static Microsoft.AspNetCore.Builder.WebApplication map(Microsoft.AspNetCore.Builder.WebApplication app){
         // ---------------- Profile Endpoints (NEW) ----------------
-        app.MapGet("/api/user/profile", async (HttpContext ctx, IUserService users) =>
+        app.MapGet("/user/profile", async (HttpContext ctx, IUserService users) =>
         {
             var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
@@ -27,7 +27,7 @@ public class ProfileEndpoints{
         .Produces(401)
         .Produces(404);
         
-        app.MapPut("/api/user/profile", async (HttpContext ctx, IUserService users, UserProfileUpdateRequest req) =>
+        app.MapPut("/user/profile", async (HttpContext ctx, IUserService users, UserProfileUpdateRequest req) =>
         {
             var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
@@ -49,7 +49,7 @@ public class ProfileEndpoints{
         .Produces(401)
         .Produces(404);
         
-        app.MapPost("/api/user/profile/photo", async (HttpContext ctx, IUserService users) =>
+        app.MapPost("/user/profile/photo", async (HttpContext ctx, IUserService users) =>
         {
             var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
@@ -83,7 +83,7 @@ public class ProfileEndpoints{
         .Produces(400)
         .Produces(401);
         
-        app.MapDelete("/api/user/profile/photo", async (HttpContext ctx, IUserService users) =>
+        app.MapDelete("/user/profile/photo", async (HttpContext ctx, IUserService users) =>
         {
             var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();

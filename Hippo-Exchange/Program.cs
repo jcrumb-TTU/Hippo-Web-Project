@@ -34,6 +34,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMongoCollection<Item>>(sp => sp.GetRequiredService<IMongoDatabase>().GetCollection<Item>("items"));
 builder.Services.AddScoped<IItemService, ItemService>();
 
+builder.Services.AddScoped<IMongoCollection<ItemImageSet>>(sp => sp.GetRequiredService<IMongoDatabase>().GetCollection<ItemImageSet>("item_images"));
+builder.Services.AddScoped<IItemImageService, ItemImageService>();
+
 
 // CORS (adjust origins as needed)
 builder.Services.AddCors(o =>
@@ -87,6 +90,7 @@ builder.Services
     {
         policy.Requirements.Add(new OwnershipRequirement());
     });
+// Used by the ItemOwner policy.
 builder.Services.AddScoped<IAuthorizationHandler, OwnershipHandler>();
 
 builder.Services.AddEndpointsApiExplorer();

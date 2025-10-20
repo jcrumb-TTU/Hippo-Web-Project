@@ -18,7 +18,7 @@ public class ItemEndpoints{
     JsonSerializerOptions wd = new(JsonSerializerDefaults.Web);
     // ---------------- Item Endpoints ----------------
         // POST /api/items: Adds a new item for the active user.
-        app.MapPost("/api/items", async (ItemCreateRequest item, HttpContext ctx, IUserService users, IItemService items) =>
+        app.MapPost("/items", async (ItemCreateRequest item, HttpContext ctx, IUserService users, IItemService items) =>
         {
         
             var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -33,7 +33,7 @@ public class ItemEndpoints{
             .Produces(400) // Bad form info
             .Produces(401); // Unauthorized
         
-        app.MapGet("/api/items/{id}", async (string id, HttpContext ctx, IItemService items) => {
+        app.MapGet("/items/{id}", async (string id, HttpContext ctx, IItemService items) => {
 			Console.WriteLine("Path: " + ctx.Request.Path);
 			Console.WriteLine("BasePath" + ctx.Request.PathBase);
             if (string.IsNullOrEmpty(id)) return Results.BadRequest();
@@ -49,7 +49,7 @@ public class ItemEndpoints{
             }).Produces(200) // Here is the item!
             .Produces(400) // Bad request.
             .Produces(404); // Item not found.
-        app.MapPut("/api/items/{id}", async (string id, ItemUpdateRequest inf, HttpContext ctx, IItemService items) => {
+        app.MapPut("/items/{id}", async (string id, ItemUpdateRequest inf, HttpContext ctx, IItemService items) => {
 	    var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
 	    return Results.StatusCode(await items.UpdateAsync(id, userId, inf.Name, inf.Description, inf.Properties));
         }).RequireAuthorization("ItemOwner")
@@ -60,6 +60,67 @@ public class ItemEndpoints{
             .Produces(403) // Editing an item that isn't yours.
             .Produces(404); // Item not found.
         //Example ID: 43f777b61c7e442595b744a59e2399e7
+	app.MapDelete("/items/{id}", async (string id, HttpContext ctx, IItemService items) => {
+	    var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+	    return Results.StatusCode(await items.DeleteAsync(id, userId));
+        }).RequireAuthorization("ItemOwner")
+            .WithSummary("Remove the item @ {id}")
+            .Produces(201)
+            .Produces(400) // Bad request (id was invalid/missing).
+            .Produces(401) // Unauthenticated
+            .Produces(403) // Editing an item that isn't yours.
+            .Produces(404); // Item not found.
+	// Item Images
+	app.MapPost("/items/{id}/images", async (string id, HttpContext ctx, IItemImageService images) =>
+        {
+	    Console.WriteLine("Checking user id...");
+            var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
+	    Console.WriteLine("Starting file upload?");
+	    // Handle the file upload.
+            if (!ctx.Request.HasFormContentType) return Results.BadRequest(new { message = "Expected multipart/form-data." });
+	    var form = await ctx.Request.ReadFormAsync();
+	    var file = form.Files.FirstOrDefault();
+	    Console.WriteLine("Finished file upload?");
+            if (file == null) return Results.BadRequest(new { message = "No file uploaded." });
+            var allowed = new[] { "image/png", "image/jpeg", "image/jpg", "image/gif" };
+            var normalizedType = file.ContentType == "image/jpg" ? "image/jpeg" : file.ContentType;
+            if (!allowed.Contains(normalizedType)) return Results.BadRequest(new { message = "Unsupported file type." });
+            // Simple local storage (adjust pathing / storage strategy as needed)
+            string uploadsDir = "/usr/local/share/HippoAPI/uploads/items";
+	    string ItemDir = Path.Combine(uploadsDir, id);
+	    Directory.CreateDirectory(ItemDir);
+	    string img_guid = Guid.NewGuid().ToString("n");
+            var filePath = Path.Combine(ItemDir, img_guid + ".png");
+            await using (var stream = File.Create(filePath))
+                await file.CopyToAsync(stream);
+	    // If nothing went wrong, write to the db.
+	    int res = await images.CreateUrlAsync(id, img_guid);
+	    if(res >= 0){
+		var publicUrl = $"/uploads/items/{id}/{img_guid}.png";
+		return Results.Ok(new { imageUrl = publicUrl });
+	    }
+	    return Results.StatusCode(res * -1);
+        })
+        .RequireAuthorization("ItemOwner")
+        .WithSummary("Upload profile photo")
+        .Produces(200)
+        .Produces(400)
+        .Produces(401);
+	app.MapGet("/items/{id}/images/{index}", async (string id, int index, IItemImageService images) =>
+	{
+	    if(string.IsNullOrWhiteSpace(id)) return Results.BadRequest();
+	    // Get and return the url.
+	    string? url = await images.GetImageAsync(id,index);
+	    if(url is null)
+		return Results.BadRequest();
+	    else if(url == "")
+		return Results.NotFound();
+	    return Results.Ok(new {imageUrl = Path.Combine("/uploads/items",id,url + ".png")});
+	}).WithSummary("Get the image at index.")
+	    .Produces(200)
+	    .Produces(401)
+	    .Produces(404);
         return app;
     }
 }
