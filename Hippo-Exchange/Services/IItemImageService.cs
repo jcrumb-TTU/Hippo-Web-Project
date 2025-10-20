@@ -10,6 +10,8 @@ namespace Hippo_Exchange.Services;
 public interface IItemImageService{
     // Add a new item. Return status.
     Task<int> CreateUrlAsync(string item_id, string img_id);
+    // Update the url @ pos.
+    Task<int> UpdateUrlAsync(string item_id, int pos, string new_imgid);
     // Remove a url @ index. Return status.
     Task<int> DeleteUrlAsync(string item_id, int pos);
     // Get an image set by its item id.

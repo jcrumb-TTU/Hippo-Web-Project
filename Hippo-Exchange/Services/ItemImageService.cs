@@ -42,7 +42,19 @@ public sealed class ItemImageService : IItemImageService{
             Builders<ItemImageSet>.Update.Combine(updateDefs));
 	}
 	return index;
-    }    
+    }
+    public async Task<int> UpdateUrlAsync(string item_id, int pos, string new_imgid){
+	if(string.IsNullOrWhiteSpace(item_id) || string.IsNullOrWhiteSpace(new_imgid)) return 401;
+	ItemImageSet? imgs = await GetByItemId(item_id);
+	if(imgs is null) return 404;
+	if(imgs.Order.Count >= pos) return 401;
+	int index = imgs.Order[pos];
+	//imgs.Images[index] = new_imgid;
+	var result = await _images.UpdateOneAsync(
+            Builders<ItemImageSet>.Filter.Where(i => i.Id == item_id),
+	    Builders<ItemImageSet>.Update.Set(i => i.Images[index], new_imgid));
+	return 201;
+    }
     public async Task<int> DeleteUrlAsync(string? item_id, int pos){
 	if(string.IsNullOrWhiteSpace(item_id)) return 401;
 	ItemImageSet? imgs = await GetByItemId(item_id);

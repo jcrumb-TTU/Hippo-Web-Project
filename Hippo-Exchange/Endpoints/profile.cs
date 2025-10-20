@@ -67,9 +67,9 @@ public class ProfileEndpoints{
                 return Results.BadRequest(new { message = "Unsupported file type." });
         
             // Simple local storage (adjust pathing / storage strategy as needed)
-            var uploadsDir = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads", userId);
+            var uploadsDir = Path.Combine("/usr/local/share/HippoAPI/uploads/users");
             Directory.CreateDirectory(uploadsDir);
-            var filePath = Path.Combine(uploadsDir, "avatar.png");
+            var filePath = Path.Combine(uploadsDir, userId + ".png");
             await using (var stream = File.Create(filePath))
                 await file.CopyToAsync(stream);
         
@@ -91,7 +91,8 @@ public class ProfileEndpoints{
             await users.UpdatePhotoUrlAsync(userId, null);
         
             // (Optional) remove file from disk
-            var filePath = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads", userId, "avatar.png");
+            var uploadsDir = Path.Combine("/usr/local/share/HippoAPI/uploads/users");
+            var filePath = Path.Combine(uploadsDir, userId + ".png");
             if (System.IO.File.Exists(filePath))
             {
                 try { System.IO.File.Delete(filePath); } catch { /* ignore */ }
