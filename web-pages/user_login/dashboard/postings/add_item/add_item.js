@@ -532,21 +532,26 @@
     elements.submitSpinner.classList.remove('d-none');
 
     try {
-      const formData = new FormData();
-
-      formData.append('itemName', elements.itemName.value);
-      formData.append('description', elements.itemDescription.value);
-
+      // Backend expects JSON format matching ItemCreateRequest
       const tasksData = TaskDataCollector.getAllTasks();
-      formData.append('maintenanceTasks', JSON.stringify(tasksData));
 
-      Array.from(AppState.selectedFiles.files).forEach((file, index) => {
-        formData.append('images', file);
-      });
+      // Build properties dictionary for maintenance tasks
+      const properties = {
+        maintenanceTasks: JSON.stringify(tasksData)
+      };
+
+      const requestData = {
+        name: elements.itemName.value,
+        description: elements.itemDescription.value,
+        properties: properties
+      };
 
       const response = await fetch(API.items, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData),
         credentials: 'include'
       });
 
