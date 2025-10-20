@@ -17,8 +17,8 @@ public class ItemEndpoints{
     // Json Seralizer set to web defaults.
     JsonSerializerOptions wd = new(JsonSerializerDefaults.Web);
     // ---------------- Item Endpoints ----------------
-        // GET /api/items: Get all items for the authenticated user
-        app.MapGet("/api/items", async (HttpContext ctx, IItemService items) =>
+        // GET /api/items/mine: Get all items owned by the authenticated user (for postings page)
+        app.MapGet("/api/items/mine", async (HttpContext ctx, IItemService items) =>
         {
             var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
@@ -64,7 +64,22 @@ public class ItemEndpoints{
 
             return Results.Json(responseItems, wd, "application/json", 200);
         }).RequireAuthorization()
-            .WithSummary("Get all items for the authenticated user")
+            .WithSummary("Get all items owned by the authenticated user")
+            .Produces(200)
+            .Produces(401);
+
+        // GET /api/items: Get all items available to borrow (from other users)
+        app.MapGet("/api/items", async (HttpContext ctx, IItemService items) =>
+        {
+            var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
+
+            // For now, return empty array since we don't have a way to get items from other users
+            // TODO: Implement GetAllAvailableAsync method in ItemService
+            var emptyList = new List<object>();
+            return Results.Json(emptyList, wd, "application/json", 200);
+        }).RequireAuthorization()
+            .WithSummary("Get all items available to borrow from other users")
             .Produces(200)
             .Produces(401);
 
