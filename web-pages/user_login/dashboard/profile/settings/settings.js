@@ -59,11 +59,10 @@
     if(timeout) setTimeout(()=>{ const e = document.getElementById(id); if(e) e.remove(); }, timeout);
   }
 
-  // Persist settings (only non-theme prefs). dark mode removed.
-  async function persistSettings(emailNotifications){
-    const obj = { emailNotifications: !!emailNotifications };
+  // Persist settings (no toggles present in this build)
+  async function persistSettings(){
+    const obj = {};
     saveLocalSettings(obj);
-    // attempt server save but don't block
     try{
       const r = await fetch('/api/user/settings', { method:'PUT', credentials:'include', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ settings: obj }) });
       if(!r.ok) console.debug('Server save returned', r.status);
@@ -72,20 +71,13 @@
   }
 
   function init(){
-    const emailNotificationsToggle = qs('emailNotificationsToggle');
     const saveSettingsBtn = qs('saveSettingsBtn');
     const cancelSettingsBtn = qs('cancelSettingsBtn');
 
-    const s = getSavedSettings();
-    if(emailNotificationsToggle) emailNotificationsToggle.checked = !!s.emailNotifications;
-  // No theme to apply - only load notification setting
-
     if(saveSettingsBtn) saveSettingsBtn.addEventListener('click', async (e)=>{
       e.preventDefault();
-      const en = emailNotificationsToggle ? emailNotificationsToggle.checked : false;
-      await persistSettings(en);
+      await persistSettings();
       showAlert('Settings saved', 'success');
-      // redirect back to profile after a short delay so the user sees the toast
       setTimeout(()=>{ window.location.href = '../profile.html'; }, 600);
     });
 
