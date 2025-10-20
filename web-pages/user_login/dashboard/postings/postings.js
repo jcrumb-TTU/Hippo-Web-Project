@@ -69,9 +69,9 @@
     const addCard = el('div',{ class:'asset-card add-asset-card', role:'link', tabindex:'0', onclick:"window.location.href='add_item/add_item.html'", onkeydown:"if(event.key==='Enter'||event.key===' '){ window.location.href='add_item/add_item.html'; }" }, [ el('div',{ html:'<i class="fa-solid fa-plus fa-2x"></i><div class="mt-2">Add an asset</div>' }) ]);
     target.appendChild(addCard);
 
-    // Try to fetch user's items from backend (endpoint: GET /api/items)
+    // Try to fetch user's items from backend (endpoint: GET /api/items/mine)
     try{
-      const r = await fetch('/api/items', { credentials:'include' });
+      const r = await fetch('/api/items/mine', { credentials:'include' });
       if(r.ok){
         const items = await r.json();
         if(Array.isArray(items) && items.length){
