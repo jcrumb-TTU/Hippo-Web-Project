@@ -541,7 +541,7 @@
       formData.append('maintenanceTasks', JSON.stringify(tasksData));
 
       Array.from(AppState.selectedFiles.files).forEach((file, index) => {
-        formData.append(`image_${index}`, file);
+        formData.append('images', file);
       });
 
       const response = await fetch(API.items, {
