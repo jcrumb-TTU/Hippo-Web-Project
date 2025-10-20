@@ -13,7 +13,7 @@
     const card = el('article',{ class:'asset-card', tabindex:'0', role:'button', 'aria-expanded':'false', 'data-id':String(item.id) });
     const img = el('img',{ class:'asset-thumb', src:item.img, alt:item.title });
     const body = el('div',{ class:'asset-body' }, [
-      el('div',{ class:'d-flex align-items-center justify-content-between' }, [ el('div',{ class:'asset-title' }, [ item.title ]), el('div',{}, [ el('button',{ class:'btn btn-sm btn-outline-primary edit-btn', onclick:`window.location.href='add_item/add_item.html'` }, ['Edit this asset']) ]) ])
+      el('div',{ class:'d-flex align-items-center justify-content-between' }, [ el('div',{ class:'asset-title' }, [ item.title ]), el('div',{}, [ el('button',{ class:'btn btn-sm btn-outline-primary edit-btn', onclick:`window.location.href='add_item.html?assetId=${item.id}'` }, ['Edit this asset']) ]) ])
     ]);
 
     // details now include description and preventative maintenance info
@@ -66,12 +66,12 @@
   async function renderGrid(target){
     target.innerHTML='';
     // Add the special "Add an asset" card as first item
-  const addCard = el('div',{ class:'asset-card add-asset-card', role:'link', tabindex:'0', onclick:"window.location.href='add_item/add_item.html'", onkeydown:"if(event.key==='Enter'||event.key===' '){ window.location.href='add_item/add_item.html'; }" }, [ el('div',{ html:'<i class="fa-solid fa-plus fa-2x"></i><div class="mt-2">Add an asset</div>' }) ]);
+    const addCard = el('div',{ class:'asset-card add-asset-card', role:'link', tabindex:'0', onclick:"window.location.href='add_item/add_item.html'", onkeydown:"if(event.key==='Enter'||event.key===' '){ window.location.href='add_item/add_item.html'; }" }, [ el('div',{ html:'<i class="fa-solid fa-plus fa-2x"></i><div class="mt-2">Add an asset</div>' }) ]);
     target.appendChild(addCard);
 
-    // Try to fetch user's items from backend (expected endpoint: GET /api/items?mine=1)
+    // Try to fetch user's items from backend (endpoint: GET /api/items)
     try{
-      const r = await fetch('/api/items?mine=1', { credentials:'include' });
+      const r = await fetch('/api/items', { credentials:'include' });
       if(r.ok){
         const items = await r.json();
         if(Array.isArray(items) && items.length){
@@ -79,7 +79,10 @@
           return;
         }
       }
-    }catch(e){ /* backend unavailable, fall back to mock */ }
+    }catch(e){
+      console.error('Failed to fetch items:', e);
+      /* backend unavailable, fall back to mock */
+    }
 
     // fallback to local MOCK data when backend not available or returns nothing
     MOCK.forEach(m=>{ target.appendChild(makeCard(m)); });
