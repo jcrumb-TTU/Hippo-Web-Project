@@ -541,9 +541,9 @@
       };
 
       const requestData = {
-        name: elements.itemName.value,
-        description: elements.itemDescription.value,
-        properties: properties
+        Name: elements.itemName.value,
+        Description: elements.itemDescription.value,
+        Properties: properties
       };
 
       const response = await fetch(API.items, {
