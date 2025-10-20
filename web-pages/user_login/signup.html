@@ -82,15 +82,16 @@
           <input type="text" class="form-control" id="phone" name="phone" placeholder="phone number">
         </div>
 
-        <div class="mb-3">
-          <input type="text" class="form-control" id="birthday" name="birthday" placeholder="birthday (mm/dd/yyyy)" required />
-        </div>
 
         <div class="mb-3">
           <input type="password" class="form-control" id="password" name="password" placeholder="password" required>
         </div>
 
-        <!-- Hidden Terms checkbox to satisfy backend requirement without altering UI -->
+        <div class="mb-3">
+          <input type="text" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="confirm password" required />
+        </div>
+        
+		<!-- Hidden Terms checkbox to satisfy backend requirement without altering UI -->
         <input type="checkbox" id="terms" name="terms" value="true" checked style="display:none;" aria-hidden="true" />
 
         <div class="d-grid">

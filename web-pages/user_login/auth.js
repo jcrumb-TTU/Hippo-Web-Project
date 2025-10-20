@@ -12,8 +12,8 @@ const USE_COOKIES = true;
 
 // Redirect targets (relative to user_login folder)
 // After successful login or signup, send users to the main dashboard page
-const PATH_AFTER_SIGNUP = 'dashboard.html';
-const PATH_AFTER_LOGIN = 'dashboard.html';
+const PATH_AFTER_SIGNUP = '/user_login/dashboard/dashboard.html';
+const PATH_AFTER_LOGIN = '/user_login/dashboard/dashboard.html';
 
 // Optional: path to send the user to if an auth check fails on a protected page
 const LOGIN_PAGE_REL = 'login.html';
