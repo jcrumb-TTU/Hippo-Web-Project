@@ -575,7 +575,7 @@
 
       setTimeout(() => {
         elements.successAnimation.classList.remove('show');
-        window.location.href = '../dashboard.html';
+        window.location.href = '../../dashboard.html';
       }, 2000);
 
     } catch (error) {
