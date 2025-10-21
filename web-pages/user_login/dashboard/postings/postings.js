@@ -18,7 +18,7 @@
 
     // details now include description and preventative maintenance info
     const maint = item.maintenance || {};
-    const maintList = (maint.tasks || []).map(t => el('li',{},[t]));
+    //const maintList = (Array.from(maint.tasks) || []).map(t => el('li',{},[t])); Seems to not be used?
     const maintDetails = [];
     if(Array.isArray(maint.tasks) && maint.tasks.length){
       maint.tasks.forEach((t, i)=>{
