@@ -8,6 +8,7 @@ using MongoDB.Driver;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -84,9 +85,12 @@ builder.Services
             }
         };
     });
-
+// Add generic Cookie Auth
 builder.Services.AddAuthorization();
-
+// Add policy to check item owner,
+builder.Services.AddAuthorizationBuilder().AddPolicy("ItemOwner", policy => {policy.Requirements.Add(new OwnershipRequirement());});
+// Used by the ItemOwner policy.
+builder.Services.AddScoped<IAuthorizationHandler, OwnershipHandler>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

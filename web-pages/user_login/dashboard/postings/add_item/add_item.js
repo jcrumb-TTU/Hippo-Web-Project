@@ -545,7 +545,7 @@
         Description: elements.itemDescription.value,
         Properties: properties
       };
-
+	
       const response = await fetch(API.items, {
         method: 'POST',
         headers: {
@@ -554,7 +554,6 @@
         body: JSON.stringify(requestData),
         credentials: 'include'
       });
-
       if (!response.ok) {
         if (response.status === 401) {
           Utils.showToast('You are not logged in. Redirecting to login...', 'danger');
@@ -563,14 +562,26 @@
           }, 1500);
           return;
         }
-
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `Server error: ${response.status}`);
       }
-
       const result = await response.json();
+	  if(result.id === undefined) throw new Error("Item id missing from successful response.");
       console.log('Item created successfully:', result);
-
+	  const imageForm = new FormData(elements.form);
+	  const imageRequest = new Request([API.items, result.id, "images"].join("/"), {method: "POST", body: imageForm, credentials: 'include'});
+	  const imageResponse = await fetch(imageRequest);
+      if (!imageResponse.ok) {
+        if (imageResponse.status === 401) {
+          Utils.showToast('You are not logged in. Redirecting to login...', 'danger');
+          setTimeout(() => {
+            window.location.href = '../login.html';
+          }, 1500);
+          return;
+        }
+        const errorData = await imageResponse.json().catch(() => ({}));
+        throw new Error(errorData.message || `Server error: ${imageResponse.status}`);
+      }
       elements.successAnimation.classList.add('show');
 
       setTimeout(() => {

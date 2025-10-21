@@ -40,7 +40,7 @@
           vars:
             title: "HippoExBackend"
             description: "Acts as a middle-man that retrieves information when an authorized user requests it."
-            exec: "{{ dests.HippoAPI + '/Hippo-Exchange'  }}"
+            exec: "{{ dests.HippoAPI + '/bin/Hippo-Exchange'  }}"
             env: ["ASPNETCORE_URLS=http://localhost:5257"]
             user: "APIHippo"
         - name: Install Systemd Service for the Swagger Validator Badge.
@@ -110,13 +110,18 @@
               - "{{dests.dotnet + '/dotnet'|quote}}"
               - "publish"
             chdir: "{{temp_dir.path + srcs.HippoAPI|quote}}"
+        - name: Ensure Hippo Uploads Dir
+          become: true
+          ansible.builtin.file:
+            path: "{{ dests.HippoAPI + '/uploads'|quote }}"
+            state: directory
         - name: Install Hippo Backend
           become: true
           ansible.builtin.command:
             argv:
               - "mv"
               - "{{ temp_dir.path + srcs.HippoAPIPub|quote }}"
-              - "{{ dests.HippoAPI|quote }}"
+              - "{{ dests.HippoAPI + '/bin'|quote }}"
         - name: Set Backend Directory Permissions
           become: true
           ansible.builtin.file:

@@ -55,6 +55,9 @@ server {
 		proxy_pass http://backend/api/;
 		access_log /var/log/nginx/register.log;
 	}
+	location /uploads/ {
+		root "/usr/local/share/HippoAPI/";
+	}
 	location / {
 		# First attempt to serve request as file, then
 		# as directory, then fall back to displaying a 404.

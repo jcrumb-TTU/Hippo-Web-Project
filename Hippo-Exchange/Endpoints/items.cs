@@ -18,11 +18,10 @@ public class ItemEndpoints{
     JsonSerializerOptions wd = new(JsonSerializerDefaults.Web);
     // ---------------- Item Endpoints ----------------
         // GET /api/items/mine: Get all items owned by the authenticated user (for postings page)
-        app.MapGet("/api/items/mine", async (HttpContext ctx, IItemService items) =>
+    app.MapGet("/api/items/mine", async (HttpContext ctx, IItemService items, IItemImageService images) =>
         {
             var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
-
             var userItems = await items.GetForOwnerAsync(userId);
 
             // Transform items to include maintenance tasks and format for frontend
@@ -48,12 +47,12 @@ public class ItemEndpoints{
                     }
                     catch { /* ignore parse errors */ }
                 }
-
+		string? thumb_id = images.GetImageAsync(item.Id, 0).GetAwaiter().GetResult();
                 return new {
                     id = item.Id,
                     title = item.Name,
                     description = item.Description ?? "",
-                    img = "https://placehold.co/600x400?text=" + Uri.EscapeDataString(item.Name),
+                    img = (string.IsNullOrWhiteSpace(thumb_id)) ? "https://placehold.co/600x400?text=" + Uri.EscapeDataString(item.Name) : Path.Combine("/uploads/items",item.Id, thumb_id + ".png"),
                     tags = new string[] { },
                     maintenance = new {
                         frequency = maintenanceTasks.Count > 0 ? "Various" : "N/A",
