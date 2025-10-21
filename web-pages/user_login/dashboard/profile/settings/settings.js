@@ -78,10 +78,10 @@
       e.preventDefault();
       await persistSettings();
       showAlert('Settings saved', 'success');
-      setTimeout(()=>{ window.location.href = '../profile.html'; }, 600);
+      setTimeout(()=>{ window.location.href = '/user_login/dashboard/profile/profile.html'; }, 600);
     });
 
-    if(cancelSettingsBtn) cancelSettingsBtn.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href = '../profile.html'; });
+    if(cancelSettingsBtn) cancelSettingsBtn.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href = '/user_login/dashboard/profile/profile.html'; });
   }
 
   window.addEventListener('DOMContentLoaded', init);

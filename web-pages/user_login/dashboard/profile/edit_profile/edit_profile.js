@@ -131,7 +131,7 @@ async function loadSettings(){
     console.error(err);
     const container = document.createElement('div');
     container.className='alert alert-danger';
-    container.innerHTML=`<div>Unable to load settings (you may be signed out).</div><div class="mt-2 d-flex gap-2"><button class="btn btn-sm btn-primary" id="__retrySettings">Retry</button><a class="btn btn-sm btn-link text-danger" href="../login.html">Sign in</a></div>`;
+    container.innerHTML=`<div>Unable to load settings (you may be signed out).</div><div class="mt-2 d-flex gap-2"><button class="btn btn-sm btn-primary" id="__retrySettings">Retry</button><a class="btn btn-sm btn-link text-danger" href="/user_login/login.html">Sign in</a></div>`;
     if(alerts) alerts.innerHTML='';
     if(alerts) alerts.appendChild(container);
     const retryBtn = document.getElementById('__retrySettings');
@@ -154,20 +154,20 @@ form.addEventListener('submit', async (e)=>{
     if(typeof DESIGN_MODE !== 'undefined' && DESIGN_MODE){
       await new Promise(r=>setTimeout(r,350));
       showAlert('Settings saved (design mode)','success');
-      setTimeout(()=>{ window.location.href = '../profile.html'; }, 600);
+      setTimeout(()=>{ window.location.href = '/user_login/dashboard/profile/profile.html'; }, 600);
       return;
     }
 
     const settingsUrl = api('/api/user/settings');
     const r = await fetch(settingsUrl, { method:'PUT', credentials:'include', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
-    if(!r.ok){ if(r.status === 401){ window.location.href = '../login.html'; return; } throw new Error('Save failed'); }
+    if(!r.ok){ if(r.status === 401){ window.location.href = '/user_login/login.html'; return; } throw new Error('Save failed'); }
     showAlert('Settings saved','success');
     // redirect back to profile so user returns to their profile view
-    setTimeout(()=>{ window.location.href = '../profile.html'; }, 600);
+    setTimeout(()=>{ window.location.href = '/user_login/dashboard/profile/profile.html'; }, 600);
   }catch(err){ console.error(err); showAlert('Failed to save settings','danger',6000); }finally{ if(saveBtn) saveBtn.disabled = false; }
 });
 
-cancelBtn.addEventListener('click',(e)=>{ e.preventDefault(); window.location.href = '../profile.html'; });
+cancelBtn.addEventListener('click',(e)=>{ e.preventDefault(); window.location.href = '/user_login/dashboard/profile/profile.html'; });
 
 window.addEventListener('DOMContentLoaded', ()=>{ loadSettings(); if(designToggle){ designToggle.checked = DESIGN_MODE; designToggle.addEventListener('change', (e)=>{ const on = !!e.target.checked; if(on) localStorage.setItem('DESIGN_MODE','1'); else localStorage.removeItem('DESIGN_MODE'); loadSettings(); }); } });
 

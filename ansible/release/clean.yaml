@@ -49,7 +49,7 @@
         - name: "Remove HippoAPI."
           ansible.builtin.file:
             state: absent
-            path: "{{dests.HippoAPI|quote}}"
+            path: "{{dests.HippoAPI + '/bin'|quote}}"
         - name: "Remove Swagger-Validator."           
           ansible.builtin.file:
             state: absent

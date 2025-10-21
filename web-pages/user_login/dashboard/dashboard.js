@@ -58,7 +58,7 @@
   (async function sessionGuard(){
     const r = await fetch(API.me, { credentials: 'include' });
     if(!r.ok){
-      window.location.href = '../login.html';
+      window.location.href = '/user_login/login.html';
     }
   })();
 
@@ -70,7 +70,7 @@
     try {
       await fetch(API.logout, { method: 'POST', credentials: 'include' });
     } catch {}
-    window.location.href = '../login.html';
+    window.location.href = '/user_login/login.html';
   }
 
   /* ==================== DATA FETCHING ==================== */

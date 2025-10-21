@@ -92,7 +92,7 @@ async function logout() {
     console.warn('Logout warning:', e);
   } finally {
     // Always go to root or login
-    window.location.href = '../../index.html';
+    window.location.href = '/index.html';
   }
 }
 window.logout = logout;

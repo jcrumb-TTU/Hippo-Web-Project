@@ -49,7 +49,7 @@
   (async function sessionGuard(){
     const r = await fetch(API.me, { credentials: 'include' });
     if(!r.ok){
-      window.location.href = '../login.html';
+      window.location.href = '/user_login/login.html';
     }
   })();
 
@@ -558,7 +558,7 @@
         if (response.status === 401) {
           Utils.showToast('You are not logged in. Redirecting to login...', 'danger');
           setTimeout(() => {
-            window.location.href = '../login.html';
+            window.location.href = '/user_login/login.html';
           }, 1500);
           return;
         }
@@ -575,7 +575,7 @@
         if (imageResponse.status === 401) {
           Utils.showToast('You are not logged in. Redirecting to login...', 'danger');
           setTimeout(() => {
-            window.location.href = '../login.html';
+            window.location.href = '/user_login/login.html';
           }, 1500);
           return;
         }
@@ -586,7 +586,7 @@
 
       setTimeout(() => {
         elements.successAnimation.classList.remove('show');
-        window.location.href = '../../dashboard.html';
+        window.location.href = '/user_login/dashboard/dashboard.html';
       }, 2000);
 
     } catch (error) {
@@ -604,7 +604,7 @@
 
   function handleCancel() {
     // Return to the postings listing when the user cancels
-    window.location.href = '../postings.html';
+    window.location.href = '/user_login/dashboard/postings/postings.html';
   }
 
   /* ==================== INITIALIZATION ==================== */

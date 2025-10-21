@@ -321,8 +321,8 @@
   <div class="top-bar">
     <div class="container">
       <div class="d-flex align-items-center justify-content-between">
-        <button type="button" class="logo-btn" aria-label="Home" onclick="window.location.href='../dashboard.html'">
-          <img src="../../../images/login_icon.png" alt="HippoExchange logo">
+        <button type="button" class="logo-btn" aria-label="Home" onclick="window.location.href='/user_login/dashboard/dashboard.html'">
+          <img src="/images/login_icon.png" alt="HippoExchange logo">
         </button>
 
         <div class="dropdown">
@@ -330,8 +330,8 @@
             Menu
           </button>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuDropdown">
-            <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
-            <li><a class="dropdown-item" href="settings/settings.html"><i class="fa-solid fa-gear me-2"></i>Settings</a></li>
+            <li><a class="dropdown-item" href="/user_login/dashboard/profile/profile.html"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="/user_login/dashboard/profile/settings/settings.html"><i class="fa-solid fa-gear me-2"></i>Settings</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item text-danger" href="#" id="logoutLink"><i class="fa-solid fa-right-from-bracket me-2"></i>Log out</a></li>
           </ul>
@@ -348,7 +348,7 @@
     <div class="container profile-layout">
       <div class="title-strip d-flex align-items-center justify-content-between mb-0">
         <h2 class="mb-0">My Profile</h2>
-        <a href="../dashboard.html" class="btn btn-sm btn-outline-dark" aria-label="Back to dashboard">Back</a>
+        <a href="/user_login/dashboard/dashboard.html" class="btn btn-sm btn-outline-dark" aria-label="Back to dashboard">Back</a>
       </div>
 
       <div class="cards-bg mt-0">
@@ -389,8 +389,8 @@
             <div class="text-muted small mb-2" id="profileEmail">you@example.com</div>
 
             <div class="d-grid gap-2 mt-3">
-              <a href="edit_profile/edit_profile.html" class="btn btn-outline-primary"><i class="fa-solid fa-file-pen"></i> Edit profile</a>
-              <a href="settings/settings.html" class="btn btn-outline-primary"><i class="fa-solid fa-gear"></i> Settings</a>
+              <a href="/user_login/dashboard/profile/edit_profile/edit_profile.html" class="btn btn-outline-primary"><i class="fa-solid fa-file-pen"></i> Edit profile</a>
+              <a href="/user_login/dashboard/profile/settings/settings.html" class="btn btn-outline-primary"><i class="fa-solid fa-gear"></i> Settings</a>
               <button id="actionLogout" class="btn btn-outline-primary"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</button>
             </div>
           </div>
@@ -448,7 +448,7 @@
               <div class="info-card">
                 <h6 class="mb-2">Current Postings</h6>
                 <div class="text-muted small">Your items available to borrow.</div>
-                <div class="mt-3"><a href="../postings/postings.html" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-list-check"></i> Manage listings</a></div>
+                <div class="mt-3"><a href="/user_login/dashboard/postings/postings.html" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-list-check"></i> Manage listings</a></div>
               </div>
             </div>
 
@@ -456,7 +456,7 @@
               <div class="info-card">
                 <h6 class="mb-2">Current Lendings</h6>
                 <div class="text-muted small">Items you are currently borrowing.</div>
-                <div class="mt-3"><a href="../lendings/lendings.html" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-right-left"></i> View rents</a></div>
+                <div class="mt-3"><a href="/user_login/dashboard/lendings/lendings.html" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-right-left"></i> View rents</a></div>
               </div>
             </div>
 
@@ -503,15 +503,15 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="profile.js" defer></script>
+  <script src="/user_login/dashboard/profile/profile.js" defer></script>
   <script>
     // wire logout controls (dropdown + action button) to POST /api/logout then redirect to the real login page
     document.addEventListener('DOMContentLoaded', function(){
       function doLogout(){
         try{
           fetch('/api/logout', { method: 'POST', credentials: 'include' })
-            .finally(function(){ window.location.href = '../../login.html'; });
-        }catch(e){ window.location.href = '../../login.html'; }
+            .finally(function(){ window.location.href = '/user_login/login.html'; });
+        }catch(e){ window.location.href = '/user_login/login.html'; }
       }
 
       var logoutLink = document.getElementById('logoutLink');
