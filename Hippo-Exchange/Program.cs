@@ -33,6 +33,10 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMongoCollection<Item>>(sp => sp.GetRequiredService<IMongoDatabase>().GetCollection<Item>("items"));
 builder.Services.AddScoped<IItemService, ItemService>();
 
+builder.Services.AddScoped<IMongoCollection<ItemImageSet>>(sp => sp.GetRequiredService<IMongoDatabase>().GetCollection<ItemImageSet>("item_images"));
+builder.Services.AddScoped<IItemImageService, ItemImageService>();
+
+
 // CORS (adjust origins as needed)
 builder.Services.AddCors(o =>
 {
@@ -102,5 +106,6 @@ app.UseAuthorization();
 app = AccountEndpoints.map(app);
 app = ProfileEndpoints.map(app);
 app = ItemEndpoints.map(app);
+app = ItemImageEndpoints.map(app);
 
 app.Run();
