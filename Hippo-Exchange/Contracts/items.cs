@@ -10,10 +10,26 @@ public sealed record ItemCreateResponse(
     string id
 );
 
+public sealed record MaintenanceTask(
+    string description,
+    string frequency,
+    string materials,
+    string tools
+);
+
+public sealed record ItemMaintenance(
+    string frequency,
+    MaintenanceTask[] tasks
+);
+
+
 public sealed record ItemGetResponse(
-    string Name,
-    string? Description,
-    Dictionary<string, string>? Properties
+    string id,
+    string title,
+    string description,
+    string img,
+    string[] tags,
+    ItemMaintenance maintenance
 );
 
 

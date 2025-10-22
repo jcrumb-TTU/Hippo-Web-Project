@@ -13,6 +13,38 @@ namespace Hippo_Exchange.Services;
 
 
 public class ItemEndpoints{
+    private static ItemGetResponse mapResponseObject(Item item, IItemImageService images){
+                var maintenanceTasks = new List<MaintenanceTask>();
+                // Parse maintenance tasks from properties if they exist
+                if (item.Properties != null && item.Properties.ContainsKey("maintenanceTasks"))
+                {
+                    try
+                    {
+                        var tasksJson = item.Properties["maintenanceTasks"];
+                        var tasks = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(tasksJson);
+                        if (tasks != null)
+                        {
+                            maintenanceTasks = tasks.Select(t => new MaintenanceTask(
+                                t.ContainsKey("description") ? t["description"] : "",
+                                t.ContainsKey("frequency") ? t["frequency"] : "",
+                                t.ContainsKey("materials") ? t["materials"] : "",
+                                t.ContainsKey("tools") ? t["tools"] : ""
+			    )).ToList();
+                        }
+                    }
+                    catch { /* ignore parse errors */ }
+                }
+		ItemMaintenance mobj = new ItemMaintenance(maintenanceTasks.Count > 0 ? "Various" : "N/A", maintenanceTasks.ToArray());
+		string? thumb_id = images.GetImageAsync(item.Id, 0).GetAwaiter().GetResult();
+                return new ItemGetResponse(
+                    item.Id,
+                    item.Name,
+                    item.Description ?? "",
+                    (string.IsNullOrWhiteSpace(thumb_id)) ? "https://placehold.co/600x400?text=" + Uri.EscapeDataString(item.Name) : Path.Combine("/uploads/items",item.Id, thumb_id + ".png"),
+                    new string[] { },
+                    mobj
+                );
+    }
     public static Microsoft.AspNetCore.Builder.WebApplication map(Microsoft.AspNetCore.Builder.WebApplication app){
     // Json Seralizer set to web defaults.
     JsonSerializerOptions wd = new(JsonSerializerDefaults.Web);
@@ -25,41 +57,7 @@ public class ItemEndpoints{
             var userItems = await items.GetForOwnerAsync(userId);
 
             // Transform items to include maintenance tasks and format for frontend
-            var responseItems = userItems.Select(item => {
-                var maintenanceTasks = new List<object>();
-
-                // Parse maintenance tasks from properties if they exist
-                if (item.Properties != null && item.Properties.ContainsKey("maintenanceTasks"))
-                {
-                    try
-                    {
-                        var tasksJson = item.Properties["maintenanceTasks"];
-                        var tasks = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(tasksJson);
-                        if (tasks != null)
-                        {
-                            maintenanceTasks = tasks.Select(t => new {
-                                description = t.ContainsKey("description") ? t["description"] : "",
-                                frequency = t.ContainsKey("frequency") ? t["frequency"] : "",
-                                materials = t.ContainsKey("materials") ? t["materials"] : "",
-                                tools = t.ContainsKey("tools") ? t["tools"] : ""
-                            }).Cast<object>().ToList();
-                        }
-                    }
-                    catch { /* ignore parse errors */ }
-                }
-		string? thumb_id = images.GetImageAsync(item.Id, 0).GetAwaiter().GetResult();
-                return new {
-                    id = item.Id,
-                    title = item.Name,
-                    description = item.Description ?? "",
-                    img = (string.IsNullOrWhiteSpace(thumb_id)) ? "https://placehold.co/600x400?text=" + Uri.EscapeDataString(item.Name) : Path.Combine("/uploads/items",item.Id, thumb_id + ".png"),
-                    tags = new string[] { },
-                    maintenance = new {
-                        frequency = maintenanceTasks.Count > 0 ? "Various" : "N/A",
-                        tasks = maintenanceTasks
-                    }
-                };
-            }).ToList();
+            var responseItems = userItems.Select(item => mapResponseObject(item,images)).ToList();
 
             return Results.Json(responseItems, wd, "application/json", 200);
         }).RequireAuthorization()
@@ -98,7 +96,7 @@ public class ItemEndpoints{
             .Produces(400) // Bad form info
             .Produces(401); // Unauthorized
         
-        app.MapGet("/api/items/{id}", async (string id, IItemService items) => {
+        app.MapGet("/api/items/{id}", async (string id, IItemService items, IItemImageService images) => {
             if (string.IsNullOrEmpty(id)) return Results.BadRequest();
             // Try to find the item under {id}.
             Item? i = await items.GetById(id);
@@ -106,7 +104,7 @@ public class ItemEndpoints{
                 return Results.NotFound();
             }
             else{
-                ItemCreateRequest res = new(i.Name, i.Description, i.Properties);
+                ItemGetResponse res = mapResponseObject(i, images);
                 return Results.Json(res, wd, "application/json", 200);
             }
             }).Produces(200) // Here is the item!

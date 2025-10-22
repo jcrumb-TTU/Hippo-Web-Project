@@ -40,7 +40,8 @@
     successAnimation: document.getElementById('successAnimation'),
     imagesFeedback: document.getElementById('imagesFeedback'),
     itemNameFeedback: document.getElementById('itemNameFeedback'),
-    descriptionFeedback: document.getElementById('descriptionFeedback')
+    descriptionFeedback: document.getElementById('descriptionFeedback'),
+    tasksContainer: document.getElementById('tasksContainer')
   };
 
   /* ==================== AUTHENTICATION ==================== */
@@ -669,8 +670,62 @@
       }
     });
   }
+    
+    async function initEditItem(itemId) {
+	const item_req = new Request([API.items,itemId].join("/"), {method: 'get', credentials: 'include'});
+	const item_res = await fetch(item_req);
+	if(!item_res.ok){
+	    console.log("Failed to get item with status" + toString(item_res.status));
+	    return;
+	}
+	const item = await item_res.json();
+       console.log(item);
+	elements.itemName.value = item.title;
+	elements.itemDescription.textContent = item.description;
+	if(Array.isArray(item.maintenance.tasks)) {
+	    item.maintenance.tasks.forEach(i => {
+            const taskId = 'task_' + Date.now();
+            tasks.push(taskId);
 
+            // Get template and replace placeholders
+            const template = document.getElementById('taskCardTemplate').innerHTML;
+            const taskHtml = template
+                .replace(/{TASK_ID}/g, taskId)
+                .replace(/{TASK_NUMBER}/g, tasks.length);
+
+            // Hide no tasks message
+            document.getElementById('noTasksMessage').style.display = 'none';
+
+            // Add task card
+            const tasksContainer = document.getElementById('tasksContainer');
+            tasksContainer.insertAdjacentHTML('beforeend', taskHtml);
+
+            // Scroll to new task
+            const newTask = document.querySelector(`[data-task-id="${taskId}"]`);
+		newTask.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		// Fill in the blanks
+		const description = document.getElementById(`taskDescription_${taskId}`);
+		description.value = i.description;
+		const frequency = document.getElementById(`taskFrequency_${taskId}`);
+		frequency.value = i.frequency;
+		const materials = document.getElementById(`taskMaterials_${taskId}`);
+		materials.value = i.materials;
+		const tools = document.getElementById(`taskTools_${taskId}`);
+		tools.value = i.tools;
+            // Update progress
+            updateProgress();
+            }
+	);
+	}
+    }
   function initAddItem() {
+      // Check if an item id was passed in the query. If so, get that item's information and populate the form.
+      // Query string: assetId=43a2c839b4a44ad0b2f76504fe5df108
+    const url_params = new URLSearchParams(window.location.search);
+    const item_id = url_params.get("assetId");
+    if(!(item_id === null)){
+	initEditItem(item_id);
+    }
     setupEventListeners();
     ProgressTracker.update();
     elements.dropZone.setAttribute('tabindex', '0');
