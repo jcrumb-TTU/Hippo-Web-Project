@@ -10,18 +10,20 @@
 
   // Application state
   const AppState = {
-    selectedFiles: new DataTransfer(),
-    tasks: [],
-    isSubmitting: false,
-    validationErrors: new Map()
+      remoteId: null, //AppState.remoteId
+      originalInf: null, //AppState.originalInf
+      originalImgList: [], //AppState.originalImgList
+      selectedFiles: new DataTransfer(), //AppState.selectedFiles
+      tasks: [], //AppState.tasks
+      isSubmitting: false, //AppState.isSubmitting
+      validationErrors: new Map() //AppState.validationErrors
   };
-
   // DOM Elements
   const elements = {
     form: document.getElementById('itemForm'),
     imageInput: document.getElementById('itemImages'),
     dropZone: document.getElementById('dropZone'),
-    imagePreview: document.getElementById('imagePreview'),
+    imagePreview: document.getElementById('imagePreview'), // elements.imagePreview
     imageAlert: document.getElementById('imageAlert'),
     imageCounter: document.getElementById('imageCounter'),
     imageCounterText: document.getElementById('imageCounterText'),
@@ -144,7 +146,7 @@
 
       switch (fieldName) {
         case 'images':
-          isValid = AppState.selectedFiles.files.length > 0;
+          isValid = ImageHandler.getCount() > 0; // TODO: Check how many original images are still in the list.
           message = isValid ? 'Images uploaded' : 'Please upload at least one image';
           break;
 
@@ -210,7 +212,7 @@
 
     static validateAllFields() {
       const validations = [
-        { field: null, value: AppState.selectedFiles.files.length, name: 'images' },
+        { field: null, value: ImageHandler.getCount(), name: 'images' },
         { field: elements.itemName, value: elements.itemName.value, name: 'itemName' },
         { field: elements.itemDescription, value: elements.itemDescription.value, name: 'description' },
         { field: null, value: null, name: 'frequency' }
@@ -265,7 +267,7 @@
       });
 
       const requiredFields = [
-        { name: 'images', isComplete: AppState.selectedFiles.files.length > 0 },
+        { name: 'images', isComplete: ImageHandler.getCount() > 0 },
         { name: 'itemName', isComplete: elements.itemName.value.trim().length > 0 },
         { name: 'description', isComplete: elements.itemDescription.value.trim().length > 0 },
         { name: 'frequency', isComplete: hasCompleteTask }
@@ -295,13 +297,101 @@
     }
   }
 
-  /* ==================== IMAGE HANDLER ==================== */
-
-  class ImageHandler {
-    static MAX_IMAGES = 5;
-
+    /* ==================== IMAGE HANDLER ==================== */
+    // Used to reference an image and make previews from them.
+    class ImageRef {
+		constructor(local, index){
+		    // Check bounds on array.
+		    if(index < 0 || (local && index >= AppState.selectedFiles.files.length) || (!local && index >= AppState.originalImgList.length)) throw new Error("Tried to add out of bounds index " + toString(index));
+		    this._local = local;
+		    this._index = index;
+		}
+		get local(){
+		    return this._local;
+		}
+		get index(){
+		    return this._index;
+		}
+		set index(i){
+		    if(index < 0 || (local && index >= AppState.selectedFiles.files.length) || (!local && index >= AppState.originalImgList.length)) throw new Error("Tried to add out of bounds index " + toString(index));
+		    this._index = index;
+		}
+		get value(){
+		    return (this._local) ? AppState.selectedFiles.files[this._index] : AppState.originalImgList[this._index];
+		}
+		card = function(){
+		    let file = this.value;
+		    let index = elements.imagePreview.childElementCount;
+		    if (file instanceof Request){
+				ImageHandler.createPreviewItem(file.url, index);
+				return;
+		    }
+	        if (file.type.startsWith('image/')) {
+				ImageHandler.createLoadingPlaceholder(index);
+				const reader = new FileReader();
+				reader.onload = (e) => ImageHandler.createPreviewItem(e.target.result, index);
+				reader.onerror = () => {
+				    console.error('Error reading file:', file.name);
+				    Utils.showToast(`Failed to load image: ${file.name}`, 'danger');
+				};
+				reader.readAsDataURL(file);
+	        }
+		}
+    };
+    class ImageList{
+	constructor(){
+	    this._images = new Array();
+	}
+	// Adds a reference to the appropriate array and index.
+	addImage = function(what) {
+	    if(this._images.length >= 5){
+		return false;
+	    }
+	    if(what instanceof Request){
+		let where = AppState.originalImgList.findIndex(req => req.url === what.url);
+		if (where == -1) throw Error("Couldn't find the remote request in the AppState.originalImgList array.");
+		this._images.push(new ImageRef(false, where));
+	    }
+	    else if(what instanceof File){
+		let where = -1;
+		for(let i = 0; i < AppState.selectedFiles.files.length; i++){
+			if(AppState.selectedFiles.files.item(i).name === what.name){
+				where = i;
+				break;
+			}
+		}
+		if (where == -1) throw Error("Couldn't find the remote request in the AppState.originalImgList array.");
+		this._images.push(new ImageRef(true, where));
+	    }
+	}
+	removeImage = function(where){
+		if(where >= this.length){
+			throw Exception("Tried to access image out of range!");
+		}
+		let val = this._images[where];
+		this._images.splice(where, 1);
+		if(val instanceof File){
+			// Get all other file references looking after it, reduce their indexes by 1.
+			this._images.forEach(img => {if (0 < img.index && img.index >= where) img.index--;});
+      		const newDt = new DataTransfer();
+		    Array.from(AppState.selectedFiles.files).forEach((file, i) => {if (i !== index) newDt.items.add(file);});
+    		AppState.selectedFiles = newDt;
+	        elements.imageInput.files = newDt.files;
+		}
+      ImageHandler.renderPreviews();
+	}
+	get items(){ return Array.from(this._images);}
+	get length(){ return this._images.length;}
+    };
+    class ImageHandler {
+	
+	static images = new ImageList();
+	static MAX_IMAGES = 5;
+	static getCount() {
+		return this.images.length;
+	}
     static updateCounter() {
-      const count = AppState.selectedFiles.files.length;
+	const count = this.getCount();
 
       if (count > 0) {
         elements.imageCounter.classList.remove('d-none');
@@ -325,26 +415,15 @@
       elements.imagePreview.innerHTML = '';
       elements.imageAlert.classList.add('d-none');
 
-      const files = Array.from(AppState.selectedFiles.files);
+      const files = this.images.items;
 
       if (files.length > this.MAX_IMAGES) {
         elements.imageAlert.classList.remove('d-none');
       }
 
       this.updateCounter();
-
-      files.slice(0, this.MAX_IMAGES).forEach((file, index) => {
-        if (file.type.startsWith('image/')) {
-          this.createLoadingPlaceholder(index);
-
-          const reader = new FileReader();
-          reader.onload = (e) => this.createPreviewItem(e.target.result, index);
-          reader.onerror = () => {
-            console.error('Error reading file:', file.name);
-            Utils.showToast(`Failed to load image: ${file.name}`, 'danger');
-          };
-          reader.readAsDataURL(file);
-        }
+      files.slice(0, this.MAX_IMAGES).forEach((img, index) => {
+			img.card();
       });
     }
 
@@ -394,19 +473,31 @@
     }
 
     static removeImage(index) {
-      const newDt = new DataTransfer();
-      Array.from(AppState.selectedFiles.files).forEach((file, i) => {
-        if (i !== index) {
-          newDt.items.add(file);
-        }
-      });
-      AppState.selectedFiles = newDt;
-      elements.imageInput.files = newDt.files;
-      this.renderPreviews();
-
+	  this.images.removeImage(index);
       Utils.showToast('Image removed', 'info');
     }
-
+      static handleRemotes(urls) {
+	  urls.forEach((path, index) => {
+	    let urlreq = new Request(path);
+	      //url = urlreq.url;
+	  	AppState.originalImgList.push(urlreq);
+	    this.images.addImage(urlreq);;
+	    this.renderPreviews();
+	});
+    }
+	// Returns a list of removed indexes.
+	static getRemovedRemotes() {
+		let removed = []
+		let remotes = this.images.items.filter(item => !item.local);
+		console.log(remotes);
+		console.log(AppState.originalImgList);
+		for(let i = 0; i < AppState.originalImgList.length; i++){
+			let url = AppState.originalImgList[i].url;
+			let results = remotes.filter(item => item.value.url == url);
+			if (results.length == 0) removed.push(i);
+		}
+		return removed;
+	}
     static handleFiles(files) {
       const validFiles = Array.from(files).filter(file => {
         if (!file.type.startsWith('image/')) {
@@ -427,7 +518,7 @@
         return;
       }
 
-      const currentCount = AppState.selectedFiles.files.length;
+      const currentCount = this.getCount();
       const totalCount = currentCount + validFiles.length;
 
       if (totalCount > this.MAX_IMAGES) {
@@ -442,6 +533,7 @@
 
       validFiles.forEach(file => {
         AppState.selectedFiles.items.add(file);
+		this.images.addImage(file);
       });
 
       elements.imageInput.files = AppState.selectedFiles.files;
@@ -519,7 +611,7 @@
       return;
     }
 
-    if (AppState.selectedFiles.files.length === 0) {
+    if (ImageHandler.getCount() === 0) {
       Utils.showToast('Please upload at least one image.', 'danger');
       Utils.scrollToElement(elements.dropZone);
       return;
@@ -531,7 +623,9 @@
     elements.submitBtn.disabled = true;
     elements.submitText.classList.add('d-none');
     elements.submitSpinner.classList.remove('d-none');
-
+	// If we are editing, set url and method accordingly.
+	const METHOD = (AppState.remoteId === null) ? "POST" : "PUT";
+	const ENDPOINT = API.items + ((AppState.remoteId === null) ? "" : "/" + AppState.remoteId);
     try {
       // Backend expects JSON format matching ItemCreateRequest
       const tasksData = TaskDataCollector.getAllTasks();
@@ -546,9 +640,8 @@
         Description: elements.itemDescription.value,
         Properties: properties
       };
-	
-      const response = await fetch(API.items, {
-        method: 'POST',
+      const response = await fetch(ENDPOINT, {
+        method: METHOD,
         headers: {
           'Content-Type': 'application/json'
         },
@@ -583,13 +676,26 @@
         const errorData = await imageResponse.json().catch(() => ({}));
         throw new Error(errorData.message || `Server error: ${imageResponse.status}`);
       }
+	  if(AppState.remoteId !== null){
+	  // Remove all images no longer included.
+	  let removed = ImageHandler.getRemovedRemotes();
+	  if (Array.isArray(removed)){ 
+		console.log(removed);
+		for(let pos = 0; pos < removed.length; pos++){
+		let index = removed[pos];
+		let rem_req = new Request([API.items,AppState.remoteId,"images",index.toString()].join("/"), { method: "DELETE", credentials: "include"});
+		let rem_res = await fetch(rem_req);
+		if (!rem_res.ok) throw Error("Failed to remove image " + index.toString());
+		console.log("Removed image " + toString(index));
+		}
+	  }
+	  }
       elements.successAnimation.classList.add('show');
 
       setTimeout(() => {
         elements.successAnimation.classList.remove('show');
         window.location.href = '/user_login/dashboard/dashboard.html';
       }, 2000);
-
     } catch (error) {
       console.error('Form submission error:', error);
       Utils.showToast('Failed to submit form: ' + error.message, 'danger');
@@ -672,6 +778,7 @@
   }
     
     async function initEditItem(itemId) {
+	AppState.remoteId = itemId;
 	const item_req = new Request([API.items,itemId].join("/"), {method: 'get', credentials: 'include'});
 	const item_res = await fetch(item_req);
 	if(!item_res.ok){
@@ -713,10 +820,28 @@
 		const tools = document.getElementById(`taskTools_${taskId}`);
 		tools.value = i.tools;
             // Update progress
-            updateProgress();
+		updateProgress();
+		// Get images.
             }
 	);
 	}
+	const img_req = new Request([API.items,itemId,"images"].join("/"), {method: 'get', credentials: 'include'});
+	const img_res = await fetch(img_req);
+	if(!item_res.ok){
+	    console.log("Failed to get item with status" + toString(item_res.status));
+	    return;
+	}
+	const img_obj = await img_res.json();
+	const img_list = img_obj.images;
+	if(Array.isArray(img_list)){
+		 //AppState.originalImgList = img_list;
+		 ImageHandler.handleRemotes(img_list);
+	}
+	/* Pushing images:
+	   i) Post images not already on server.
+	   ii) Put the image order to the server, moving deleted images to the end.
+	   iii) Remove images from the end until we reach the correct count.
+	 */
     }
   function initAddItem() {
       // Check if an item id was passed in the query. If so, get that item's information and populate the form.

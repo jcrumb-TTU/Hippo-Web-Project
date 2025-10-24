@@ -65,7 +65,9 @@ public sealed class ItemImageService : IItemImageService{
 	int index = imgs.Order[pos];
 	imgs.Images.RemoveAt(index);
 	imgs.Order.RemoveAt(pos);
-	imgs.Order.ForEach(p => {if (p >= index) p = --p;});
+	for(int i = 0; i < imgs.Order.Count; i++){
+	    if(imgs.Order[i] >= index) imgs.Order[i] = imgs.Order[i] - 1;
+	}
 	await _images.ReplaceOneAsync(i => i.Id == item_id, imgs);
 	return 201;
     }
@@ -84,6 +86,11 @@ public sealed class ItemImageService : IItemImageService{
     {
         return await _images.Find(i => i.Id == id)
                           .FirstOrDefaultAsync();
+    }
+    // Get an array of images ids in the specified order.
+    public async Task<int> GetImageCountAsync(string item_id){
+	ItemImageSet? imgs = await GetByItemId(item_id);
+	return (imgs is null) ? 0 : imgs.Images.Count;
     }
 }
 

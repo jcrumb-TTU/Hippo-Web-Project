@@ -64,8 +64,8 @@ public class ItemEndpoints{
             .WithSummary("Get all items owned by the authenticated user")
             .Produces(200)
             .Produces(401);
-
         // GET /api/items: Get all items available to borrow (from other users)
+    /*
         app.MapGet("/api/items", async (HttpContext ctx, IItemService items) =>
         {
             var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -79,7 +79,7 @@ public class ItemEndpoints{
             .WithSummary("Get all items available to borrow from other users")
             .Produces(200)
             .Produces(401);
-
+    */
         // POST /api/items: Adds a new item for the active user.
         app.MapPost("/api/items", async (ItemCreateRequest item, HttpContext ctx, IUserService users, IItemService items) =>
         {
@@ -110,30 +110,20 @@ public class ItemEndpoints{
             }).Produces(200) // Here is the item!
             .Produces(400) // Bad request.
             .Produces(404); // Item not found.
-        /*
-        app.MapPut("/api/items/{id}", async (string id, ItemUpdateRequest inf, HttpContext ctx, IMongoClient client, IUserService users, IItemService items) => {
-            var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            int res;
-            using (var session = await client.StartSessionAsync()){
-            session.StartTransaction();
-            try{
-                res = await items.UpdateAsync(id, userId, inf.Name, inf.Description, inf.Properties);
-            }
-            catch {
-                await session.AbortTransactionAsync();
-                throw;
-            }
-            await session.CommitTransactionAsync();
-            }
-            return Results.StatusCode(res);
-        }).RequireAuthorization()
+	app.MapPut("/api/items/{id}", async (string id, ItemUpdateRequest inf, HttpContext ctx, IItemService items) => {
+	    if(string.IsNullOrWhiteSpace(id)) return Results.BadRequest(new {message = "Item id field is missing or empty!"});
+	    var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+	    if(string.IsNullOrWhiteSpace(userId)) return Results.Unauthorized();
+	    int status = await items.UpdateAsync(id, userId, inf.Name, inf.Description, inf.Properties);
+	    if(status == 404) return Results.NotFound(new {message = $"Item {id} not found!"});
+	    return Results.Json(new ItemCreateResponse(id), wd, "application/json", status);
+        }).RequireAuthorization("ItemOwner")
             .WithSummary("Update the item @ {id}")
             .Produces(201)
             .Produces(400) // Bad request (either the id or info was invalid).
             .Produces(401) // Unauthenticated
             .Produces(403) // Editing an item that isn't yours.
             .Produces(404); // Item not found.
-	*/
         //Example ID: 43f777b61c7e442595b744a59e2399e7
         return app;
     }

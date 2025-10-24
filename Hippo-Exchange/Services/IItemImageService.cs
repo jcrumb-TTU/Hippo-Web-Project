@@ -18,4 +18,8 @@ public interface IItemImageService{
     Task<ItemImageSet?> GetByItemId(string id);
     // Get an image from a set using an item id and index. Return the image id.
     Task<string?> GetImageAsync(string item_id, int pos);
+    // Get the number of images belonging to an item.
+    Task<int> GetImageCountAsync(string item_id);
+    // Get an array of images ids in the specified order.
+    // Task<string[]> GetImageListAsync(string item_id, out int status);
 }

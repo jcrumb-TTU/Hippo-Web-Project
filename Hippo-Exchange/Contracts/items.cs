@@ -39,3 +39,4 @@ public sealed record ItemUpdateRequest(
     string? Description,
     Dictionary<string, string>? Properties
 );
+

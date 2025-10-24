@@ -86,7 +86,7 @@ public sealed class ItemService : IItemService
             Builders<Item>.Update.Combine(updateDefs));
 	if(result.MatchedCount > 0 && result.ModifiedCount > 0)
 	    return 201;
-        else if (result.MatchedCount > 0)
+        else if (result.MatchedCount > 0) // Occurs if match was found but all values remained the same.
 	    return 200;
 	else
 	    return 404;
