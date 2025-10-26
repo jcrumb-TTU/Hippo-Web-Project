@@ -679,7 +679,9 @@
 	  if(AppState.remoteId !== null){
 	  // Remove all images no longer included.
 	  let removed = ImageHandler.getRemovedRemotes();
-	  if (Array.isArray(removed)){ 
+	  if (Array.isArray(removed)){
+		// Sort array descending.
+		removed.sort().reverse();
 		console.log(removed);
 		for(let pos = 0; pos < removed.length; pos++){
 		let index = removed[pos];
