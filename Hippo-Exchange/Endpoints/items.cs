@@ -1,4 +1,7 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
+
+
 using Hippo_Exchange.Contracts;
 using Hippo_Exchange.Models;
 using Hippo_Exchange.Services;
@@ -65,21 +68,18 @@ public class ItemEndpoints{
             .Produces(200)
             .Produces(401);
         // GET /api/items: Get all items available to borrow (from other users)
-    /*
-        app.MapGet("/api/items", async (HttpContext ctx, IItemService items) =>
+    app.MapGet("/api/items", async ([FromQuery(Name = "search")] string query, HttpContext ctx, IItemService items, IItemImageService images) =>
         {
+	    Console.WriteLine($"Searching for {query}.");
             var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
-
             // For now, return empty array since we don't have a way to get items from other users
             // TODO: Implement GetAllAvailableAsync method in ItemService
-            var emptyList = new List<object>();
-            return Results.Json(emptyList, wd, "application/json", 200);
+            var results = await items.GetAllAvailableAsync(userId, query);
+	    var responseItems = results.Select(item => mapResponseObject(item,images)).ToList();
+            return Results.Json(responseItems, wd, "application/json", 200);
         }).RequireAuthorization()
-            .WithSummary("Get all items available to borrow from other users")
-            .Produces(200)
-            .Produces(401);
-    */
+        .WithSummary("Get all items available to borrow from other users")
+	.Produces(200);
         // POST /api/items: Adds a new item for the active user.
         app.MapPost("/api/items", async (ItemCreateRequest item, HttpContext ctx, IUserService users, IItemService items) =>
         {

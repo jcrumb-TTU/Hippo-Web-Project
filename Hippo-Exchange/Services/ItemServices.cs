@@ -1,6 +1,7 @@
 using Hippo_Exchange.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
-
+using System.Text.RegularExpressions;
 namespace Hippo_Exchange.Services;
 
 public interface IItemService
@@ -10,6 +11,7 @@ public interface IItemService
     // Get an Item based on the item id.
     Task<Item?> GetById(string id);
     Task<Item?> GetByIdForOwnerAsync(string id, string ownerUserId);
+    Task<List<Item>> GetAllAvailableAsync(string? userId, string? query);
     // Return status with an integer.
     Task<int> UpdateAsync(string id, string? ownerUserId, string? name, string? description, Dictionary<string, string>? properties);
     Task<int> DeleteAsync(string id, string ownerUserId);
@@ -31,7 +33,52 @@ public sealed class ItemService : IItemService
         var keys = Builders<Item>.IndexKeys.Ascending(i => i.OwnerUserId).Ascending(i => i.Id);
         await _items.Indexes.CreateOneAsync(new CreateIndexModel<Item>(keys));
     }
-
+    // Gets all items owned by <ownerUserId>
+    public async Task<List<Item>> GetForOwnerAsync(string ownerUserId)
+    {
+        return await _items.Find(i => i.OwnerUserId == ownerUserId)
+                          .SortByDescending(i => i.UpdatedAtUtc)
+                          .ToListAsync();
+    }
+    // Gets the item <id> owned by <ownerUserId>.
+    public async Task<Item?> GetByIdForOwnerAsync(string id, string ownerUserId)
+    {
+        return await _items.Find(i => i.Id == id && i.OwnerUserId == ownerUserId)
+                          .FirstOrDefaultAsync();
+    }
+    // Gets the item <id>
+    public async Task<Item?> GetById(string id)
+    {
+        return await _items.Find(i => i.Id == id)
+                          .FirstOrDefaultAsync();
+    }
+    public async Task<List<Item>> GetAllAvailableAsync(string? userId, string? query){
+	if(string.IsNullOrWhiteSpace(query)){
+	    Console.WriteLine("Query was empty or null!");
+	    return new List<Item>();
+	}
+	// Make aggregation pipeline.
+	//var searchPipeline = new EmptyPipelineDefinition<Item>();
+	if(userId is null){
+	    Console.WriteLine("UserID was null.");
+	    userId = "";
+	}
+	// Prepare filter.
+	/*
+	var qregex = @".*" + Regex.Escape(query) + @".*";
+	Console.WriteLine(qregex);
+	RegexOptions options = RegexOptions.IgnoreCase;
+	var regex = new Regex(qregex, options);
+	*/
+	var builder = Builders<Item>.Filter;
+	var filter = builder.And(builder.Ne(i => i.OwnerUserId, userId), builder.Regex(i => i.Name, new BsonRegularExpression(Regex.Escape(query), "i")));
+	//	var qitems = _items.AsQueryable();
+	//var pool = qitems.Where(i => i.ownerUserId != userId);
+	return await _items.Find(filter)
+                          .SortByDescending(i => i.UpdatedAtUtc)
+                          .ToListAsync();
+    }
+    
     public async Task<string> CreateAsync(string ownerUserId, string name, string? description, Dictionary<string, string>? properties)
     {
         var now = DateTime.UtcNow;
@@ -49,23 +96,7 @@ public sealed class ItemService : IItemService
         return item.Id;
     }
 
-    public async Task<List<Item>> GetForOwnerAsync(string ownerUserId)
-    {
-        return await _items.Find(i => i.OwnerUserId == ownerUserId)
-                          .SortByDescending(i => i.UpdatedAtUtc)
-                          .ToListAsync();
-    }
 
-    public async Task<Item?> GetByIdForOwnerAsync(string id, string ownerUserId)
-    {
-        return await _items.Find(i => i.Id == id && i.OwnerUserId == ownerUserId)
-                          .FirstOrDefaultAsync();
-    }
-    public async Task<Item?> GetById(string id)
-    {
-        return await _items.Find(i => i.Id == id)
-                          .FirstOrDefaultAsync();
-    }
     public async Task<int> UpdateAsync
 	(string id, string? ownerUserId, string? name, string? description, Dictionary<string, string>? properties)
     {
@@ -91,7 +122,6 @@ public sealed class ItemService : IItemService
 	else
 	    return 404;
     }
-
     public async Task<int> DeleteAsync(string id, string ownerUserId)
     {
         var result = await _items.DeleteOneAsync(i => i.Id == id && i.OwnerUserId == ownerUserId);

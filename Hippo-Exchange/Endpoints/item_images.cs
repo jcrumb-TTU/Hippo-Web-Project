@@ -67,8 +67,11 @@ public class ItemImageEndpoints{
 	    }
 	    // Parse the resulting list. If it contains an empty string, then something went wrong. Remove ALL files uploaded and return an error.
 	    if(img_ids.Contains("")){
-		// Clear list and return error.
-
+		foreach(string did in img_ids){
+		    // Delete images in background.
+		    _ = RemoveImageAsync(id, did); // Explicitly discards result, removing warning regarding not awaiting.		    
+		}		
+		return Results.BadRequest(new { message = "Invalid image format!" });
 	    }
 	    for(int i = 0; i < img_ids.Count; i++){
 		string iid = img_ids[i];

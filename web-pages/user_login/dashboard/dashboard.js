@@ -7,7 +7,7 @@
     me: '/api/me',
     profile: '/api/user/profile',
     items: '/api/items',
-    userItems: '/api/user/items',
+    userItems: '/api/items/mine',
     lendings: '/api/user/lendings',
     logout: '/api/logout'
   };
@@ -99,12 +99,12 @@
    */
   async function fetchItems() {
     try {
-      const res = await fetch(API.items, { credentials: 'include' });
+      const res = await fetch(`${API.items}?search=''`, { credentials: 'include' });
       if (!res.ok) {
         // Try user items endpoint as fallback
         const userRes = await fetch(API.userItems, { credentials: 'include' });
         if (!userRes.ok) {
-          throw new Error('Failed to fetch items');
+          throw new Error(`Failed to fetch items with status ${userRes.status}.`);
         }
         return await userRes.json();
       }
@@ -148,7 +148,7 @@
     const category = CATEGORIES.find(cat => cat.id === categoryId) || CATEGORIES.find(cat => cat.id === 'other');
 
     // Get first image or use placeholder
-    const imageUrl = item.images && item.images.length > 0 ? item.images[0] : null;
+    const imageUrl = item.img && item.img.length > 0 ? item.img : null;
 
     // Determine status based on lending or available
     const statusIcon = isLending ? 'fa-handshake' : 'fa-circle-check';
@@ -157,10 +157,10 @@
 
     card.innerHTML = `
       <div class="item-image">
-        ${imageUrl ? `<img src="${imageUrl}" alt="${item.itemName || 'Item'}" />` : `<i class="fa-solid ${category.icon}"></i>`}
+        ${imageUrl ? `<img src="${imageUrl}" alt="${item.title || 'Item'}" />` : `<i class="fa-solid ${category.icon}"></i>`}
       </div>
       <div class="item-content">
-        <div class="item-title">${item.itemName || 'Unnamed Item'}</div>
+        <div class="item-title">${item.title || 'Unnamed Item'}</div>
         <div class="item-description">${item.description || 'No description available'}</div>
         <div class="item-meta">
           <span class="item-category">
@@ -303,6 +303,33 @@
   /**
    * Handle search input
    */
+  async function aFetchItems(searchTerm){
+	// Query items endpoint to get results.
+	const qparam = new URLSearchParams();
+	qparam.append('search', searchTerm);
+	const req = new Request(`/api/items?${qparam}`, {method: "GET", credentials: "include"});
+	const res = await fetch(req);
+	if(!res.ok){
+		throw new Error(`Search failed with code ${res.status}`);
+	}
+	const allItems = await res.json();
+	if(!Array.isArray(allItems)){
+		throw new Error(`Search result was not an array! ${allItems}`);
+	}
+	return allItems;
+	/*
+    // Filter available items
+    const filteredAvailableItems = allItems.filter(item => {
+      const itemName = (item.itemName || '').toLowerCase();
+      const description = (item.description || '').toLowerCase();
+      const category = (item.category || '').toLowerCase();
+
+      return itemName.includes(searchTerm) ||
+             description.includes(searchTerm) ||
+             category.includes(searchTerm);
+    });
+	*/
+  }
   function handleSearch() {
     const searchTerm = elements.searchInput.value.toLowerCase().trim();
 
@@ -319,18 +346,11 @@
       renderLendingItems();
       return;
     }
-
-    // Filter available items
-    const filteredAvailableItems = allItems.filter(item => {
-      const itemName = (item.itemName || '').toLowerCase();
-      const description = (item.description || '').toLowerCase();
-      const category = (item.category || '').toLowerCase();
-
-      return itemName.includes(searchTerm) ||
-             description.includes(searchTerm) ||
-             category.includes(searchTerm);
-    });
-
+	// The '.then()' will run in async.
+	let fr = aFetchItems.bind(null, searchTerm);
+	let p = new Promise(r =>setTimeout(r, 0)).then(fr).then((results) => renderItems(results)).catch();
+	//Promise.Resolve(p);
+	/*
     // Filter lending items
     const filteredLendingItems = lendingItems.filter(item => {
       const itemName = (item.itemName || '').toLowerCase();
@@ -341,9 +361,9 @@
              description.includes(searchTerm) ||
              category.includes(searchTerm);
     });
-
-    renderItems(filteredAvailableItems);
-    renderLendingItems(filteredLendingItems);
+	*/
+    //renderItems(filteredAvailableItems);
+    //renderLendingItems(filteredLendingItems);
   }
 
   /**
