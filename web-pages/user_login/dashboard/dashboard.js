@@ -51,7 +51,12 @@
     lendingItemsGrid: document.getElementById('lendingItemsGrid'),
     emptyLendingItemsState: document.getElementById('emptyLendingItemsState')
   };
-
+  // Utility
+  function sanitizeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
   /* ==================== AUTHENTICATION ==================== */
 
   // Run session guard FIRST
@@ -157,19 +162,19 @@
 
     card.innerHTML = `
       <div class="item-image">
-        ${imageUrl ? `<img src="${imageUrl}" alt="${item.title || 'Item'}" />` : `<i class="fa-solid ${category.icon}"></i>`}
+        ${imageUrl ? `<img src="${sanitizeHTML(imageUrl)}" alt="${sanitizeHTML(item.title) || 'Item'}" />` : `<i class="fa-solid ${category.icon}"></i>`}
       </div>
       <div class="item-content">
-        <div class="item-title">${item.title || 'Unnamed Item'}</div>
-        <div class="item-description">${item.description || 'No description available'}</div>
+        <div class="item-title">${sanitizeHTML(item.title) || 'Unnamed Item'}</div>
+        <div class="item-description">${sanitizeHTML(item.description) || 'No description available'}</div>
         <div class="item-meta">
           <span class="item-category">
-            <i class="fa-solid ${category.icon}"></i>
-            ${category.name}
+            <i class="fa-solid ${sanitizeHTML(category.icon)}"></i>
+            ${sanitizeHTML(category.name)}
           </span>
           <span class="item-status" style="color: ${statusColor};">
             <i class="fa-solid ${statusIcon}"></i>
-            ${statusText}
+            ${sanitizeHTML(statusText)}
           </span>
         </div>
       </div>
