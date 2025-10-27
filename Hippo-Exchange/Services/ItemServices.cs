@@ -14,7 +14,7 @@ public interface IItemService
     Task<List<Item>> GetAllAvailableAsync(string? userId, string? query);
     // Return status with an integer.
     Task<int> UpdateAsync(string id, string? ownerUserId, string? name, string? description, Dictionary<string, string>? properties);
-    Task<int> DeleteAsync(string id, string ownerUserId);
+    Task<int> DeleteAsync(string? id, string? ownerUserId);
 }
 
 public sealed class ItemService : IItemService
@@ -106,7 +106,7 @@ public sealed class ItemService : IItemService
 	//if(string.IsNullOrWhiteSpace(ownerUserId)) return 401;
         var updateDefs = new List<UpdateDefinition<Item>>();
         if (!string.IsNullOrWhiteSpace(name)) updateDefs.Add(Builders<Item>.Update.Set(i => i.Name, name));
-        if (description is not null) updateDefs.Add(Builders<Item>.Update.Set(i => i.Description, description));
+        if (!string.IsNullOrWhiteSpace(name)) updateDefs.Add(Builders<Item>.Update.Set(i => i.Description, description));
         if (properties is not null) updateDefs.Add(Builders<Item>.Update.Set(i => i.Properties, properties));
         updateDefs.Add(Builders<Item>.Update.Set(i => i.UpdatedAtUtc, DateTime.UtcNow));
         if (updateDefs.Count == 1) // only UpdatedAtUtc
@@ -122,8 +122,10 @@ public sealed class ItemService : IItemService
 	else
 	    return 404;
     }
-    public async Task<int> DeleteAsync(string id, string ownerUserId)
+    public async Task<int> DeleteAsync(string? id, string? ownerUserId)
     {
+	if(string.IsNullOrWhiteSpace(ownerUserId)) return 401;
+	else if(string.IsNullOrWhiteSpace(id)) return 400;
         var result = await _items.DeleteOneAsync(i => i.Id == id && i.OwnerUserId == ownerUserId);
         if (result.DeletedCount > 0)
 	    return 200;

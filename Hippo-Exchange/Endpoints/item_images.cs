@@ -27,10 +27,11 @@ public class ItemImageEndpoints{
                 await file.CopyToAsync(stream);
 	    return img_guid;
     }
+    /*
     private static void DeleteImageFile(string filePath){
 	    if (System.IO.File.Exists(filePath))
             {
-                try { System.IO.File.Delete(filePath); } catch { /* ignore */ }
+                try { System.IO.File.Delete(filePath); } catch { } //ignore
             }
     }
     private static async Task RemoveImageAsync(string id, string url){
@@ -38,6 +39,7 @@ public class ItemImageEndpoints{
             var filePath = Path.Combine(uploadsDir, id, url + ".png");
 	    await Task.Run(() => DeleteImageFile(filePath));
     }
+    */
     public static Microsoft.AspNetCore.Builder.WebApplication map(Microsoft.AspNetCore.Builder.WebApplication app){
 	JsonSerializerOptions wd = new(JsonSerializerDefaults.Web); // Default settings for json serialization.
 	// Item Images
@@ -69,7 +71,7 @@ public class ItemImageEndpoints{
 	    if(img_ids.Contains("")){
 		foreach(string did in img_ids){
 		    // Delete images in background.
-		    _ = RemoveImageAsync(id, did); // Explicitly discards result, removing warning regarding not awaiting.		    
+		    _ = images.RemoveImageAsync(id, did); // Explicitly discards result, removing warning regarding not awaiting.		    
 		}		
 		return Results.BadRequest(new { message = "Invalid image format!" });
 	    }
@@ -86,7 +88,7 @@ public class ItemImageEndpoints{
 		// Remove all new image files, ignore errors caused by this.
 		foreach(string did in img_ids){
 		    // Delete images in background.
-		    _ = RemoveImageAsync(id, did); // Explicitly discards result, removing warning regarding not awaiting.		    
+		    _ = images.RemoveImageAsync(id, did); // Explicitly discards result, removing warning regarding not awaiting.		    
 		}
 		return Results.Json(new {message = $"Image ${i} could not be added to the database."}, wd, "application/json", res * -1);
 	    }
@@ -212,7 +214,7 @@ public class ItemImageEndpoints{
 	    else if(url == "")
 		return Results.NotFound();
 	    int res = await images.DeleteUrlAsync(id, index);
-	    _ = RemoveImageAsync(id, url); // Discards result, suppressing warning about no await.
+	    _ = images.RemoveImageAsync(id, url); // Discards result, suppressing warning about no await.
             return Results.Ok(new { ok = true });
 	}).RequireAuthorization("ItemOwner")
 	    .WithSummary("Get the image at index.")

@@ -124,6 +124,17 @@ public class ItemEndpoints{
             .Produces(401) // Unauthenticated
             .Produces(403) // Editing an item that isn't yours.
             .Produces(404); // Item not found.
+	app.MapDelete("/api/items/{id}", async (string id, HttpContext ctx, IItemService items) => {
+	    var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+	    return Results.StatusCode(await items.DeleteAsync(id, userId));
+        }).RequireAuthorization("ItemOwner")
+            .WithSummary("Remove the item @ {id}")
+            .Produces(201)
+            .Produces(400) // Bad request (id was invalid/missing).
+            .Produces(401) // Unauthenticated
+            .Produces(403) // Editing an item that isn't yours.
+            .Produces(404); // Item not found.
+
         //Example ID: 43f777b61c7e442595b744a59e2399e7
         return app;
     }

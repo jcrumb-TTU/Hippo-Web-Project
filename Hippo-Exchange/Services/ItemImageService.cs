@@ -92,6 +92,27 @@ public sealed class ItemImageService : IItemImageService{
 	ItemImageSet? imgs = await GetByItemId(item_id);
 	return (imgs is null) ? 0 : imgs.Images.Count;
     }
+    public async Task<int> DeleteImageSetAsync(string item_id){
+	ItemImageSet? imgs = await GetByItemId(item_id);
+	if(imgs is null) return 404;
+	_images.DeleteOne(i => i == imgs);
+	foreach(string img in imgs.Images){
+	    // Delete the images.
+	    _ = RemoveImageAsync(item_id, img);
+	}
+	return 201;
+    }
+    private void DeleteImageFile(string filePath){
+	    if (System.IO.File.Exists(filePath)) try { System.IO.File.Delete(filePath); } catch { /* ignore */ }
+    }
+    public async Task RemoveImageAsync(string id, string url){
+	if(!(string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(url))){
+	var uploadsDir = Path.Combine("/usr/local/share/HippoAPI/uploads/items");
+	var filePath = Path.Combine(uploadsDir, id, url + ".png");
+	await Task.Run(() => DeleteImageFile(filePath));
+	}
+    }
+
 }
 
     

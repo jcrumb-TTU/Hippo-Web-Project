@@ -6,6 +6,12 @@
     { id:3, title:'Camping Tent (4p)', img:'https://placehold.co/600x400?text=Tent', description:'Water-resistant tent for four people.', tags:['camping'], maintenance:{ frequency:'After each use', tasks:['Dry completely before storage','Wash stakes and lines','Patch seams as needed'] } },
     { id:4, title:'Acoustic Guitar', img:'https://placehold.co/600x400?text=Guitar', description:'Acoustic guitar with soft case.', tags:['music','instrument'], maintenance:{ frequency:'Monthly', tasks:['Wipe down body','Check tuning pegs','Change strings as needed'] } },
   ];
+  // Utility
+  function sanitizeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
 
   function el(tag, attrs={}, children=[]){ const e = document.createElement(tag); Object.entries(attrs).forEach(([k,v])=>{ if(k==='class') e.className=v; else if(k==='html') e.innerHTML=v; else e.setAttribute(k,v); }); (Array.isArray(children)?children:[]).forEach(c=>{ if(typeof c==='string') e.appendChild(document.createTextNode(c)); else e.appendChild(c); }); return e; }
 
@@ -13,8 +19,17 @@
     const card = el('article',{ class:'asset-card', tabindex:'0', role:'button', 'aria-expanded':'false', 'data-id':String(item.id) });
     const img = el('img',{ class:'asset-thumb', src:item.img, alt:item.title });
     const body = el('div',{ class:'asset-body' }, [
-      el('div',{ class:'d-flex align-items-center justify-content-between' }, [ el('div',{ class:'asset-title' }, [ item.title ]), el('div',{}, [ el('button',{ class:'btn btn-sm btn-outline-primary edit-btn', onclick:`window.location.href='/user_login/dashboard/postings/add_item/add_item.html?assetId=${item.id}'` }, ['Edit this asset']) ]) ])
-    ]);
+      el('div',{ class:'d-flex align-items-center justify-content-between' },
+		[ el('div',{ class:'asset-title' }, [ item.title ]),
+			el('div',{style:'display: flex;flex-direction: column;padding-left: 0.5em;' }, [
+				el('button',{ class:'btn btn-sm btn-outline-primary edit-btn', onclick:`window.location.href='/user_login/dashboard/postings/add_item/add_item.html?assetId=${item.id}'`}, ['Edit Asset']),
+				//el('button',{ class:'btn btn-sm btn-outline-primary edit-btn', onclick:`window.location.href='/user_login/dashboard/postings/add_item/add_item.html?assetId=${item.id}'`,style:'width:100%'}, ['Edit Asset']),
+				el('button',{ class:'btn btn-sm btn-outline-primary delete-btn', onclick:`deleteItem('${item.id}','${item.title}')`, style:'color: var(--bs-form-invalid-color) !important;border-color: var(--bs-form-invalid-border-color) !important;'}, ['Remove Asset'])
+				//el('button',{ class:'btn btn-sm btn-outline-primary delete-btn', onclick:`deleteItem('${item.id}','${item.title}')`, style:'color: var(--bs-form-invalid-color) !important;border-color: var(--bs-form-invalid-border-color) !important;width:100%;'}, ['Remove Asset'])
+			])
+		])//,
+      //el('div',{ class:'d-flex align-items-center justify-content-between' },[ el('div',{ class:'asset-title' }, [ item.title ]), el('div',{}, [ el('button',{ class:'btn btn-sm btn-outline-primary delete-btn', onclick:`deleteItem('${item.id}')` }, ['Remove Asset']) ]) 
+      ]);
 
     // details now include description and preventative maintenance info
     const maint = item.maintenance || {};
@@ -22,12 +37,14 @@
     const maintDetails = [];
     if(Array.isArray(maint.tasks) && maint.tasks.length){
       maint.tasks.forEach((t, i)=>{
-        const tools = (t.tools && t.tools.length) ? t.tools.join(', ') : (t.requiredTools || '—');
-        const materials = (t.materials && t.materials.length) ? t.materials.join(', ') : (t.requiredMaterials || '—');
-        maintDetails.push(el('div',{ class:'mb-2' }, [ el('strong',{},[ `Task ${i+1}: ` ]), el('div',{ class:'small-muted mt-1' }, [ t.description || '—' ]), el('div',{ class:'small-muted mt-1' }, [ `Frequency: ${t.frequency || maint.frequency || 'N/A'}` ]), el('div',{ class:'small-muted mt-1' }, [ `Tools: ${tools}` ]), el('div',{ class:'small-muted mt-1' }, [ `Materials: ${materials}` ]) ]));
+        const tools = (t.tools && t.tools.length) ? t.tools : (t.requiredTools || '—');
+        const materials = (t.materials && t.materials.length) ? t.materials : (t.requiredMaterials || '—');
+        const freq = (t.frequency) ? sanitizeHTML(t.frequency) : ((maint.frequency) ? sanitizeHTML(maint.frequency) : 'N/A');
+        maintDetails.push(el('div',{ class:'mb-2' }, [ el('strong',{},[ `Task ${i+1}: ` ]), el('div',{ class:'small-muted mt-1' }, [ t.description || '—' ]), el('div',{ class:'small-muted mt-1' }, [ `Frequency: ${freq}` ]), el('div',{ class:'small-muted mt-1' }, [ `Tools: ${tools}` ]), el('div',{ class:'small-muted mt-1' }, [ `Materials: ${materials}` ]) ]));
       });
     } else {
-      maintDetails.push(el('div',{ class:'mb-2' }, [ el('div',{ class:'small-muted mt-1' }, [ `Frequency: ${maint.frequency || 'N/A'}` ]) ]));
+      const freq = (maint.frequency) ? sanitizeHTML(maint.frequency) : 'N/A';
+      maintDetails.push(el('div',{ class:'mb-2' }, [ el('div',{ class:'small-muted mt-1' }, [ `Frequency: ${freq}` ]) ]));
     }
 
     const details = el('div',{ class:'asset-details' }, [
@@ -74,7 +91,8 @@
       const r = await fetch('/api/items/mine', { credentials:'include' });
       if(r.ok){
         const items = await r.json();
-        if(Array.isArray(items) && items.length){
+		// Allow for no items.
+        if(Array.isArray(items) && items.length >= 0){
           items.forEach(it => target.appendChild(makeCard(it)));
           return;
         }

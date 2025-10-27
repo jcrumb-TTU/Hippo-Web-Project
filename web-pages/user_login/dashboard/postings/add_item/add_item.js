@@ -40,6 +40,7 @@
     validationSummary: document.getElementById('validationSummary'),
     validationList: document.getElementById('validationList'),
     successAnimation: document.getElementById('successAnimation'),
+    editSuccessAnimation: document.getElementById('editSuccessAnimation'),
     imagesFeedback: document.getElementById('imagesFeedback'),
     itemNameFeedback: document.getElementById('itemNameFeedback'),
     descriptionFeedback: document.getElementById('descriptionFeedback'),
@@ -692,10 +693,11 @@
 		}
 	  }
 	  }
-      elements.successAnimation.classList.add('show');
+	  const animation = (AppState.remoteId !== null) ? elements.editSuccessAnimation : elements.successAnimation;
+      animation.classList.add('show');
 
       setTimeout(() => {
-        elements.successAnimation.classList.remove('show');
+        animation.classList.remove('show');
         window.location.href = '/user_login/dashboard/dashboard.html';
       }, 2000);
     } catch (error) {

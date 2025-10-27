@@ -21,5 +21,8 @@ public interface IItemImageService{
     // Get the number of images belonging to an item.
     Task<int> GetImageCountAsync(string item_id);
     // Get an array of images ids in the specified order.
+    Task<int> DeleteImageSetAsync(string item_id);
+    // Delete the images.
+    Task RemoveImageAsync(string id, string url);
     // Task<string[]> GetImageListAsync(string item_id, out int status);
 }
